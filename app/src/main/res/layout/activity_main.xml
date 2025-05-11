@@ -1,0 +1,657 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/main_frame_layout"
+    android:background="@android:color/white">
+
+    <!-- 기존 스크롤뷰와 하단 네비게이션을 포함하는 LinearLayout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true"
+            android:contentDescription="메인 콘텐츠 스크롤 영역"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#cccccc"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+
+                <View
+                    android:id="@+id/orange_background_view"
+                    android:layout_width="0dp"
+                    android:layout_height="220dp"
+                    android:background="@color/orange"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:elevation="0dp"/>
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="270dp"
+                    android:layout_height="45dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="96dp"
+                    android:gravity="top"
+                    android:lineSpacingExtra="-2sp"
+                    android:text="@string/title"
+                    android:textAppearance="@style/title"
+                    android:textColor="@android:color/black"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <LinearLayout
+                    android:id="@+id/white_content_area"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="@drawable/rounded_top_white_background"
+                    android:layout_marginTop="150dp"
+                    android:clipChildren="false"
+                    android:paddingTop="24dp"
+                    android:paddingBottom="16dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:elevation="15dp">
+
+                    <!-- 상단 이미지 버튼 위 1번 ( 음식 종류 ) -->
+                    <LinearLayout
+                        android:id="@+id/button_row_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp">
+
+                        <LinearLayout
+                            android:id="@+id/category_button_hansik_1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackgroundBorderless">
+                            <ImageView
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@android:drawable/ic_menu_save"
+                                android:contentDescription="한식 카테고리"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="한식"
+                                android:textSize="12sp"
+                                android:textColor="#333333"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/category_button_jungsik_1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackgroundBorderless">
+                            <ImageView
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@android:drawable/ic_menu_save"
+                                android:contentDescription="중식 카테고리"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="중식"
+                                android:textSize="12sp"
+                                android:textColor="#333333"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/category_button_ilsik_1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackgroundBorderless">
+                            <ImageView
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@android:drawable/ic_menu_save"
+                                android:contentDescription="일식 카테고리"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="일식"
+                                android:textSize="12sp"
+                                android:textColor="#333333"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/category_button_hansik_2"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackgroundBorderless">
+                            <ImageView
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@android:drawable/ic_menu_save"
+                                android:contentDescription="한식 카테고리"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="한식"
+                                android:textSize="12sp"
+                                android:textColor="#333333"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/category_button_hansik_3"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackgroundBorderless">
+                            <ImageView
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@android:drawable/ic_menu_save"
+                                android:contentDescription="한식 카테고리"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="한식"
+                                android:textSize="12sp"
+                                android:textColor="#333333"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/button_row_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp">
+
+                        <LinearLayout
+                            android:id="@+id/category_button_hansik_4"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackgroundBorderless">
+                            <ImageView
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@android:drawable/ic_menu_save"
+                                android:contentDescription="한식 카테고리"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="한식"
+                                android:textSize="12sp"
+                                android:textColor="#333333"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/category_button_jungsik_2"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackgroundBorderless">
+                            <ImageView
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@android:drawable/ic_menu_save"
+                                android:contentDescription="중식 카테고리"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="중식"
+                                android:textSize="12sp"
+                                android:textColor="#333333"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/category_button_ilsik_2"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackgroundBorderless">
+                            <ImageView
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@android:drawable/ic_menu_save"
+                                android:contentDescription="일식 카테고리"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="일식"
+                                android:textSize="12sp"
+                                android:textColor="#333333"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/category_button_hansik_5"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackgroundBorderless">
+                            <ImageView
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@android:drawable/ic_menu_save"
+                                android:contentDescription="한식 카테고리"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="한식"
+                                android:textSize="12sp"
+                                android:textColor="#333333"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/category_button_more"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:gravity="center_horizontal"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?attr/selectableItemBackgroundBorderless">
+                            <ImageView
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@android:drawable/ic_menu_save"
+                                android:contentDescription="더보기"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="더보기"
+                                android:textSize="12sp"
+                                android:textColor="#333333"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/title1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:gravity="top"
+                        android:lineSpacingExtra="-2sp"
+                        android:text="@string/title1"
+                        android:textAppearance="@style/title1"
+                        android:textColor="@android:color/black"
+                        app:layout_constraintStart_toStartOf="@+id/orange_background_view"
+                        app:layout_constraintTop_toTopOf="@+id/orange_background_view" />
+
+                    <TextView
+                        android:id="@+id/title1_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:gravity="top"
+                        android:lineSpacingExtra="-2sp"
+                        android:text="@string/title1_1"
+                        android:textAppearance="@style/title1_1"
+                        android:textColor="@android:color/darker_gray"/>
+
+                    <HorizontalScrollView
+                        android:id="@+id/scroll_view_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:scrollbars="none"
+                        android:clipToPadding="false"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
+
+                        <LinearLayout
+                            android:id="@+id/hot_cook_container"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+
+                                <include
+                                    android:id="@+id/hot_cook_1"
+                                    layout="@layout/cook_card_01" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <include layout="@layout/cook_card_01"
+                                    android:id="@+id/hot_cook_2"/>
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <include layout="@layout/cook_card_01"
+                                    android:id="@+id/hot_cook_3"/>
+                            </FrameLayout>
+
+                        </LinearLayout>
+                    </HorizontalScrollView>
+
+                    <TextView
+                        android:id="@+id/title2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="20dp"
+                        android:gravity="top"
+                        android:lineSpacingExtra="-2sp"
+                        android:text="@string/title2"
+                        android:textAppearance="@style/title1"
+                        android:textColor="@android:color/black"/>
+
+                    <TextView
+                        android:id="@+id/title2_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:gravity="top"
+                        android:lineSpacingExtra="-2sp"
+                        android:text="@string/title2_1"
+                        android:textAppearance="@style/title1_1"
+                        android:textColor="@android:color/darker_gray"/>
+
+                    <HorizontalScrollView
+                        android:id="@+id/scroll_view2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:scrollbars="none"
+                        android:clipToPadding="false"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
+
+                        <LinearLayout
+                            android:id="@+id/pick_cook"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <include layout="@layout/cook_card_02"
+                                    android:id="@+id/pick_cook_1"/>
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <include layout="@layout/cook_card_02"
+                                    android:id="@+id/pick_cook_2"/>
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <include layout="@layout/cook_card_02"
+                                    android:id="@+id/pick_cook_3"/>
+                            </FrameLayout>
+
+                        </LinearLayout>
+                    </HorizontalScrollView>
+
+                    <TextView
+                        android:id="@+id/title3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="20dp"
+                        android:gravity="top"
+                        android:lineSpacingExtra="-2sp"
+                        android:text="@string/title3"
+                        android:textAppearance="@style/title1"
+                        android:textColor="@android:color/black" />
+
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/cook_tips_view_pager"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        tools:layout="@layout/cook_tip_01"
+                        android:clipToPadding="false"
+                        android:clipChildren="false"/>
+
+                    <TextView
+                        android:id="@+id/title4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="20dp"
+                        android:gravity="top"
+                        android:lineSpacingExtra="-2sp"
+                        android:text="@string/title4"
+                        android:textAppearance="@style/title1"
+                        android:textColor="@android:color/black" />
+
+                    <TextView
+                        android:id="@+id/title4_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:gravity="top"
+                        android:lineSpacingExtra="-2sp"
+                        android:text="@string/title4_1"
+                        android:textAppearance="@style/title1_1"
+                        android:textColor="@android:color/darker_gray"/>
+
+                    <HorizontalScrollView
+                        android:id="@+id/scroll_view3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:scrollbars="none"
+                        android:clipToPadding="false"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
+
+                        <LinearLayout
+                            android:id="@+id/n_cook"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <include layout="@layout/cook_card_02"
+                                    android:id="@+id/n_cook_1"/>
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <include layout="@layout/cook_card_02"
+                                    android:id="@+id/n_cook_2"/>
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content">
+                                <include layout="@layout/cook_card_02"
+                                    android:id="@+id/n_cook_3"/>
+                            </FrameLayout>
+
+                        </LinearLayout>
+                    </HorizontalScrollView>
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="15dp"
+            android:background="@android:color/white">
+
+            <ImageButton
+                android:id="@+id/nav_item_1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@android:drawable/ic_menu_call"
+                app:tint="#FF404040"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Home"/>
+            <ImageButton
+                android:id="@+id/nav_item_2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@android:drawable/ic_menu_compass"
+                app:tint="#FF404040"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Discover"/>
+            <ImageButton
+                android:id="@+id/nav_item_3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@android:drawable/ic_input_add"
+                app:tint="#FF404040"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Add"/>
+            <ImageButton
+                android:id="@+id/nav_item_4"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@android:drawable/ic_menu_save"
+                app:tint="#FF404040"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Saved"/>
+            <ImageButton
+                android:id="@+id/nav_item_5"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@android:drawable/ic_menu_preferences"
+                app:tint="#FF404040"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Profile"/>
+        </LinearLayout >
+    </LinearLayout>
+
+    <!-- 오른쪽 상단 고정 버튼들 -->
+    <ImageButton
+        android:id="@+id/fixed_notification_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/circle_white_background"
+        android:src="@drawable/ic_notification"
+        android:contentDescription="알림"
+        android:padding="8dp"
+        android:scaleType="fitCenter"
+        app:tint="@android:color/black"
+        android:elevation="4dp"/>
+
+    <ImageButton
+        android:id="@+id/fixed_search_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="64dp"
+        android:background="@drawable/circle_white_background"
+        android:src="@drawable/ic_search"
+        android:contentDescription="검색"
+        android:padding="8dp"
+        android:scaleType="fitCenter"
+        app:tint="@android:color/black"
+        android:elevation="4dp"/>
+
+</FrameLayout>
