@@ -43,7 +43,7 @@
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
                     tools:srcCompat="@tools:sample/backgrounds/scenic[1]"
-                    android:background="@drawable/rounded_gray_background"
+                    android:background="@drawable/main_rounded_gray_background"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -54,7 +54,7 @@
                     android:id="@+id/gradient_overlay"
                     android:layout_width="0dp"
                     android:layout_height="80dp"
-                    android:background="@drawable/gradient_bottom_shadow"
+                    android:background="@drawable/cooktip_gradient_bottom_shadow"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent" />

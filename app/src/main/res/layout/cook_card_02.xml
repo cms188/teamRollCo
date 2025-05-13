@@ -31,7 +31,7 @@
                 android:id="@+id/recipe_image_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/rounded_gray_background"
+                android:background="@drawable/main_rounded_gray_background"
                 android:clickable="true"
                 android:contentDescription="@string/cook_image"
                 android:focusable="true"
@@ -142,7 +142,7 @@
                 android:id="@+id/author_profile_image"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:background="@drawable/circle_gray_background"
+                android:background="@drawable/main_circle_gray_background"
                 android:contentDescription="@string/profile_image"
                 android:layout_marginEnd="6dp"
                 tools:srcCompat="@tools:sample/avatars"/>

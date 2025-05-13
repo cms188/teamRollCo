@@ -37,7 +37,7 @@
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackground"
                 tools:srcCompat="@tools:sample/backgrounds/scenic"
-                android:background="@drawable/rounded_gray_background"/>
+                android:background="@drawable/main_rounded_gray_background"/>
         </androidx.cardview.widget.CardView>
 
         <ImageButton
@@ -142,7 +142,7 @@
                 android:id="@+id/author_profile_image"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:background="@drawable/circle_gray_background"
+                android:background="@drawable/main_circle_gray_background"
                 android:contentDescription="@string/profile_image"
                 android:layout_marginEnd="6dp"
                 tools:srcCompat="@tools:sample/avatars"/>
