@@ -1,0 +1,29 @@
+ {
+  "project_info": {
+    "project_number": "234626025407",
+    "project_id": "androidfirebaseyuhan",
+    "storage_bucket": "androidfirebaseyuhan.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:234626025407:android:b569065c8ad85b4774c30a",
+        "android_client_info": {
+          "package_name": "com.example.test_2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4B_VGJZcdoX5cOJoXEvWLskynG_AwQgs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
