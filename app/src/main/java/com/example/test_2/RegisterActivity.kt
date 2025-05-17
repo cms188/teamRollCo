@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -24,24 +25,61 @@ class RegisterActivity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
 
         val registerButton: Button = findViewById(R.id.btnRegister2) //회원가입 버튼 객체 생성
+        val backButton: ImageView = findViewById(R.id.iv_back_button_register) //뒤로가기 버튼 객체 생성
 
         registerButton.setOnClickListener { // 눌렀을 때 registerUser 함수를 쓸 것이다!
             registerUser()
         }
+
+        backButton.setOnClickListener {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun registerUser() { //xml에 있는 id의 이름을 가져와서 객체로 생성
-        val password = findViewById<EditText>(R.id.editPassword).text.toString()
-        val password2 = findViewById<EditText>(R.id.editPassword2).text.toString() //비밀번호 재입력
-        val email = findViewById<EditText>(R.id.editEmail).text.toString()
-        val nickname = findViewById<EditText>(R.id.editNickName).text.toString()
+        val password = findViewById<EditText>(R.id.editPassword)
+        val password2 = findViewById<EditText>(R.id.editPassword2)
+        val email = findViewById<EditText>(R.id.editEmail)
+        val nickname = findViewById<EditText>(R.id.editNickName)
 
-        if (password != password2) {
-            Toast.makeText(this, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
+        val email_trim = email.text.toString().trim() // .trim() 추가하여 앞뒤 공백 제거
+        val password_trim = password.text.toString().trim() // .trim() 추가
+        val password2_trim = password2.text.toString().trim() // .trim() 추가
+        val nickname_trim = nickname.text.toString().trim() // .trim() 추가
+
+        // --- 중요: 입력값 유효성 검사 ---
+        if (email_trim.isEmpty()) {
+            Toast.makeText(this, "이메일을 입력해주세요.", Toast.LENGTH_SHORT).show()
+            email.requestFocus()
+            return // 함수 종료
+        }
+
+        else if (password_trim.isEmpty()) {
+            Toast.makeText(this, "비밀번호를 입력해주세요.", Toast.LENGTH_SHORT).show()
+            password.requestFocus() // 포커스를 비밀번호 필드로 이동
+            return // 함수 종료
+        }
+
+        else if (password2_trim.isEmpty()) {
+            Toast.makeText(this, "비밀번호를 재입력해주세요.", Toast.LENGTH_SHORT).show()
+            password2.requestFocus() // 포커스를 비밀번호 필드로 이동
+            return // 함수 종료
+        }
+
+        else if (nickname_trim.isEmpty()) {
+            Toast.makeText(this, "닉네임을 입력해주세요.", Toast.LENGTH_SHORT).show()
+            nickname.requestFocus() // 포커스를 비밀번호 필드로 이동
+            return // 함수 종료
+        }
+        // --- 유효성 검사 끝 ---
+
+        if (password_trim != password2_trim) {
+            Toast.makeText(this, "비밀번호가 일치하지 않습니다. 토스메세지", Toast.LENGTH_SHORT).show()
             return
         }
 
-        checkIfEmailOrNicknameExists(email, nickname) { emailExists, nicknameExists ->
+        checkIfEmailOrNicknameExists(email_trim, nickname_trim) { emailExists, nicknameExists ->
             when {
                 emailExists -> {
                     Toast.makeText(this, "이메일이 이미 존재합니다.", Toast.LENGTH_SHORT).show()
@@ -53,11 +91,11 @@ class RegisterActivity : AppCompatActivity() {
 
                 else -> {
                     // Firebase 인증을 사용하여 이메일과 비밀번호로 사용자 생성
-                    auth.createUserWithEmailAndPassword(email, password)
+                    auth.createUserWithEmailAndPassword(email_trim, password_trim)
                         .addOnCompleteListener(this) { task ->
                             if (task.isSuccessful) {
                                 // Firestore에 사용자 정보 저장
-                                saveUserData(email, nickname)
+                                saveUserData(email_trim, nickname_trim)
 
                                 Toast.makeText(this, "회원가입 성공", Toast.LENGTH_SHORT).show()
                                 navigateToLoginActivity() // 로그인 화면으로 이동
