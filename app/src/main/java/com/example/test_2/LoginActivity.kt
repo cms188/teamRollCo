@@ -27,7 +27,7 @@ class LoginActivity : AppCompatActivity() {
 
         val loginButton: Button = findViewById(R.id.btnLogin)
         val registerButton: TextView = findViewById(R.id.btnRegister)
-        val backButton: ImageView = findViewById(R.id.iv_back_button)
+        val backButton: ImageView = findViewById(R.id.iv_back_button_login)
 
         loginButton.setOnClickListener {
             loginUser()
