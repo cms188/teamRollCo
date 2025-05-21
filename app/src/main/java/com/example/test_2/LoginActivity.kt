@@ -61,7 +61,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         btnVerifyEmail.setOnClickListener {
-            val email = editFindEmail.text.toString()
+            val email = editFindEmail.text.toString().trim()
 
             checkIfEmailExists(email) { exists ->
                 if (exists) {
