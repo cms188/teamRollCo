@@ -10,6 +10,11 @@ import android.widget.ImageView
 // import androidx.cardview.widget.CardView // CardView ID로 찾을 때 필요
 import androidx.viewpager2.widget.ViewPager2 // ViewPager2 import
 import android.content.Intent
+import android.view.ViewGroup.MarginLayoutParams
+import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
@@ -17,7 +22,20 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main) // activity_main.xml 또는 사용 중인 메인 레이아웃 파일
-
+        //https://developer.android.com/develop/ui/views/layout/edge-to-edge?hl=ko#kotlin
+        //동작 모드 또는 버튼 모드에서 시각적 겹침을 방지
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_frame_layout)) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updateLayoutParams<MarginLayoutParams> {
+                leftMargin = insets.left
+                bottomMargin = insets.bottom
+                rightMargin = insets.right
+                //topMargin = insets.top //상단도 마찬가지로 겹침 방지. 꼭 필요한 것은 아님
+            }
+            // Return CONSUMED if you don't want the window insets to keep passing
+            // down to descendant views.
+            WindowInsetsCompat.CONSUMED
+        }
 
         // --- 기존 HorizontalScrollView의 아이템 처리 ---
         // <include> 태그에 직접 ID를 부여한 경우, findViewById는 해당 <include>된 레이아웃의 루트 View를 반환합니다.
@@ -73,28 +91,51 @@ class MainActivity : AppCompatActivity() {
 
         val cookTipAdapter = CookTipAdapter(cookTipItems)
         viewPager.adapter = cookTipAdapter
+        viewPager.offscreenPageLimit = 1 // 현재 페이지 양 옆으로 몇 페이지를 미리 로드할지 설정 (기본값은 1)
 
-        // (선택 사항) ViewPager2 페이지 간 간격 및 다음/이전 페이지 살짝 보이게 하는 효과
-        // 페이지 간 간격을 주려면, cook_tip_01.xml의 루트 레이아웃이나 내부 컨테이너에 margin을 주거나,
-        // ViewPager2의 PageTransformer를 사용하여 복잡한 효과를 줄 수 있습니다.
-        // 가장 간단한 방법은 cook_tip_01.xml 내부의 recipe_image_container에 좌우 마진을 주는 것입니다 (이전 XML 답변에서 제안).
-        // 예: android:layout_marginStart="16dp", android:layout_marginEnd="16dp"
 
-        // viewPager.offscreenPageLimit = 1 // 현재 페이지 양 옆으로 몇 페이지를 미리 로드할지 설정 (기본값은 1)
 
-        val userPageButton = findViewById<ImageButton>(R.id.nav_item_5) //하단 5번째 버튼
-        userPageButton.setOnClickListener {
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            if (currentUser != null) {
-                // 로그인된 사용자라면 UserPageActivity로 이동
-                val intent = Intent(this, UserPageActivity::class.java)
-                startActivity(intent)
-            } else {
-                // 로그인되지 않은 사용자라면 LoginActivity로 이동
-                val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
+        val bottomNavigationView = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation_view)
+        // BottomNavigationView 아이템 선택 리스너 설정
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.fragment_home -> {
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    startActivity(intent)
+                    true
+                }
+                R.id.fragment_search -> {
+                    Toast.makeText(this, "검색 선택됨", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.fragment_favorite -> {
+                    Toast.makeText(this, "즐겨찾기 선택됨", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.fragment_another -> {
+                    Toast.makeText(this, "다른 설정 선택됨", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.fragment_settings -> {
+                    val currentUser = FirebaseAuth.getInstance().currentUser
+                    if (currentUser != null) {
+                        // 로그인된 사용자라면 UserPageActivity로 이동
+                        val intent = Intent(this, UserPageActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        startActivity(intent)
+                    } else {
+                        // 로그인되지 않은 사용자라면 LoginActivity로 이동
+                        val intent = Intent(this, LoginActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        startActivity(intent)
+                    }
+                    true
+                }
+                else -> false
             }
         }
-
+        // (선택 사항) 앱 시작 시 기본으로 선택될 아이템 설정
+        // bottomNavigationView.selectedItemId = R.id.fragment_home
     }
 }

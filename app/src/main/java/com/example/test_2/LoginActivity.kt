@@ -6,6 +6,7 @@ import android.nfc.Tag
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -13,17 +14,34 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
+    var findpass: Boolean = false //뒤로가기 버튼 두가지 기능을 위한 Boolean
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_login)
-
+        //https://developer.android.com/develop/ui/views/layout/edge-to-edge?hl=ko#kotlin
+        //동작 모드 또는 버튼 모드에서 시각적 겹침을 방지
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_login_linear_layout)) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updateLayoutParams<MarginLayoutParams> {
+                leftMargin = insets.left
+                bottomMargin = insets.bottom
+                rightMargin = insets.right
+                topMargin = insets.top //상단도 마찬가지로 겹침 방지. 꼭 필요한 것은 아님
+            }
+            // Return CONSUMED if you don't want the window insets to keep passing
+            // down to descendant views.
+            WindowInsetsCompat.CONSUMED
+        }
         auth = FirebaseAuth.getInstance() // Firebase 인증 인스턴스 초기화
 
         val loginButton: Button = findViewById(R.id.btnLogin)
@@ -45,8 +63,21 @@ class LoginActivity : AppCompatActivity() {
             startActivity(intent)
         }
         backButton.setOnClickListener {
+            if (findpass) {
+                editEmail.visibility = View.VISIBLE
+                editPassword.visibility = View.VISIBLE
+                loginButton.visibility = View.VISIBLE
+                registerButton.visibility = View.VISIBLE
+                btnFindPassword.visibility = View.VISIBLE
+
+                editFindEmail.visibility = View.GONE
+                btnVerifyEmail.visibility = View.GONE
+                findpass = false
+            }
+            else {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
+            }
         }
 
         btnFindPassword.setOnClickListener {
@@ -58,6 +89,7 @@ class LoginActivity : AppCompatActivity() {
 
             editFindEmail.visibility = View.VISIBLE
             btnVerifyEmail.visibility = View.VISIBLE
+            findpass = true
         }
 
         btnVerifyEmail.setOnClickListener {
