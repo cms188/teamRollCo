@@ -568,7 +568,17 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>
 
-        <LinearLayout
+        <!-- 새로운 메뉴 버튼 -->
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/windowBackground"
+            app:menu="@menu/menu_bottom_nav"
+            app:labelVisibilityMode="unlabeled" />
+
+        <!-- 새로운 메뉴버튼 생성에 따른 주석 처리 -->
+        <!--<LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -620,7 +630,7 @@
                 app:tint="#FF404040"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Profile"/>
-        </LinearLayout >
+        </LinearLayout >-->
     </LinearLayout>
 
     <!-- 오른쪽 상단 고정 버튼들 -->

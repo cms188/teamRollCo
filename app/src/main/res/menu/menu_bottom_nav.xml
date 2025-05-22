@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/fragment_home"
+        android:title="홈"
+        android:icon="@android:drawable/ic_menu_call"/>
+    <item
+        android:id="@+id/fragment_search"
+        android:title="검색"
+        android:icon="@android:drawable/ic_menu_compass"/>
+    <item
+        android:id="@+id/fragment_favorite"
+        android:title="즐겨찾기"
+        android:icon="@android:drawable/ic_input_add"/>
+    <item
+        android:id="@+id/fragment_another"
+        android:title="설정"
+        android:icon="@android:drawable/ic_menu_save"/>
+    <item
+        android:id="@+id/fragment_settings"
+        android:title="설정"
+        android:icon="@android:drawable/ic_menu_preferences"/>
+</menu>
+
+    <!-- BottomNavigationView 추가
+<com.google.android.material.bottomnavigation.BottomNavigationView
+android:id="@+id/bottom_navigation_view"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:background="?android:attr/windowBackground"
+app:menu="@menu/menu_bottom_nav"
+app:labelVisibilityMode="unlabeled" /> -->
