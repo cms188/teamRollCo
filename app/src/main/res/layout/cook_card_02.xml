@@ -102,9 +102,9 @@
                 android:text="@string/default_rating"
                 android:textSize="20sp"
                 android:textColor="@android:color/black"
-                app:drawableStartCompat="@android:drawable/btn_star_big_on"
+                app:drawableStartCompat="@drawable/star"
                 app:drawableTint="#FFC107"
-                android:drawablePadding="2dp"
+                android:drawablePadding="6dp"
                 android:gravity="center_vertical"/>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
