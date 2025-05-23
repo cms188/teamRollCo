@@ -37,6 +37,12 @@ class MainActivity : AppCompatActivity() {
             WindowInsetsCompat.CONSUMED
         }
 
+        var topsearch: ImageButton = findViewById(R.id.top_search_button)
+        topsearch.setOnClickListener {
+            val intent = Intent(this, SearchActivity::class.java)
+            startActivity(intent)
+        }
+
         // --- 기존 HorizontalScrollView의 아이템 처리 ---
         // <include> 태그에 직접 ID를 부여한 경우, findViewById는 해당 <include>된 레이아웃의 루트 View를 반환합니다.
         // 해당 루트 View 내에서 다시 findViewById를 호출하여 내부 요소를 찾아야 합니다.

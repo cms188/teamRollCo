@@ -1,8 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.Test_2" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.Test_2" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <!-- 또는 직접 색상 코드 사용 -->
+        <!-- <item name="android:windowBackground">#FFFFFF</item> -->
     </style>
 
     <style name="Theme.Test_2" parent="Base.Theme.Test_2" />

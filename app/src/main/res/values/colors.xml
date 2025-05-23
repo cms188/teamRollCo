@@ -7,4 +7,5 @@
     <color name="divider_color">#828282</color>
     <color name="light_gray_stroke">#D3D3D3</color>
     <color name="darker_gray">#666666</color>
+    <color name="search_color">#FFF9F4</color>
 </resources>
