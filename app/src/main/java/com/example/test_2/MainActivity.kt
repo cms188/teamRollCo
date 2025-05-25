@@ -109,8 +109,20 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "검색 선택됨", Toast.LENGTH_SHORT).show()
                     true
                 }
+                //레시피 작성
                 R.id.fragment_favorite -> {
-                    Toast.makeText(this, "즐겨찾기 선택됨", Toast.LENGTH_SHORT).show()
+                    val currentUser = FirebaseAuth.getInstance().currentUser
+                    if (currentUser != null) {
+                        // 로그인된 사용자라면 RecipeWriteActivity로 이동
+                        val intent = Intent(this, RecipeWriteActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        startActivity(intent)
+                    } else {
+                        // 로그인되지 않은 사용자라면 LoginActivity로 이동
+                        val intent = Intent(this, LoginActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                        startActivity(intent)
+                    }
                     true
                 }
                 R.id.fragment_another -> {
