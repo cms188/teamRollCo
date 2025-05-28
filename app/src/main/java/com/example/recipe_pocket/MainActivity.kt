@@ -1,150 +1,108 @@
 package com.example.recipe_pocket
 
+import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View // findViewById의 반환 타입을 View로 받을 때 사용 가능
-import android.widget.ImageButton
+import android.view.ViewGroup
 import android.widget.ImageView
-// import android.widget.LinearLayout // 기존 코드에서 사용. View로 받는 것이 더 유연할 수 있음
-// import androidx.cardview.widget.CardView // CardView ID로 찾을 때 필요
-import androidx.viewpager2.widget.ViewPager2 // ViewPager2 import
-import android.content.Intent
-import android.view.ViewGroup.MarginLayoutParams
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
+import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
+import com.example.recipe_pocket.databinding.ActivityMainBinding // 생성된 메인 액티비티 바인딩 클래스
+import com.example.recipe_pocket.databinding.CookCard01Binding   // 생성된 cook_card_01 바인딩 클래스
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityMainBinding // 메인 액티비티 바인딩 객체
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main) // activity_main.xml 또는 사용 중인 메인 레이아웃 파일
-        //https://developer.android.com/develop/ui/views/layout/edge-to-edge?hl=ko#kotlin
-        //동작 모드 또는 버튼 모드에서 시각적 겹침을 방지
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_frame_layout)) { v, windowInsets ->
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // Edge-to-edge 처리 (main_frame_layout ID가 activity_main.xml의 루트 레이아웃 ID라고 가정)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.mainFrameLayout) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updateLayoutParams<MarginLayoutParams> {
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> { // MarginLayoutParams으로 캐스팅
                 leftMargin = insets.left
                 bottomMargin = insets.bottom
                 rightMargin = insets.right
-                //topMargin = insets.top //상단도 마찬가지로 겹침 방지. 꼭 필요한 것은 아님
+                // topMargin = insets.top // 필요시 상단 마진도 조절
             }
-            // Return CONSUMED if you don't want the window insets to keep passing
-            // down to descendant views.
             WindowInsetsCompat.CONSUMED
         }
 
-        var topsearch: ImageButton = findViewById(R.id.top_search_button)
-        topsearch.setOnClickListener {
+        // 검색 버튼 클릭 리스너
+        binding.topSearchButton.setOnClickListener {
             val intent = Intent(this, SearchActivity::class.java)
             startActivity(intent)
         }
 
-        // --- 기존 HorizontalScrollView의 아이템 처리 ---
-        // <include> 태그에 직접 ID를 부여한 경우, findViewById는 해당 <include>된 레이아웃의 루트 View를 반환합니다.
-        // 해당 루트 View 내에서 다시 findViewById를 호출하여 내부 요소를 찾아야 합니다.
-
-        try { // ID를 못 찾거나 타입 캐스팅 오류 방지를 위해 try-catch 사용
-            val popularItem1View = findViewById<View>(R.id.hot_cook_1) // cook_card_01을 include
-            val imageView1 = popularItem1View.findViewById<ImageView>(R.id.recipe_image_view)
-            imageView1.setImageResource(R.drawable.testimg1) // testimg1.jpg 또는 .png 파일이 res/drawable에 있어야 함
-            // imageView1.background = null // 필요시 배경 제거
-
-            val popularItem2View = findViewById<View>(R.id.hot_cook_2) // cook_card_01을 include
-            val imageView2 = popularItem2View.findViewById<ImageView>(R.id.recipe_image_view)
-            imageView2.setImageResource(R.drawable.testimg2) // testimg2.jpg 또는 .png 파일이 res/drawable에 있어야 함
-            // imageView2.background = null // 필요시 배경 제거
-
-            // --- 아이템 2 처리 (popular_item_4, popular_item_5는 cook_card_02 레이아웃을 사용한다고 가정) ---
-            val popularItem4View = findViewById<View>(R.id.pick_cook_1) // cook_card_02를 include
-            val imageView4 = popularItem4View.findViewById<ImageView>(R.id.card_image_view) // cook_card_02 내부의 recipe_image_view
-            imageView4.setImageResource(R.drawable.testimg1)
-            // imageView4.background = null // 필요시 배경 제거
-
-            val popularItem5View = findViewById<View>(R.id.pick_cook_2) // cook_card_02를 include
-            val imageView5 = popularItem5View.findViewById<ImageView>(R.id.card_image_view)
-            imageView5.setImageResource(R.drawable.testimg2)
-            // imageView5.background = null // 필요시 배경 제거
-
-            val ncookit1 = findViewById<View>(R.id.n_cook_1)
-            val ncookiv1 = ncookit1.findViewById<ImageView>(R.id.card_image_view)
-            ncookiv1.setImageResource(R.drawable.testimg1)
-
-            val ncookit2 = findViewById<View>(R.id.n_cook_2)
-            val ncookiv2 = ncookit2.findViewById<ImageView>(R.id.card_image_view)
-            ncookiv2.setImageResource(R.drawable.testimg2)
-
+        // 레시피 카드 초기화
+        try {
+            // ActivityMainBinding에 hotCook1, hotCook2, hotCook3 프로퍼티가
+            // CookCard01Binding 타입으로 생성되었다고 가정
+            binding.hotCook1?.let { setupRecipeCardWithBinding(it, "hot_cook_1") }
+            binding.hotCook2?.let { setupRecipeCardWithBinding(it, "hot_cook_2") }
+            binding.hotCook3?.let { setupRecipeCardWithBinding(it, "hot_cook_3") }
         } catch (e: Exception) {
-            // 예: ID를 찾지 못했거나, null 참조 등
             e.printStackTrace()
-            // 실제 앱에서는 사용자에게 오류를 알리거나 로그를 남기는 등의 처리가 필요할 수 있습니다.
+            Toast.makeText(this, "레시피 카드 초기화 중 오류 발생: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
         }
 
-
-        // --- ViewPager2 설정 ---
-        val viewPager = findViewById<ViewPager2>(R.id.cook_tips_view_pager) // activity_main.xml에 정의된 ViewPager2의 ID
-
-        // ViewPager2에 표시할 샘플 데이터 생성
+        // ViewPager2 설정 (cook_tips_view_pager ID가 activity_main.xml에 있다고 가정)
         val cookTipItems = listOf(
-            CookTipItem("오늘의 추천 요리팁!", "재료 손질부터 플레이팅까지", R.drawable.testimg1), // 예시 이미지
+            CookTipItem("오늘의 추천 요리팁!", "재료 손질부터 플레이팅까지", R.drawable.testimg1),
             CookTipItem("간단한 밑반찬 만들기", "냉장고를 든든하게 채워요", R.drawable.testimg2),
-            CookTipItem("특별한 날 홈파티 메뉴", "쉽고 근사하게 준비하기", R.drawable.testimg1) // 다른 이미지 리소스 사용 가능
-            // 필요한 만큼 아이템 추가
+            CookTipItem("특별한 날 홈파티 메뉴", "쉽고 근사하게 준비하기", R.drawable.testimg1)
         )
+        val cookTipAdapter = CookTipAdapter(cookTipItems) // CookTipAdapter 및 CookTipItem 클래스 필요
+        binding.cookTipsViewPager.adapter = cookTipAdapter
+        binding.cookTipsViewPager.offscreenPageLimit = 1
 
-        val cookTipAdapter = CookTipAdapter(cookTipItems)
-        viewPager.adapter = cookTipAdapter
-        viewPager.offscreenPageLimit = 1 // 현재 페이지 양 옆으로 몇 페이지를 미리 로드할지 설정 (기본값은 1)
-
-
-
-        val bottomNavigationView = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation_view)
-        // BottomNavigationView 아이템 선택 리스너 설정
-        bottomNavigationView.setOnItemSelectedListener { item ->
+        // BottomNavigationView 설정 (bottom_navigation_view ID가 activity_main.xml에 있다고 가정)
+        binding.bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.fragment_home -> {
-                    val intent = Intent(this, MainActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    startActivity(intent)
+                    // 현재 액티비티이므로 새로 시작할 필요 없음 (또는 새로고침 로직 추가)
+                    // val intent = Intent(this, MainActivity::class.java)
+                    // intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    // startActivity(intent)
                     true
                 }
                 R.id.fragment_search -> {
-                    Toast.makeText(this, "검색 선택됨", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(this, SearchActivity::class.java)
+                    startActivity(intent)
                     true
                 }
-                //레시피 작성
-                R.id.fragment_favorite -> {
+                R.id.fragment_favorite -> { // 레시피 작성 (또는 즐겨찾기)
                     val currentUser = FirebaseAuth.getInstance().currentUser
                     if (currentUser != null) {
-                        // 로그인된 사용자라면 RecipeWriteActivity로 이동
                         val intent = Intent(this, RecipeWriteActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                         startActivity(intent)
                     } else {
-                        // 로그인되지 않은 사용자라면 LoginActivity로 이동
                         val intent = Intent(this, LoginActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                         startActivity(intent)
                     }
                     true
                 }
-                R.id.fragment_another -> {
-                    Toast.makeText(this, "다른 설정 선택됨", Toast.LENGTH_SHORT).show()
+                R.id.fragment_another -> { // 이 ID는 실제 기능에 맞게 이름 변경 권장
+                    Toast.makeText(this, "찜 목록 (준비중)", Toast.LENGTH_SHORT).show()
                     true
                 }
-                R.id.fragment_settings -> {
+                R.id.fragment_settings -> { // 내 정보 (또는 설정)
                     val currentUser = FirebaseAuth.getInstance().currentUser
                     if (currentUser != null) {
-                        // 로그인된 사용자라면 UserPageActivity로 이동
                         val intent = Intent(this, UserPageActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                         startActivity(intent)
                     } else {
-                        // 로그인되지 않은 사용자라면 LoginActivity로 이동
                         val intent = Intent(this, LoginActivity::class.java)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                         startActivity(intent)
                     }
                     true
@@ -152,7 +110,86 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
-        // (선택 사항) 앱 시작 시 기본으로 선택될 아이템 설정
-        // bottomNavigationView.selectedItemId = R.id.fragment_home
+        // 기본 선택 아이템 설정 (선택 사항)
+        // binding.bottomNavigationView.selectedItemId = R.id.fragment_home
+    }
+
+    /**
+     * CookCard01Binding 객체를 받아 레시피 카드 UI를 설정하고 데이터를 로드하는 private 멤버 함수
+     */
+    private fun setupRecipeCardWithBinding(
+        cardBinding: CookCard01Binding, // cook_card_01.xml에 대한 바인딩 객체
+        cardName: String
+    ) {
+        // 데이터 로드 및 UI 업데이트 함수 호출 (View 객체를 전달)
+        loadAndDisplayRecipe(
+            context = this,
+            recipeImageView = cardBinding.recipeImageView,
+            titleTextView = cardBinding.recipeNameText,
+            cookingTimeTextView = cardBinding.cookingTimeText,
+            authorProfileImageView = cardBinding.authorProfileImage,
+            authorNameTextView = cardBinding.authorNameText,
+            cardNameForToast = cardName
+            // 플레이스홀더 및 에러 이미지는 loadAndDisplayRecipe 함수의 기본값 사용
+        )
+    }
+
+    /**
+     * 랜덤 레시피 데이터를 로드하고, 제공된 UI 요소에 해당 데이터를 표시하는 private 멤버 함수
+     */
+    private fun loadAndDisplayRecipe(
+        context: Context,
+        recipeImageView: ImageView,
+        titleTextView: TextView,
+        cookingTimeTextView: TextView,
+        authorProfileImageView: ImageView,
+        authorNameTextView: TextView,
+        cardNameForToast: String,
+        recipeImagePlaceholderResId: Int = R.drawable.bg_main_rounded_gray, // 기본 플레이스홀더
+        recipeImageErrorResId: Int = R.drawable.testimg1, // 기본 에러 이미지 (변경 권장)
+        profileImagePlaceholderResId: Int = R.drawable.bg_main_circle_gray, // 프로필 기본 플레이스홀더
+        profileImageErrorResId: Int = R.drawable.testimg1 // 프로필 기본 에러 (변경 권장, 예: R.drawable.ic_default_profile)
+    ) {
+        RecipeLoader.loadRandomRecipeWithAuthor(
+            context = context,
+            onSuccess = { recipe ->
+                titleTextView.text = recipe.title ?: "제목 없음"
+                cookingTimeTextView.text = recipe.cookingTime?.let { "${it}분" } ?: "시간 정보 없음"
+
+                val author = recipe.author
+                if (author != null) {
+                    authorNameTextView.text = author.nickname ?: "작성자 정보 없음"
+                    author.profileImageUrl?.let { url ->
+                        if (url.isNotEmpty()) {
+                            Glide.with(context)
+                                .load(url)
+                                .placeholder(profileImagePlaceholderResId)
+                                .error(profileImageErrorResId)
+                                .circleCrop()
+                                .into(authorProfileImageView)
+                        } else {
+                            authorProfileImageView.setImageResource(profileImageErrorResId)
+                        }
+                    } ?: run {
+                        authorProfileImageView.setImageResource(profileImageErrorResId)
+                    }
+                } else {
+                    authorNameTextView.text = "작성자 미상"
+                    authorProfileImageView.setImageResource(profileImageErrorResId)
+                }
+            },
+            onFailure = { exception ->
+                Toast.makeText(context, "$cardNameForToast 데이터 로드 실패: ${exception.message}", Toast.LENGTH_LONG).show()
+                // 실패 시 UI 초기화 (선택 사항)
+                titleTextView.text = "정보 없음"
+                cookingTimeTextView.text = ""
+                authorNameTextView.text = ""
+                recipeImageView.setImageResource(recipeImageErrorResId)
+                authorProfileImageView.setImageResource(profileImageErrorResId)
+            },
+            imageViewToLoad = recipeImageView,
+            placeholderResId = recipeImagePlaceholderResId,
+            errorResId = recipeImageErrorResId
+        )
     }
 }

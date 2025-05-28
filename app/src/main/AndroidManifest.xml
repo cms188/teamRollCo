@@ -28,10 +28,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".UserPageActivity" />
+        <activity android:name=".RecipeWriteActivity" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".SearchActivity"/>
+        <activity android:name=".UserPageActivity"/>
+
 
 
     </application>
