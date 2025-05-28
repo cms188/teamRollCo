@@ -60,7 +60,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/main_rounded_top_white_background"
+                    android:background="@drawable/bg_main_rounded_top_white"
                     android:layout_marginTop="150dp"
                     android:clipChildren="false"
                     android:paddingTop="24dp"
@@ -573,7 +573,7 @@
             android:id="@+id/bottom_navigation_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?android:attr/windowBackground"
+            android:background="@color/white"
             app:menu="@menu/menu_bottom_nav"
             app:labelVisibilityMode="unlabeled" />
 
@@ -635,13 +635,13 @@
 
     <!-- 오른쪽 상단 고정 버튼들 -->
     <ImageButton
-        android:id="@+id/fixed_notification_button"
+        android:id="@+id/top_notification_button"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_gravity="top|end"
         android:layout_marginTop="40dp"
         android:layout_marginEnd="16dp"
-        android:background="@drawable/main_circle_white_background"
+        android:background="@drawable/bg_main_circle_white"
         android:src="@drawable/ic_notification"
         android:contentDescription="알림"
         android:padding="8dp"
@@ -650,13 +650,13 @@
         android:elevation="4dp"/>
 
     <ImageButton
-        android:id="@+id/fixed_search_button"
+        android:id="@+id/top_search_button"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_gravity="top|end"
         android:layout_marginTop="40dp"
         android:layout_marginEnd="64dp"
-        android:background="@drawable/main_circle_white_background"
+        android:background="@drawable/bg_main_circle_white"
         android:src="@drawable/ic_search"
         android:contentDescription="검색"
         android:padding="8dp"

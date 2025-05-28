@@ -43,7 +43,7 @@
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
                     tools:srcCompat="@tools:sample/backgrounds/scenic[1]"
-                    android:background="@drawable/main_rounded_gray_background"
+                    android:background="@drawable/bg_main_rounded_gray"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
