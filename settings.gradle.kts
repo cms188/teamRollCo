@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Test_2"
+rootProject.name = "recipe_pocket"
 include(":app")
