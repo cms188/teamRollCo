@@ -1,8 +1,7 @@
-package com.example.test_2
+package com.example.recipe_pocket
 
 import android.content.ContentValues.TAG
 import android.content.Intent
-import android.nfc.Tag
 import android.os.Bundle
 import android.util.Log
 import android.view.View

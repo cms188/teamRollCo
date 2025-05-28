@@ -1,9 +1,8 @@
-package com.example.test_2
+package com.example.recipe_pocket
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View // findViewById의 반환 타입을 View로 받을 때 사용 가능
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 // import android.widget.LinearLayout // 기존 코드에서 사용. View로 받는 것이 더 유연할 수 있음

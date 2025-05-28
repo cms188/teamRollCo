@@ -1,4 +1,4 @@
-package com.example.test_2
+package com.example.recipe_pocket
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

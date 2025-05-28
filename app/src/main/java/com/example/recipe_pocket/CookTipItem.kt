@@ -1,4 +1,4 @@
-package com.example.test_2
+package com.example.recipe_pocket
 
 data class CookTipItem(
     val mainText: String,

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.test_2"
+    namespace = "com.example.recipe_pocket"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.test_2"
+        applicationId = "com.example.recipe_pocket"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

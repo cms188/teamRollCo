@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Test_2</string>
+    <string name="app_name">recipe_pocket</string>
 
     <!-- activity_main 텍스트 -->
     <string name="title">어떤 음식이 땡기세요?</string>
