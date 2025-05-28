@@ -60,21 +60,21 @@ class MainActivity : AppCompatActivity() {
 
             // --- 아이템 2 처리 (popular_item_4, popular_item_5는 cook_card_02 레이아웃을 사용한다고 가정) ---
             val popularItem4View = findViewById<View>(R.id.pick_cook_1) // cook_card_02를 include
-            val imageView4 = popularItem4View.findViewById<ImageView>(R.id.recipe_image_view) // cook_card_02 내부의 recipe_image_view
+            val imageView4 = popularItem4View.findViewById<ImageView>(R.id.card_image_view) // cook_card_02 내부의 recipe_image_view
             imageView4.setImageResource(R.drawable.testimg1)
             // imageView4.background = null // 필요시 배경 제거
 
             val popularItem5View = findViewById<View>(R.id.pick_cook_2) // cook_card_02를 include
-            val imageView5 = popularItem5View.findViewById<ImageView>(R.id.recipe_image_view)
+            val imageView5 = popularItem5View.findViewById<ImageView>(R.id.card_image_view)
             imageView5.setImageResource(R.drawable.testimg2)
             // imageView5.background = null // 필요시 배경 제거
 
             val ncookit1 = findViewById<View>(R.id.n_cook_1)
-            val ncookiv1 = ncookit1.findViewById<ImageView>(R.id.recipe_image_view)
+            val ncookiv1 = ncookit1.findViewById<ImageView>(R.id.card_image_view)
             ncookiv1.setImageResource(R.drawable.testimg1)
 
             val ncookit2 = findViewById<View>(R.id.n_cook_2)
-            val ncookiv2 = ncookit2.findViewById<ImageView>(R.id.recipe_image_view)
+            val ncookiv2 = ncookit2.findViewById<ImageView>(R.id.card_image_view)
             ncookiv2.setImageResource(R.drawable.testimg2)
 
         } catch (e: Exception) {
