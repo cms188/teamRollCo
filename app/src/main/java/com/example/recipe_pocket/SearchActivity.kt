@@ -1,3 +1,4 @@
+/*
 package com.example.recipe_pocket
 
 import android.content.Intent
@@ -16,7 +17,7 @@ class SearchActivity : AppCompatActivity() {
         setContentView(R.layout.search_result) // activity_main.xml 또는 사용 중인 메인 레이아웃 파일
         //https://developer.android.com/develop/ui/views/layout/edge-to-edge?hl=ko#kotlin
         //동작 모드 또는 버튼 모드에서 시각적 겹침을 방지
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.top_search_layout)) { v, windowInsets ->
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.mainFrameLayout)) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.updateLayoutParams<MarginLayoutParams> {
                 leftMargin = insets.left
@@ -35,4 +36,4 @@ class SearchActivity : AppCompatActivity() {
         }
 
     }
-}
+}*/

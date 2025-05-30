@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/top_search_layout"
+    android:id="@+id/Search_Result_Layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -13,7 +13,7 @@
     <!-- 상단 바 영역: 뒤로가기 버튼과 검색창 -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="24dp"
+        android:layout_height="30dp"
         android:background="@color/search_color"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -133,45 +133,43 @@
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
-                <include
-                    android:id="@+id/hot_cook_11"
-                    layout="@layout/cook_card_03" />
+                <include layout="@layout/cook_card_03"
+                    android:id="@+id/search_result1"/>
             </FrameLayout>
 
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <include layout="@layout/cook_card_03"
-                    android:id="@+id/hot_cook_22"/>
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <include layout="@layout/backup_cook_card_03"
-                    android:id="@+id/hot_cook_33"/>
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <include
-                    android:id="@+id/hot_cook_41"
-                    layout="@layout/cook_card_03" />
+                    android:id="@+id/search_result2"/>
             </FrameLayout>
 
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <include layout="@layout/cook_card_03"
-                    android:id="@+id/hot_cook_52"/>
+                    android:id="@+id/search_result3"/>
             </FrameLayout>
 
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
-                <include layout="@layout/backup_cook_card_03"
-                    android:id="@+id/hot_cook_63"/>
+                <include layout="@layout/cook_card_03"
+                android:id="@+id/search_result4"/>
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <include layout="@layout/cook_card_03"
+                    android:id="@+id/search_result5"/>
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <include layout="@layout/cook_card_03"
+                    android:id="@+id/search_result6"/>
             </FrameLayout>
         </LinearLayout>
     </ScrollView>
