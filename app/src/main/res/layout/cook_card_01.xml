@@ -31,8 +31,6 @@
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
                     android:contentDescription="@string/cook_image"
-                    android:clickable="true"
-                    android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
                     tools:srcCompat="@tools:sample/backgrounds/scenic"
                     android:background="@drawable/bg_main_rounded_gray"/>

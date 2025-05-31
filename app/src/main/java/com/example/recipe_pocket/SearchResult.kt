@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.example.recipe_pocket.MainActivity
 import com.example.recipe_pocket.databinding.CookCard03Binding
 import com.example.recipe_pocket.databinding.SearchResultBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -172,6 +173,22 @@ class SearchResult : AppCompatActivity() {
             // 작성자 정보가 없는 경우 (예: recipe.userId가 없거나, User 문서 로드 실패)
             cardBinding.authorNameText.text = "작성자 미상"
             cardBinding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
+        }
+        // --- 클릭 리스너 설정 ---
+        cardBinding.root.setOnClickListener {
+            // recipe.id는 @DocumentId 어노테이션을 통해 Firestore 문서 ID로 채워집니다.
+            recipe.id?.let { recipeId ->
+                if (recipeId.isNotEmpty()) {
+                    val intent = Intent(this@SearchResult, RecipeDetailActivity::class.java)
+                    // "RECIPE_ID"라는 키로 레시피의 문서 ID를 전달합니다.
+                    intent.putExtra("RECIPE_ID", recipeId)
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(this@SearchResult, "레시피 정보를 불러올 수 없습니다. (ID 없음)", Toast.LENGTH_SHORT).show()
+                }
+            } ?: run {
+                Toast.makeText(this@SearchResult, "레시피 정보를 불러올 수 없습니다. (ID null)", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
