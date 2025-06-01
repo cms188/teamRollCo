@@ -40,8 +40,8 @@
                 android:id="@+id/bookmark_button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginEnd="12dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
                 android:src="@drawable/ic_bookmark_outline_figma"
                 android:background="@drawable/bg_bookmark_shape"
                 android:padding="8dp"
@@ -100,7 +100,6 @@
                     android:textSize="20sp"
                     android:textColor="@android:color/black"
                     app:drawableStartCompat="@drawable/ic_star"
-                    app:drawableTint="#FFC107"
                     android:drawablePadding="6dp"
                     android:gravity="center_vertical"/>
 

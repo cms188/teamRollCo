@@ -3,23 +3,23 @@
     <item
         android:id="@+id/fragment_home"
         android:title="홈"
-        android:icon="@android:drawable/ic_menu_call"/>
+        android:icon="@drawable/ic_tab1"/>
     <item
         android:id="@+id/fragment_search"
         android:title="검색"
-        android:icon="@android:drawable/ic_menu_compass"/>
+        android:icon="@drawable/ic_search"/>
     <item
         android:id="@+id/fragment_favorite"
         android:title="즐겨찾기"
-        android:icon="@android:drawable/ic_input_add"/>
+        android:icon="@drawable/ic_tab3"/>
     <item
         android:id="@+id/fragment_another"
         android:title="설정"
-        android:icon="@android:drawable/ic_menu_save"/>
+        android:icon="@drawable/ic_tab4"/>
     <item
         android:id="@+id/fragment_settings"
         android:title="설정"
-        android:icon="@android:drawable/ic_menu_preferences"/>
+        android:icon="@drawable/ic_tab5"/>
 </menu>
 
     <!-- BottomNavigationView 추가

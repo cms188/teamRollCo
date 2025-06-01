@@ -82,7 +82,7 @@
                         android:layout_marginEnd="16dp">
 
                         <LinearLayout
-                            android:id="@+id/category_button_hansik_1"
+                            android:id="@+id/category_button_1"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -91,24 +91,23 @@
                             android:paddingTop="8dp"
                             android:paddingBottom="8dp"
                             android:clickable="true"
-                            android:focusable="true"
-                            android:background="?attr/selectableItemBackgroundBorderless">
+                            android:focusable="true">
                             <ImageView
                                 android:layout_width="56dp"
                                 android:layout_height="56dp"
-                                android:background="@android:drawable/ic_menu_save"
-                                android:contentDescription="한식 카테고리"/>
+                                android:background="@drawable/cate1_01"
+                                android:contentDescription="국/탕/찌개"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="한식"
-                                android:textSize="12sp"
+                                android:text="국/탕/찌개"
+                                android:textAppearance="@style/category"
                                 android:textColor="#333333"/>
                         </LinearLayout>
 
                         <LinearLayout
-                            android:id="@+id/category_button_jungsik_1"
+                            android:id="@+id/category_button_2"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -117,24 +116,22 @@
                             android:paddingTop="8dp"
                             android:paddingBottom="8dp"
                             android:clickable="true"
-                            android:focusable="true"
-                            android:background="?attr/selectableItemBackgroundBorderless">
+                            android:focusable="true">
                             <ImageView
                                 android:layout_width="56dp"
                                 android:layout_height="56dp"
-                                android:background="@android:drawable/ic_menu_save"
-                                android:contentDescription="중식 카테고리"/>
+                                android:background="@drawable/cate1_02"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="중식"
-                                android:textSize="12sp"
+                                android:text="제작 중.."
+                                android:textAppearance="@style/category"
                                 android:textColor="#333333"/>
                         </LinearLayout>
 
                         <LinearLayout
-                            android:id="@+id/category_button_ilsik_1"
+                            android:id="@+id/category_button_3"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -143,24 +140,22 @@
                             android:paddingTop="8dp"
                             android:paddingBottom="8dp"
                             android:clickable="true"
-                            android:focusable="true"
-                            android:background="?attr/selectableItemBackgroundBorderless">
+                            android:focusable="true">
                             <ImageView
                                 android:layout_width="56dp"
                                 android:layout_height="56dp"
-                                android:background="@android:drawable/ic_menu_save"
-                                android:contentDescription="일식 카테고리"/>
+                                android:background="@drawable/cate1_03"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="일식"
-                                android:textSize="12sp"
+                                android:text="제작 중.."
+                                android:textAppearance="@style/category"
                                 android:textColor="#333333"/>
                         </LinearLayout>
 
                         <LinearLayout
-                            android:id="@+id/category_button_hansik_2"
+                            android:id="@+id/category_button_4"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -169,45 +164,17 @@
                             android:paddingTop="8dp"
                             android:paddingBottom="8dp"
                             android:clickable="true"
-                            android:focusable="true"
-                            android:background="?attr/selectableItemBackgroundBorderless">
+                            android:focusable="true">
                             <ImageView
                                 android:layout_width="56dp"
                                 android:layout_height="56dp"
-                                android:background="@android:drawable/ic_menu_save"
-                                android:contentDescription="한식 카테고리"/>
+                                android:background="@drawable/cate1_04"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="한식"
-                                android:textSize="12sp"
-                                android:textColor="#333333"/>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/category_button_hansik_3"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center_horizontal"
-                            android:paddingTop="8dp"
-                            android:paddingBottom="8dp"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:background="?attr/selectableItemBackgroundBorderless">
-                            <ImageView
-                                android:layout_width="56dp"
-                                android:layout_height="56dp"
-                                android:background="@android:drawable/ic_menu_save"
-                                android:contentDescription="한식 카테고리"/>
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="한식"
-                                android:textSize="12sp"
+                                android:text="제작 중.."
+                                android:textAppearance="@style/category"
                                 android:textColor="#333333"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -222,7 +189,7 @@
                         android:layout_marginEnd="16dp">
 
                         <LinearLayout
-                            android:id="@+id/category_button_hansik_4"
+                            android:id="@+id/category_button_11"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -231,24 +198,22 @@
                             android:paddingTop="8dp"
                             android:paddingBottom="8dp"
                             android:clickable="true"
-                            android:focusable="true"
-                            android:background="?attr/selectableItemBackgroundBorderless">
+                            android:focusable="true">
                             <ImageView
                                 android:layout_width="56dp"
                                 android:layout_height="56dp"
-                                android:background="@android:drawable/ic_menu_save"
-                                android:contentDescription="한식 카테고리"/>
+                                android:background="@drawable/cate1_05"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="한식"
-                                android:textSize="12sp"
+                                android:text="제작 중.."
+                                android:textAppearance="@style/category"
                                 android:textColor="#333333"/>
                         </LinearLayout>
 
                         <LinearLayout
-                            android:id="@+id/category_button_jungsik_2"
+                            android:id="@+id/category_button_12"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -257,24 +222,22 @@
                             android:paddingTop="8dp"
                             android:paddingBottom="8dp"
                             android:clickable="true"
-                            android:focusable="true"
-                            android:background="?attr/selectableItemBackgroundBorderless">
+                            android:focusable="true">
                             <ImageView
                                 android:layout_width="56dp"
                                 android:layout_height="56dp"
-                                android:background="@android:drawable/ic_menu_save"
-                                android:contentDescription="중식 카테고리"/>
+                                android:background="@drawable/cate1_06"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="중식"
-                                android:textSize="12sp"
+                                android:text="제작 중.."
+                                android:textAppearance="@style/category"
                                 android:textColor="#333333"/>
                         </LinearLayout>
 
                         <LinearLayout
-                            android:id="@+id/category_button_ilsik_2"
+                            android:id="@+id/category_button_13"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -283,24 +246,22 @@
                             android:paddingTop="8dp"
                             android:paddingBottom="8dp"
                             android:clickable="true"
-                            android:focusable="true"
-                            android:background="?attr/selectableItemBackgroundBorderless">
+                            android:focusable="true">
                             <ImageView
                                 android:layout_width="56dp"
                                 android:layout_height="56dp"
-                                android:background="@android:drawable/ic_menu_save"
-                                android:contentDescription="일식 카테고리"/>
+                                android:background="@drawable/cate1_07"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="일식"
-                                android:textSize="12sp"
+                                android:text="제작 중.."
+                                android:textAppearance="@style/category"
                                 android:textColor="#333333"/>
                         </LinearLayout>
 
                         <LinearLayout
-                            android:id="@+id/category_button_hansik_5"
+                            android:id="@+id/category_button_14"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -309,47 +270,21 @@
                             android:paddingTop="8dp"
                             android:paddingBottom="8dp"
                             android:clickable="true"
-                            android:focusable="true"
-                            android:background="?attr/selectableItemBackgroundBorderless">
+                            android:focusable="true">
                             <ImageView
                                 android:layout_width="56dp"
                                 android:layout_height="56dp"
-                                android:background="@android:drawable/ic_menu_save"
-                                android:contentDescription="한식 카테고리"/>
+                                android:background="@drawable/cate1_08"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="한식"
-                                android:textSize="12sp"
+                                android:text="제작 중.."
+                                android:textAppearance="@style/category"
                                 android:textColor="#333333"/>
                         </LinearLayout>
 
-                        <LinearLayout
-                            android:id="@+id/category_button_more"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center_horizontal"
-                            android:paddingTop="8dp"
-                            android:paddingBottom="8dp"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:background="?attr/selectableItemBackgroundBorderless">
-                            <ImageView
-                                android:layout_width="56dp"
-                                android:layout_height="56dp"
-                                android:background="@android:drawable/ic_menu_save"
-                                android:contentDescription="더보기"/>
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="더보기"
-                                android:textSize="12sp"
-                                android:textColor="#333333"/>
-                        </LinearLayout>
+
                     </LinearLayout>
 
                     <TextView
@@ -376,47 +311,25 @@
                         android:textAppearance="@style/title1_1"
                         android:textColor="@android:color/darker_gray"/>
 
-                    <HorizontalScrollView
-                        android:id="@+id/scroll_view_1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:scrollbars="none"
-                        android:clipToPadding="false"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp">
-
                         <LinearLayout
                             android:id="@+id/hot_cook_container"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+                            android:layout_marginTop="16dp"
+                            android:scrollbars="none"
+                            android:clipToPadding="false"
+                            android:paddingStart="16dp">
 
-                            <FrameLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-
-                                <include
-                                    android:id="@+id/hot_cook_1"
-                                    layout="@layout/cook_card_01" />
-                            </FrameLayout>
-
-                            <FrameLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-                                <include layout="@layout/cook_card_01"
-                                    android:id="@+id/hot_cook_2"/>
-                            </FrameLayout>
-
-                            <FrameLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-                                <include layout="@layout/cook_card_01"
-                                    android:id="@+id/hot_cook_3"/>
-                            </FrameLayout>
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/hot_cook_recyclerview"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingTop="24dp"
+                                android:clipToPadding="false"
+                                tools:listitem="@layout/cook_card_01"/>
 
                         </LinearLayout>
-                    </HorizontalScrollView>
 
                     <TextView
                         android:id="@+id/title2"
@@ -441,45 +354,24 @@
                         android:textAppearance="@style/title1_1"
                         android:textColor="@android:color/darker_gray"/>
 
-                    <HorizontalScrollView
-                        android:id="@+id/scroll_view2"
+                <LinearLayout
+                    android:id="@+id/pick_cook_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp"
+                    android:scrollbars="none"
+                    android:clipToPadding="false"
+                    android:paddingStart="16dp">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/pick_cook_recyclerview"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:scrollbars="none"
+                        android:paddingTop="24dp"
                         android:clipToPadding="false"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp">
-
-                        <LinearLayout
-                            android:id="@+id/pick_cook"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <FrameLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-                                <include layout="@layout/cook_card_02"
-                                    android:id="@+id/pick_cook_1"/>
-                            </FrameLayout>
-
-                            <FrameLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-                                <include layout="@layout/cook_card_02"
-                                    android:id="@+id/pick_cook_2"/>
-                            </FrameLayout>
-
-                            <FrameLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-                                <include layout="@layout/cook_card_02"
-                                    android:id="@+id/pick_cook_3"/>
-                            </FrameLayout>
-
-                        </LinearLayout>
-                    </HorizontalScrollView>
+                        tools:listitem="@layout/cook_card_02"/>
+                </LinearLayout>
 
                     <TextView
                         android:id="@+id/title3"
@@ -525,45 +417,24 @@
                         android:textAppearance="@style/title1_1"
                         android:textColor="@android:color/darker_gray"/>
 
-                    <HorizontalScrollView
-                        android:id="@+id/scroll_view3"
-                        android:layout_width="match_parent"
+                    <LinearLayout
+                        android:id="@+id/n_cook_container"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:orientation="horizontal"
                         android:layout_marginTop="16dp"
                         android:scrollbars="none"
                         android:clipToPadding="false"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp">
+                        android:paddingStart="16dp">
 
-                        <LinearLayout
-                            android:id="@+id/n_cook"
-                            android:layout_width="wrap_content"
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/n_cook_recyclerview"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <FrameLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-                                <include layout="@layout/cook_card_02"
-                                    android:id="@+id/n_cook_1"/>
-                            </FrameLayout>
-
-                            <FrameLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-                                <include layout="@layout/cook_card_02"
-                                    android:id="@+id/n_cook_2"/>
-                            </FrameLayout>
-
-                            <FrameLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content">
-                                <include layout="@layout/cook_card_02"
-                                    android:id="@+id/n_cook_3"/>
-                            </FrameLayout>
-
-                        </LinearLayout>
-                    </HorizontalScrollView>
+                            android:paddingTop="24dp"
+                            android:clipToPadding="false"
+                            tools:listitem="@layout/cook_card_02"/>
+                    </LinearLayout>
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>
@@ -571,11 +442,12 @@
         <!-- 새로운 메뉴 버튼 -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation_view"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/white"
             app:menu="@menu/menu_bottom_nav"
-            app:labelVisibilityMode="unlabeled" />
+            app:labelVisibilityMode="unlabeled"
+            app:itemIconSize="25dp"/>
 
         <!-- 새로운 메뉴버튼 생성에 따른 주석 처리 -->
         <!--<LinearLayout

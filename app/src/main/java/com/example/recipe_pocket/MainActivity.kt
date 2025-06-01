@@ -12,9 +12,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope // 코루틴 사용을 위해 필요
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.recipe_pocket.databinding.ActivityMainBinding
-import com.example.recipe_pocket.databinding.CookCard01Binding
 import com.google.firebase.auth.FirebaseAuth
 
 import kotlinx.coroutines.launch // 코루틴 사용을 위해 필요
@@ -22,6 +23,9 @@ import kotlinx.coroutines.launch // 코루틴 사용을 위해 필요
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var hotCookRecipeAdapter: RecipeAdapter
+    private lateinit var pickCookRecipeAdapter: RecipeAdapter
+    private lateinit var nCookRecipeAdapter: RecipeAdapter
 
     // 기본 이미지 리소스 ID (실제 프로젝트의 리소스 ID로 변경하세요)
     private val defaultRecipeImagePlaceholderResId: Int = R.drawable.bg_main_rounded_gray
@@ -51,9 +55,16 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, SearchResult::class.java)
             startActivity(intent)
         }
+        binding.categoryButton1.setOnClickListener {
+            val intent = Intent(this, SearchResult::class.java)
+            startActivity(intent)
+        }
 
-        // 레시피 카드 초기화 (코루틴 사용)
-        loadCookRecipes()
+        // Hot Cook RecyclerView 설정
+        setupRecyclerView() // RecyclerView 설정 함수 호출
+        loadRecipes_hot() // 함수 이름 변경 또는 내용 수정
+        loadRecipes_pick()
+        loadRecipes_n()
 
         // ViewPager2 설정 (CookTipItem, CookTipAdapter 클래스가 정의되어 있다고 가정)
         val cookTipItems = listOf(
@@ -101,148 +112,98 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    //카드에 db내용 추가
-    private fun loadCookRecipes() {
-        // lifecycleScope.launch를 사용하여 UI 관련 코루틴을 시작합니다.
+    private fun setupRecyclerView() {
+        // MainActivity에서는 cook_card_01.xml을 사용한다고 가정
+        hotCookRecipeAdapter = RecipeAdapter(emptyList(), R.layout.cook_card_01)
+        binding.hotCookRecyclerview.apply { // XML에 정의한 RecyclerView ID 사용
+            adapter = hotCookRecipeAdapter
+            // 레이아웃 매니저 설정 (세로 리스트)
+            layoutManager = LinearLayoutManager(this@MainActivity, RecyclerView.HORIZONTAL, false)
+        }
+
+        pickCookRecipeAdapter = RecipeAdapter(emptyList(), R.layout.cook_card_02)
+        binding.pickCookRecyclerview.apply { // XML에 정의한 RecyclerView ID 사용
+            adapter = pickCookRecipeAdapter
+            // 레이아웃 매니저 설정 (세로 리스트)
+            layoutManager = LinearLayoutManager(this@MainActivity, RecyclerView.HORIZONTAL, false)
+        }
+
+        nCookRecipeAdapter = RecipeAdapter(emptyList(), R.layout.cook_card_02)
+        binding.nCookRecyclerview.apply { // XML에 정의한 RecyclerView ID 사용
+            adapter = nCookRecipeAdapter
+            // 레이아웃 매니저 설정 (세로 리스트)
+            layoutManager = LinearLayoutManager(this@MainActivity, RecyclerView.HORIZONTAL, false)
+        }
+    }
+
+    // 카드에 db내용 추가 (함수 이름 변경 또는 내용 조정)
+    private fun loadRecipes_hot() {
         lifecycleScope.launch {
-            // RecipeLoader에서 3개의 레시피를 요청합니다.
-            val result = RecipeLoader.loadMultipleRandomRecipesWithAuthor(count = 3)
+            val result = RecipeLoader.loadMultipleRandomRecipesWithAuthor(count = 5)
 
             result.fold(
                 onSuccess = { recipes ->
-                    // 성공적으로 레시피 목록을 가져왔을 때
-                    val hotCookCardBindings = listOfNotNull(
-                        binding.hotCook1,
-                        binding.hotCook2,
-                        binding.hotCook3,
-                    )
-
                     if (recipes.isEmpty()) {
                         Toast.makeText(this@MainActivity, "표시할 인기 레시피가 없습니다.", Toast.LENGTH_LONG).show()
-                        // 모든 카드를 기본 상태로 설정
-                        hotCookCardBindings.forEachIndexed { index, cardBinding ->
-                            clearRecipeCard(cardBinding, "hot_cook_${index + 1}")
-                        }
-                        return@fold
-                    }
-
-                    // 가져온 레시피를 각 카드에 순서대로 채웁니다.
-                    recipes.forEachIndexed { index, recipe ->
-                        if (index < hotCookCardBindings.size) {
-                            // 해당 카드에 레시피 정보를 표시합니다.
-                            displayRecipeInCard(
-                                cardBinding = hotCookCardBindings[index],
-                                recipe = recipe,
-                                cardNameForToast = "hot_cook_${index + 1}"
-                            )
-                        }
-                    }
-
-                    // 만약 가져온 레시피 수가 카드 수보다 적다면, 나머지 카드는 비우거나 기본 상태로 둡니다.
-                    if (recipes.size < hotCookCardBindings.size) {
-                        for (i in recipes.size until hotCookCardBindings.size) {
-                            clearRecipeCard(hotCookCardBindings[i], "hot_cook_${i + 1}")
-                        }
+                        binding.hotCookRecyclerview.visibility = RecyclerView.GONE // 데이터 없으면 숨김
+                        // 필요하다면 "데이터 없음"을 표시하는 TextView를 보이게 할 수 있음
+                    } else {
+                        binding.hotCookRecyclerview.visibility = RecyclerView.VISIBLE // 데이터 있으면 보임
+                        hotCookRecipeAdapter.updateRecipes(recipes)
                     }
                 },
                 onFailure = { exception ->
-                    // 레시피 로드에 실패했을 때
                     Toast.makeText(this@MainActivity, "인기 레시피 로드 실패: ${exception.message}", Toast.LENGTH_LONG).show()
-                    // 모든 카드를 에러 상태로 설정
-                    val hotCookCardBindings = listOfNotNull(binding.hotCook1, binding.hotCook2, binding.hotCook3)
-                    hotCookCardBindings.forEachIndexed { index, cardBinding ->
-                        clearRecipeCard(cardBinding, "hot_cook_${index + 1}", isError = true)
-                    }
+                    binding.hotCookRecyclerview.visibility = RecyclerView.GONE // 실패 시에도 숨김
+                    // 필요하다면 에러 메시지를 표시하는 TextView를 보이게 할 수 있음
                 }
             )
         }
     }
+    private fun loadRecipes_pick() {
+        lifecycleScope.launch {
+            val result = RecipeLoader.loadMultipleRandomRecipesWithAuthor(count = 5)
 
-    /**
-     * Recipe 객체 데이터를 받아 카드 UI에 표시하는 함수
-     */
-    private fun displayRecipeInCard(
-        cardBinding: CookCard01Binding,
-        recipe: Recipe,
-        cardNameForToast: String // 현재는 사용되지 않지만, 디버깅이나 로깅에 유용할 수 있음
-    ) {
-        // 레시피 제목 설정
-        cardBinding.recipeNameText.text = recipe.title ?: "제목 없음"
-        // 요리 시간 설정
-        cardBinding.cookingTimeText.text = recipe.cookingTime?.let { "${it}분" } ?: "시간 정보 없음"
-
-        // 레시피 썸네일 이미지 로드 (Glide 사용)
-        recipe.thumbnailUrl?.let { url ->
-            if (url.isNotEmpty()) {
-                Glide.with(this@MainActivity)
-                    .load(url)
-                    .placeholder(defaultRecipeImagePlaceholderResId)
-                    .error(defaultRecipeImageErrorResId)
-                    .into(cardBinding.recipeImageView)
-            } else {
-                cardBinding.recipeImageView.setImageResource(defaultRecipeImageErrorResId)
-            }
-        } ?: run {
-            cardBinding.recipeImageView.setImageResource(defaultRecipeImageErrorResId) // URL이 null인 경우
-        }
-
-        // 작성자 정보 표시
-        val author = recipe.author
-        if (author != null) {
-            cardBinding.authorNameText.text = author.nickname ?: "작성자 정보 없음"
-            author.profileImageUrl?.let { url ->
-                if (url.isNotEmpty()) {
-                    Glide.with(this@MainActivity)
-                        .load(url)
-                        .placeholder(defaultProfileImagePlaceholderResId)
-                        .error(defaultProfileImageErrorResId)
-                        .circleCrop() // 프로필 이미지는 원형으로
-                        .into(cardBinding.authorProfileImage)
-                } else {
-                    cardBinding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
+            result.fold(
+                onSuccess = { recipes ->
+                    if (recipes.isEmpty()) {
+                        Toast.makeText(this@MainActivity, "표시할 인기 레시피가 없습니다.", Toast.LENGTH_LONG).show()
+                        binding.pickCookRecyclerview.visibility = RecyclerView.GONE // 데이터 없으면 숨김
+                        // 필요하다면 "데이터 없음"을 표시하는 TextView를 보이게 할 수 있음
+                    } else {
+                        binding.pickCookRecyclerview.visibility = RecyclerView.VISIBLE // 데이터 있으면 보임
+                        pickCookRecipeAdapter.updateRecipes(recipes)
+                    }
+                },
+                onFailure = { exception ->
+                    Toast.makeText(this@MainActivity, "인기 레시피 로드 실패: ${exception.message}", Toast.LENGTH_LONG).show()
+                    binding.pickCookRecyclerview.visibility = RecyclerView.GONE // 실패 시에도 숨김
+                    // 필요하다면 에러 메시지를 표시하는 TextView를 보이게 할 수 있음
                 }
-            } ?: run {
-                cardBinding.authorProfileImage.setImageResource(defaultProfileImageErrorResId) // URL이 null인 경우
-            }
-        } else {
-            // 작성자 정보가 없는 경우 (예: recipe.userId가 없거나, User 문서 로드 실패)
-            cardBinding.authorNameText.text = "작성자 미상"
-            cardBinding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
-        }
-        // --- 클릭 리스너 설정 ---
-        cardBinding.root.setOnClickListener {
-            // recipe.id는 @DocumentId 어노테이션을 통해 Firestore 문서 ID로 채워집니다.
-            recipe.id?.let { recipeId ->
-                if (recipeId.isNotEmpty()) {
-                    val intent = Intent(this@MainActivity, RecipeDetailActivity::class.java)
-                    // "RECIPE_ID"라는 키로 레시피의 문서 ID를 전달합니다.
-                    intent.putExtra("RECIPE_ID", recipeId)
-                    startActivity(intent)
-                } else {
-                    Toast.makeText(this@MainActivity, "레시피 정보를 불러올 수 없습니다. (ID 없음)", Toast.LENGTH_SHORT).show()
-                }
-            } ?: run {
-                Toast.makeText(this@MainActivity, "레시피 정보를 불러올 수 없습니다. (ID null)", Toast.LENGTH_SHORT).show()
-            }
+            )
         }
     }
+    private fun loadRecipes_n() {
+        lifecycleScope.launch {
+            val result = RecipeLoader.loadMultipleRandomRecipesWithAuthor(count = 5)
 
-    /**
-     * 레시피 카드 내용을 비우거나 에러 상태로 설정하는 함수
-     */
-    private fun clearRecipeCard(
-        cardBinding: CookCard01Binding?,
-        cardName: String, // 디버깅용
-        isError: Boolean = false
-    ) {
-        cardBinding?.let {
-            it.recipeNameText.text = if (isError) "정보 없음" else "레시피 없음"
-            it.cookingTimeText.text = ""
-            it.authorNameText.text = "정보 없음"
-            it.recipeImageView.setImageResource(if (isError) defaultRecipeImageErrorResId else defaultRecipeImagePlaceholderResId)
-            it.authorProfileImage.setImageResource(if (isError) defaultProfileImageErrorResId else defaultProfileImagePlaceholderResId)
-            // if (isError) Toast.makeText(this, "$cardName 데이터 로드 실패", Toast.LENGTH_SHORT).show()
-            // else Toast.makeText(this, "$cardName 데이터 없음", Toast.LENGTH_SHORT).show()
+            result.fold(
+                onSuccess = { recipes ->
+                    if (recipes.isEmpty()) {
+                        Toast.makeText(this@MainActivity, "표시할 인기 레시피가 없습니다.", Toast.LENGTH_LONG).show()
+                        binding.nCookRecyclerview.visibility = RecyclerView.GONE // 데이터 없으면 숨김
+                        // 필요하다면 "데이터 없음"을 표시하는 TextView를 보이게 할 수 있음
+                    } else {
+                        binding.nCookRecyclerview.visibility = RecyclerView.VISIBLE // 데이터 있으면 보임
+                        nCookRecipeAdapter.updateRecipes(recipes)
+                    }
+                },
+                onFailure = { exception ->
+                    Toast.makeText(this@MainActivity, "인기 레시피 로드 실패: ${exception.message}", Toast.LENGTH_LONG).show()
+                    binding.nCookRecyclerview.visibility = RecyclerView.GONE // 실패 시에도 숨김
+                    // 필요하다면 에러 메시지를 표시하는 TextView를 보이게 할 수 있음
+                }
+            )
         }
     }
 }

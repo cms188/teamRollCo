@@ -3,6 +3,7 @@ package com.example.recipe_pocket
 import android.content.Context
 import android.widget.ImageView
 import com.bumptech.glide.Glide
+import com.example.recipe_pocket.RecipeLoader.db
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -15,76 +16,6 @@ import kotlin.random.Random
 object RecipeLoader {
 
     private val db: FirebaseFirestore = Firebase.firestore
-
-    // 기존 loadRandomRecipeWithAuthor 함수는 단일 랜덤 레시피가 필요할 경우를 위해 유지할 수 있습니다.
-    fun loadRandomRecipeWithAuthor(
-        context: Context,
-        onSuccess: (recipe: Recipe) -> Unit,
-        onFailure: (exception: Exception) -> Unit,
-        imageViewToLoad: ImageView? = null,
-        placeholderResId: Int? = null,
-        errorResId: Int? = null
-    ) {
-        db.collection("Recipes")
-            .get()
-            .addOnSuccessListener { recipeResult ->
-                if (recipeResult != null && !recipeResult.isEmpty) {
-                    val documents = recipeResult.documents
-                    if (documents.isNotEmpty()) {
-                        val randomIndex = Random.nextInt(documents.size)
-                        val randomRecipeDocument = documents[randomIndex]
-                        val recipe = randomRecipeDocument.toObject(Recipe::class.java)
-
-                        if (recipe != null) {
-                            imageViewToLoad?.let { imageView ->
-                                recipe.thumbnailUrl?.let { url ->
-                                    if (url.isNotEmpty()) {
-                                        val glideRequest = Glide.with(context).load(url)
-                                        placeholderResId?.let { glideRequest.placeholder(it) }
-                                        errorResId?.let { glideRequest.error(it) }
-                                        glideRequest.into(imageView)
-                                    } else {
-                                        errorResId?.let { imageView.setImageResource(it) }
-                                    }
-                                } ?: run {
-                                    errorResId?.let { imageView.setImageResource(it) }
-                                }
-                            }
-
-                            recipe.userId?.let { userId ->
-                                if (userId.isNotEmpty()) {
-                                    db.collection("Users").document(userId)
-                                        .get()
-                                        .addOnSuccessListener { userDocument ->
-                                            if (userDocument != null && userDocument.exists()) {
-                                                recipe.author = userDocument.toObject(User::class.java)
-                                            }
-                                            onSuccess(recipe)
-                                        }
-                                        .addOnFailureListener {
-                                            onSuccess(recipe) // 작성자 정보 실패해도 레시피는 전달
-                                        }
-                                } else {
-                                    onSuccess(recipe)
-                                }
-                            } ?: run {
-                                onSuccess(recipe)
-                            }
-                        } else {
-                            onFailure(Exception("레시피 객체 변환에 실패했습니다."))
-                        }
-                    } else {
-                        onFailure(Exception("표시할 레시피가 없습니다."))
-                    }
-                } else {
-                    onFailure(Exception("레시피를 불러오지 못했습니다."))
-                }
-            }
-            .addOnFailureListener { recipeException ->
-                onFailure(recipeException)
-            }
-    }
-
     /*
      * 지정된 개수만큼 중복되지 않는 랜덤 레시피를 가져오고, 각 레시피의 작성자 정보도 함께 로드합니다.
      * 이 함수는 코루틴 내에서 호출되어야 합니다. (suspend 함수)
@@ -159,3 +90,74 @@ object RecipeLoader {
         }
     }
 }
+
+/*
+// 기존 loadRandomRecipeWithAuthor 함수는 단일 랜덤 레시피가 필요할 경우를 위해 유지할 수 있습니다.
+fun loadRandomRecipeWithAuthor(
+    context: Context,
+    onSuccess: (recipe: Recipe) -> Unit,
+    onFailure: (exception: Exception) -> Unit,
+    imageViewToLoad: ImageView? = null,
+    placeholderResId: Int? = null,
+    errorResId: Int? = null
+) {
+    db.collection("Recipes")
+        .get()
+        .addOnSuccessListener { recipeResult ->
+            if (recipeResult != null && !recipeResult.isEmpty) {
+                val documents = recipeResult.documents
+                if (documents.isNotEmpty()) {
+                    val randomIndex = Random.nextInt(documents.size)
+                    val randomRecipeDocument = documents[randomIndex]
+                    val recipe = randomRecipeDocument.toObject(Recipe::class.java)
+
+                    if (recipe != null) {
+                        imageViewToLoad?.let { imageView ->
+                            recipe.thumbnailUrl?.let { url ->
+                                if (url.isNotEmpty()) {
+                                    val glideRequest = Glide.with(context).load(url)
+                                    placeholderResId?.let { glideRequest.placeholder(it) }
+                                    errorResId?.let { glideRequest.error(it) }
+                                    glideRequest.into(imageView)
+                                } else {
+                                    errorResId?.let { imageView.setImageResource(it) }
+                                }
+                            } ?: run {
+                                errorResId?.let { imageView.setImageResource(it) }
+                            }
+                        }
+
+                        recipe.userId?.let { userId ->
+                            if (userId.isNotEmpty()) {
+                                db.collection("Users").document(userId)
+                                    .get()
+                                    .addOnSuccessListener { userDocument ->
+                                        if (userDocument != null && userDocument.exists()) {
+                                            recipe.author = userDocument.toObject(User::class.java)
+                                        }
+                                        onSuccess(recipe)
+                                    }
+                                    .addOnFailureListener {
+                                        onSuccess(recipe) // 작성자 정보 실패해도 레시피는 전달
+                                    }
+                            } else {
+                                onSuccess(recipe)
+                            }
+                        } ?: run {
+                            onSuccess(recipe)
+                        }
+                    } else {
+                        onFailure(Exception("레시피 객체 변환에 실패했습니다."))
+                    }
+                } else {
+                    onFailure(Exception("표시할 레시피가 없습니다."))
+                }
+            } else {
+                onFailure(Exception("레시피를 불러오지 못했습니다."))
+            }
+        }
+        .addOnFailureListener { recipeException ->
+            onFailure(recipeException)
+        }
+}
+*/

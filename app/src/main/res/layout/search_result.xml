@@ -47,7 +47,7 @@
             android:layout_height="40dp"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_search_bar_orange_border"
-            android:drawableEnd="@drawable/ic_star"
+            android:drawableEnd="@drawable/ic_search"
             android:drawablePadding="10dp"
             android:hint="검색결과"
             android:paddingStart="16dp"
@@ -89,7 +89,7 @@
             android:textColor="#424242"
             android:paddingVertical="6dp"
             android:paddingHorizontal="12dp"
-            android:drawableStart="@drawable/ic_star"
+            android:drawableStart="@drawable/ic_filter"
             android:drawablePadding="4dp"
             android:gravity="center_vertical"
             android:background="@drawable/bg_gray_rounded"
@@ -105,7 +105,7 @@
             android:textColor="#424242"
             android:paddingVertical="6dp"
             android:paddingHorizontal="12dp"
-            android:drawableEnd="@drawable/ic_star"
+            android:drawableEnd="@drawable/ic_arrow_down"
             android:drawablePadding="4dp"
             android:gravity="center_vertical"
             android:background="@drawable/bg_gray_rounded"
@@ -123,55 +123,14 @@
         android:clipToPadding="false"
         android:background="@color/white">
 
-        <LinearLayout
-            android:id="@+id/hot_cook_container"
-            android:layout_width="wrap_content"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_search_results"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="24dp">
+            android:paddingTop="24dp"
+            android:clipToPadding="false"
+            tools:listitem="@layout/cook_card_03"/>
 
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <include layout="@layout/cook_card_03"
-                    android:id="@+id/search_result1"/>
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <include layout="@layout/cook_card_03"
-                    android:id="@+id/search_result2"/>
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <include layout="@layout/cook_card_03"
-                    android:id="@+id/search_result3"/>
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <include layout="@layout/cook_card_03"
-                android:id="@+id/search_result4"/>
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <include layout="@layout/cook_card_03"
-                    android:id="@+id/search_result5"/>
-            </FrameLayout>
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <include layout="@layout/cook_card_03"
-                    android:id="@+id/search_result6"/>
-            </FrameLayout>
-        </LinearLayout>
     </ScrollView>
 
 </LinearLayout>

@@ -30,10 +30,7 @@
                 android:layout_height="match_parent"
                 android:contentDescription="@string/cook_image"
                 android:scaleType="centerCrop"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                android:foreground="?attr/selectableItemBackground"
                 tools:srcCompat="@tools:sample/backgrounds/scenic" />
         </androidx.cardview.widget.CardView>
 
@@ -42,10 +39,10 @@
             <!-- 북마크 버튼 -->
         <ImageButton
             android:id="@+id/bookmark_button"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginBottom="5dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
             android:src="@drawable/ic_bookmark_outline_figma"
             android:background="@drawable/bg_bookmark_shape"
             android:padding="8dp"
@@ -59,7 +56,7 @@
 
     <!-- 우측: 텍스트 정보 영역 -->
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
         android:orientation="vertical"
@@ -70,7 +67,7 @@
         <!-- 요리 이름 -->
         <TextView
             android:id="@+id/recipe_name_text"
-            android:layout_width="150dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="2"
@@ -90,8 +87,7 @@
             android:textSize="14sp"
             android:textColor="@android:color/black"
             app:drawableStartCompat="@drawable/ic_star"
-            app:drawableTint="#FFC107"
-            android:drawablePadding="4dp"
+            android:drawablePadding="5dp"
             android:gravity="center_vertical"/>
 
         <!-- 조리 시간 -->
@@ -105,8 +101,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:layout_marginRight="10dp"
-                app:drawableStartCompat="@drawable/ic_star"
+                app:drawableStartCompat="@drawable/ic_clock"
                 android:text="조리시간"
+                android:drawablePadding="4dp"
                 android:textSize="12sp"
                 android:textColor="@color/darker_gray" />
 
@@ -116,8 +113,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                app:drawableStartCompat="@drawable/ic_star"
+                app:drawableStartCompat="@drawable/ic_difficulty"
                 android:text="난이도"
+                android:drawablePadding="4dp"
                 android:textSize="12sp"
                 android:textColor="@color/darker_gray" />
         </LinearLayout>

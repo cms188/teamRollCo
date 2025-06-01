@@ -29,20 +29,19 @@
                 android:id="@+id/recipe_image_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/bg_main_rounded_gray"
-                android:clickable="true"
                 android:contentDescription="@string/cook_image"
-                android:focusable="true"
                 android:scaleType="centerCrop"
-                tools:srcCompat="@tools:sample/backgrounds/scenic" />
+                android:foreground="?attr/selectableItemBackground"
+                tools:srcCompat="@tools:sample/backgrounds/scenic"
+                android:background="@drawable/bg_main_rounded_gray"/>
         </androidx.cardview.widget.CardView>
 
         <ImageButton
             android:id="@+id/bookmark_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginBottom="12dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
             android:src="@drawable/ic_bookmark_outline_figma"
             android:background="@drawable/bg_bookmark_shape"
             android:padding="8dp"
@@ -100,7 +99,6 @@
                 android:textSize="20sp"
                 android:textColor="@android:color/black"
                 app:drawableStartCompat="@drawable/ic_star"
-                app:drawableTint="#FFC107"
                 android:drawablePadding="6dp"
                 android:gravity="center_vertical"/>
         </LinearLayout>
@@ -153,7 +151,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/cooking_time"
-            android:textSize="13sp"
+            android:textSize="16sp"
             android:textColor="@color/darker_gray"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
