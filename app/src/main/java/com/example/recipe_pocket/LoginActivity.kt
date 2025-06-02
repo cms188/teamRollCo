@@ -2,6 +2,7 @@ package com.example.recipe_pocket
 
 import android.content.ContentValues.TAG
 import android.content.Intent
+import android.nfc.Tag
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -17,10 +18,23 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import androidx.activity.result.contract.ActivityResultContracts
+import com.example.recipe_pocket.databinding.ActivityLoginBinding
+import com.example.recipe_pocket.databinding.ActivityMainBinding
+import com.google.android.gms.common.api.ApiException
+
 
 class LoginActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityLoginBinding
+    private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var auth: FirebaseAuth
+    private val RC_SIGN_IN = 1001
+
     var findpass: Boolean = false //뒤로가기 버튼 두가지 기능을 위한 Boolean
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +67,8 @@ class LoginActivity : AppCompatActivity() {
         val editEmail = findViewById<EditText>(R.id.editEmail)
         val editPassword = findViewById<EditText>(R.id.editPassword)
 
+        val ivGoogleLogin = findViewById<ImageView>(R.id.iv_google_login_linear)
+
         loginButton.setOnClickListener {
             loginUser()
         }
@@ -61,6 +77,7 @@ class LoginActivity : AppCompatActivity() {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
+
         backButton.setOnClickListener {
             if (findpass) {
                 editEmail.visibility = View.VISIBLE
@@ -74,8 +91,8 @@ class LoginActivity : AppCompatActivity() {
                 findpass = false
             }
             else {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
             }
         }
 
@@ -122,6 +139,18 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this, "등록되지 않은 이메일입니다.", Toast.LENGTH_SHORT).show()
                 }
             }
+        }
+
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id)) // res/values/strings.xml에 있음
+            .requestEmail()
+            .build()
+
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        ivGoogleLogin.setOnClickListener {
+            val signInIntent = googleSignInClient.signInIntent
+            startActivityForResult(signInIntent, RC_SIGN_IN)
         }
     }
 
@@ -182,7 +211,88 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
-    private fun generateVerificationCode(): String {
-        return (100000..999999).random().toString()
+
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == RC_SIGN_IN) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                Log.d("GOOGLE_LOGIN", "firebaseAuthWithGoogle:" + account.id)
+                firebaseAuthWithGoogle(account.idToken!!)
+            } catch (e: ApiException) {
+                Log.e("GOOGLE_LOGIN", "Google sign in failed, statusCode=${e.statusCode}", e)
+                if (e.statusCode == 10) {
+                    Log.e("GOOGLE_LOGIN", "🔴 Error 10: SHA-1 fingerprint missing or misconfigured in Firebase!")
+                }
+            }
+        }
+    }
+
+    private fun firebaseAuthWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    Log.d("GOOGLE_LOGIN", "✅ signInWithCredential:success")
+                    val user = auth.currentUser
+
+                    if (user != null) {
+                        val email = user.email
+                        if (email != null) {
+                            checkIfUserHasNickname(email)
+                        } else {
+                            Toast.makeText(this, "이메일 정보가 없습니다.", Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(this, "로그인된 사용자를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Log.e("GOOGLE_LOGIN", "❌ signInWithCredential:failure", task.exception)
+                    Toast.makeText(this, "로그인 실패: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+    private fun checkIfUserHasNickname(email: String) {
+        val firestore = FirebaseFirestore.getInstance()
+        val userRef = firestore.collection("Users").whereEqualTo("email", email)
+
+        userRef.get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val document = querySnapshot.documents[0]
+                    val nickname = document.getString("nickname")
+
+                    if (!nickname.isNullOrEmpty()) {
+                        Toast.makeText(this, "${nickname}님, 로그인 성공", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this, MainActivity::class.java)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        navigateToNicknameSetup(email)
+                    }
+                } else {
+                    // 사용자 문서가 없을 경우에도 닉네임 설정 액티비티로 이동
+                    Log.w("Firestore", "사용자 문서 없음")
+                    navigateToNicknameSetup(email)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "사용자 닉네임 조회 실패", e)
+                Toast.makeText(this, "사용자 정보 조회 실패", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun navigateToNicknameSetup(email: String) {
+        val intent = Intent(this, NicknameSetupActivity::class.java)
+        intent.putExtra("email", email)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivity(intent)
+        finish()
     }
 }

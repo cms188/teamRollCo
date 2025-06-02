@@ -8,6 +8,26 @@ android {
     namespace = "com.example.recipe_pocket"
     compileSdk = 35
 
+    signingConfigs {
+        create("release") {
+            if (project.hasProperty("MYAPP_RELEASE_STORE_FILE")) {
+                storeFile = file(project.property("MYAPP_RELEASE_STORE_FILE") as String)
+                storePassword = project.property("MYAPP_RELEASE_STORE_PASSWORD") as String
+                keyAlias = project.property("MYAPP_RELEASE_KEY_ALIAS") as String
+                keyPassword = project.property("MYAPP_RELEASE_KEY_PASSWORD") as String
+            }
+        }
+    }
+
+    signingConfigs {
+        create("customDebug") {
+            storeFile = file(project.property("MYAPP_DEBUG_STORE_FILE") as String)
+            storePassword = project.property("MYAPP_DEBUG_STORE_PASSWORD") as String
+            keyAlias = project.property("MYAPP_DEBUG_KEY_ALIAS") as String
+            keyPassword = project.property("MYAPP_DEBUG_KEY_PASSWORD") as String
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.recipe_pocket"
         minSdk = 26
@@ -18,15 +38,25 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+
+
     buildTypes {
-        release {
+        getByName("release") {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
+
+    buildTypes {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("customDebug")
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -62,3 +92,4 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
+

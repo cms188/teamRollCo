@@ -1,4 +1,4 @@
- {
+{
   "project_info": {
     "project_number": "234626025407",
     "project_id": "androidfirebaseyuhan",
@@ -7,12 +7,25 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:234626025407:android:b569065c8ad85b4774c30a",
+        "mobilesdk_app_id": "1:234626025407:android:86972208a756717874c30a",
         "android_client_info": {
           "package_name": "com.example.recipe_pocket"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "234626025407-29ctdlpelcr8olllshhud81lst3nighj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.recipe_pocket",
+            "certificate_hash": "2474b77e052e6f13e49d4de9cdc843a9374a20e9"
+          }
+        },
+        {
+          "client_id": "234626025407-8d75h1ltcl8hd509a5h4eginqcqp99am.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyA4B_VGJZcdoX5cOJoXEvWLskynG_AwQgs"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "234626025407-8d75h1ltcl8hd509a5h4eginqcqp99am.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -46,39 +46,46 @@ class UserPageActivity : AppCompatActivity() {
         }
     }
 
-    // 이메일로 사용자 닉네임 가져오기
     private fun getUserNicknameByEmail(email: String) {
         val userRef = firestore.collection("Users")
-            .whereEqualTo("email", email) // 이메일을 기준으로 문서 검색
+            .whereEqualTo("email", email)
+
         userRef.get()
             .addOnSuccessListener { querySnapshot ->
                 if (!querySnapshot.isEmpty) {
                     val document = querySnapshot.documents[0]
-                    val nickname = document.getString("nickname") // Firestore에서 닉네임 가져오기
+                    val nickname = document.getString("nickname")
 
                     runOnUiThread {
-                        if (!nickname.isNullOrEmpty()) {  // null이거나 빈 문자열 체크
+                        if (!nickname.isNullOrEmpty()) {
                             greetingTextView.text = "${nickname}님, 환영합니다."
-                            Log.d("Firestore", "닉네임 로드 성공: $nickname")  // 로그 추가
+                            Log.d("Firestore", "닉네임 로드 성공: $nickname")
                         } else {
                             greetingTextView.text = "회원님, 환영합니다."
-                            Log.w("Firestore", "닉네임 필드가 비어있음")  // 로그 추가
+                            Log.w("Firestore", "닉네임 필드가 비어있음")
                         }
                     }
                 } else {
-                    runOnUiThread {
-                        greetingTextView.text = "회원님, 환영합니다."
-                        Log.w("Firestore", "문서가 존재하지 않음")  // 로그 추가
-                    }
+                    // 닉네임 없음 → 닉네임 생성 액티비티로 이동
+                    Log.w("Firestore", "사용자 문서 없음, 닉네임 생성으로 이동")
+                    navigateToNicknameSetup(email)
                 }
             }
             .addOnFailureListener { e ->
                 runOnUiThread {
                     greetingTextView.text = "환영합니다."
-                    Log.e("Firestore", "닉네임 조회 실패: ${e.message}")  // 로그 추가
+                    Log.e("Firestore", "닉네임 조회 실패: ${e.message}")
                     Toast.makeText(this, "사용자 정보 조회 실패", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    // 닉네임 설정 액티비티로 이동
+    private fun navigateToNicknameSetup(email: String) {
+        val intent = Intent(this, NicknameSetupActivity::class.java)
+        intent.putExtra("email", email)
+        startActivity(intent)
+        finish() // 현재 화면 닫기
     }
 
     // 로그아웃 처리
