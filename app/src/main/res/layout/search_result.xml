@@ -5,17 +5,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/Search_Result_Layout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white">
 
-
-    <!-- 상단 바 영역: 뒤로가기 버튼과 검색창 -->
+    <!-- 상태 표시줄 패딩 -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:background="@color/search_color"/>
+        android:layout_height="wrap_content"
+        android:background="@color/search_color"
+        android:paddingTop="24dp" />
 
+    <!-- 상단 바: 뒤로가기 버튼 + 검색창 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top_bar_layout"
         android:layout_width="match_parent"
@@ -26,7 +27,6 @@
         android:paddingStart="8dp"
         android:paddingEnd="16dp">
 
-        <!-- 뒤로가기 버튼 (제공된 코드 기반) -->
         <ImageView
             android:id="@+id/iv_back_button"
             android:layout_width="wrap_content"
@@ -38,9 +38,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:adjustViewBounds="true"
-            android:scaleType="centerInside"/>
+            android:scaleType="centerInside" />
 
-        <!-- 검색창 -->
         <EditText
             android:id="@+id/et_search_bar"
             android:layout_width="0dp"
@@ -49,7 +48,7 @@
             android:background="@drawable/bg_search_bar_orange_border"
             android:drawableEnd="@drawable/ic_search"
             android:drawablePadding="10dp"
-            android:hint="검색결과"
+            android:hint="검색어를 입력하세요"
             android:paddingStart="16dp"
             android:paddingEnd="12dp"
             android:textSize="14sp"
@@ -61,11 +60,10 @@
             app:layout_constraintStart_toEndOf="@id/iv_back_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-
+            app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- 필터 및 정렬 버튼 영역 -->
+    <!-- 필터 / 정렬 버튼 -->
     <LinearLayout
         android:id="@+id/filter_sort_layout"
         android:layout_width="match_parent"
@@ -78,7 +76,7 @@
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1" />
 
         <TextView
             android:id="@+id/tv_filter_button"
@@ -94,7 +92,7 @@
             android:gravity="center_vertical"
             android:background="@drawable/bg_gray_rounded"
             android:clickable="true"
-            android:focusable="true"/>
+            android:focusable="true" />
 
         <TextView
             android:id="@+id/tv_sort_button"
@@ -105,32 +103,49 @@
             android:textColor="#424242"
             android:paddingVertical="6dp"
             android:paddingHorizontal="12dp"
+            android:layout_marginStart="8dp"
             android:drawableEnd="@drawable/ic_arrow_down"
             android:drawablePadding="4dp"
             android:gravity="center_vertical"
             android:background="@drawable/bg_gray_rounded"
             android:clickable="true"
-            android:focusable="true"/>
+            android:focusable="true" />
     </LinearLayout>
 
-    <ScrollView
+    <!-- 콘텐츠 영역 -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true"
-        android:contentDescription="메인 콘텐츠 스크롤 영역"
-        android:clipChildren="false"
-        android:clipToPadding="false"
         android:background="@color/white">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_search_results"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="24dp"
+            android:layout_height="match_parent"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
             android:clipToPadding="false"
-            tools:listitem="@layout/cook_card_03"/>
+            tools:listitem="@layout/cook_card_03" />
 
-    </ScrollView>
+        <TextView
+            android:id="@+id/tv_no_results"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="검색 결과가 없습니다."
+            android:textSize="16sp"
+            android:textColor="@android:color/darker_gray"
+            android:gravity="center"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </FrameLayout>
 </LinearLayout>

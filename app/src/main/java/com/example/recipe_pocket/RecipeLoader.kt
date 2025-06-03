@@ -11,6 +11,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await // Firebase Task를 코루틴과 함께 사용하기 위해 필요
+import java.text.Normalizer
 import kotlin.random.Random
 
 object RecipeLoader {
@@ -89,75 +90,63 @@ object RecipeLoader {
             Result.failure(e)
         }
     }
-}
 
-/*
-// 기존 loadRandomRecipeWithAuthor 함수는 단일 랜덤 레시피가 필요할 경우를 위해 유지할 수 있습니다.
-fun loadRandomRecipeWithAuthor(
-    context: Context,
-    onSuccess: (recipe: Recipe) -> Unit,
-    onFailure: (exception: Exception) -> Unit,
-    imageViewToLoad: ImageView? = null,
-    placeholderResId: Int? = null,
-    errorResId: Int? = null
-) {
-    db.collection("Recipes")
-        .get()
-        .addOnSuccessListener { recipeResult ->
-            if (recipeResult != null && !recipeResult.isEmpty) {
-                val documents = recipeResult.documents
-                if (documents.isNotEmpty()) {
-                    val randomIndex = Random.nextInt(documents.size)
-                    val randomRecipeDocument = documents[randomIndex]
-                    val recipe = randomRecipeDocument.toObject(Recipe::class.java)
+    /**
+     * 제목으로 레시피 검색
+     */
+    suspend fun searchRecipesByTitle(query: String): Result<List<Recipe>> {
+        if (query.isBlank()) {
+            return Result.success(emptyList())
+        }
+        // 1. 검색어를 소문자로 변환하고 NFC로 정규화
+        val normalizedQuery = Normalizer.normalize(query.lowercase().trim(), Normalizer.Form.NFC)
 
-                    if (recipe != null) {
-                        imageViewToLoad?.let { imageView ->
-                            recipe.thumbnailUrl?.let { url ->
-                                if (url.isNotEmpty()) {
-                                    val glideRequest = Glide.with(context).load(url)
-                                    placeholderResId?.let { glideRequest.placeholder(it) }
-                                    errorResId?.let { glideRequest.error(it) }
-                                    glideRequest.into(imageView)
-                                } else {
-                                    errorResId?.let { imageView.setImageResource(it) }
-                                }
-                            } ?: run {
-                                errorResId?.let { imageView.setImageResource(it) }
-                            }
-                        }
+        return try {
+            val recipeQueryResult = db.collection("Recipes").get().await()
 
+            if (recipeQueryResult == null || recipeQueryResult.isEmpty) {
+                return Result.failure(Exception("레시피를 불러오지 못했습니다. (결과 없음)"))
+            }
+
+            val allRecipeObjects = recipeQueryResult.documents.mapNotNull { doc ->
+                doc.toObject(Recipe::class.java)?.also { it.id = doc.id }
+            }
+
+            val filteredRecipes = allRecipeObjects.filter { recipe ->
+                recipe.title?.let { title ->
+                    // 2. 레시피 제목도 소문자로 변환하고 NFC로 정규화
+                    val normalizedTitle = Normalizer.normalize(title.lowercase(), Normalizer.Form.NFC)
+                    normalizedTitle.contains(normalizedQuery)
+                } ?: false // 제목이 null이면 false 반환
+            }
+
+            if (filteredRecipes.isEmpty()) {
+                return Result.success(emptyList())
+            }
+
+            val recipesWithAuthors = coroutineScope {
+                filteredRecipes.map { recipe ->
+                    async {
                         recipe.userId?.let { userId ->
                             if (userId.isNotEmpty()) {
-                                db.collection("Users").document(userId)
-                                    .get()
-                                    .addOnSuccessListener { userDocument ->
-                                        if (userDocument != null && userDocument.exists()) {
-                                            recipe.author = userDocument.toObject(User::class.java)
-                                        }
-                                        onSuccess(recipe)
+                                try {
+                                    val userDocument = db.collection("Users").document(userId).get().await()
+                                    if (userDocument != null && userDocument.exists()) {
+                                        recipe.author = userDocument.toObject(User::class.java)
                                     }
-                                    .addOnFailureListener {
-                                        onSuccess(recipe) // 작성자 정보 실패해도 레시피는 전달
-                                    }
-                            } else {
-                                onSuccess(recipe)
+                                } catch (e: Exception) {
+                                    System.err.println("작성자 정보 로드 실패 (search) (userId: $userId): ${e.message}")
+                                }
                             }
-                        } ?: run {
-                            onSuccess(recipe)
                         }
-                    } else {
-                        onFailure(Exception("레시피 객체 변환에 실패했습니다."))
+                        recipe
                     }
-                } else {
-                    onFailure(Exception("표시할 레시피가 없습니다."))
-                }
-            } else {
-                onFailure(Exception("레시피를 불러오지 못했습니다."))
+                }.awaitAll()
             }
+            Result.success(recipesWithAuthors)
+
+        } catch (e: Exception) {
+            Result.failure(Exception("검색 중 오류 발생: ${e.message}", e))
         }
-        .addOnFailureListener { recipeException ->
-            onFailure(recipeException)
-        }
+    }
 }
-*/
