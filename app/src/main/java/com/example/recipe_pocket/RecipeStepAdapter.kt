@@ -48,8 +48,8 @@ class RecipeStepAdapter(private var steps: List<RecipeStep>) :
                 stepImageView.visibility = View.VISIBLE
                 Glide.with(itemView.context)
                     .load(step.imageUrl)
-                    .placeholder(R.drawable.ic_launcher_background) // 로딩 중 이미지
-                    .error(R.drawable.ic_launcher_foreground) // 에러 시 이미지
+                    .placeholder(R.drawable.bg_bookmark_shape) // 로딩 중 이미지
+                    .error(R.drawable.bg_bookmark_shape) // 에러 시 이미지
                     .into(stepImageView)
             } else {
                 stepImageView.visibility = View.GONE

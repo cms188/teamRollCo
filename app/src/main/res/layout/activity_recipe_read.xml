@@ -1,137 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/read_recipe_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RecipeDetailActivity">
+    android:orientation="vertical"
+    android:background="@color/white"
+    tools:context=".RecipeReadActivity"> <!-- Activity 연결 -->
 
+    <!-- 상태 표시줄 패딩 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:background="@color/search_color"
+        android:paddingTop="30dp"/>
+
+    <!-- 상단 바: 뒤로가기 버튼 + 검색창 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/top_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/search_color"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="16dp">
 
         <ImageView
-            android:id="@+id/iv_recipe_thumbnail"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
+            android:id="@+id/btn_close"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="뒤로가기"
+            android:padding="8dp"
+            android:src="@drawable/ic_close"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:adjustViewBounds="true"
-            android:contentDescription="레시피 썸네일 이미지"
-            tools:srcCompat="@tools:sample/avatars" />
+            android:scaleType="centerInside" />
 
-        <TextView
-            android:id="@+id/tv_recipe_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            tools:text="토마토 파스타 레시피" />
+        <EditText
+            android:id="@+id/et_search_bar"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_search_bar_orange_border"
+            android:hint="요리1 요리2 구역. 구현 아직 안됨 자리잡기용"
+            android:paddingStart="16dp"
+            android:paddingEnd="12dp"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            app:layout_constraintStart_toEndOf="@id/btn_close"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:importantForAutofill="no"
+            android:inputType="text" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
-            android:id="@+id/tv_recipe_simple_description"
+    <LinearLayout
+        android:id="@+id/layout_step_progress_indicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="10dp"
+        android:background="@drawable/bg_search_top"> <!-- 또는 원하는 배경색 -->
+
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_current_step_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                tools:text="1단계"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/tv_step_pager_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                tools:text="1 / 7"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/> <!-- @color/dark_gray 정의 필요 또는 다른 색상 사용 -->
+        </RelativeLayout>
+
+        <ProgressBar
+            android:id="@+id/pb_step_progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
             android:layout_marginTop="8dp"
-            android:textSize="16sp"
-            tools:text="간단 설명: 맛있는 토마토 파스타를 만들어보세요." />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="12dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="카테고리: "
-                android:textStyle="bold"/>
-            <TextView
-                android:id="@+id/tv_recipe_category"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="양식" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="4dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="조리 시간: "
-                android:textStyle="bold"/>
-            <TextView
-                android:id="@+id/tv_recipe_cooking_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="20분" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="4dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="난이도: "
-                android:textStyle="bold"/>
-            <TextView
-                android:id="@+id/tv_recipe_difficulty"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="쉬움" />
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="준비물:"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_recipe_tools"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            tools:text="식칼, 팬, 냄비" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="요리 순서:"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <!-- 요리 순서는 RecyclerView로 표시합니다. -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_recipe_steps"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            android:nestedScrollingEnabled="false"
-            tools:listitem="@layout/read_recipe_step" />
-
-        <TextView
-            android:id="@+id/tv_recipe_created_at"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textSize="12sp"
-            tools:text="작성일: 2025년 5월 25일" />
+            android:max="100"
+            tools:progress="14"
+            android:progressDrawable="@drawable/custom_progress_bar" /> <!-- 커스텀 Drawable 사용 -->
 
     </LinearLayout>
-</ScrollView>
+
+    <!-- ViewPager2로 레시피 단계 표시 -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager_recipe_steps"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        />
+
+</LinearLayout>

@@ -3,79 +3,102 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:cardElevation="2dp"
-    app:cardUseCompatPadding="true"
-    app:cardCornerRadius="8dp">
+    android:layout_height="match_parent"
+    app:cardBackgroundColor="@android:color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:paddingBottom="10dp"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp">
 
         <ImageView
             android:id="@+id/iv_step_image"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="250dp"
             android:scaleType="centerCrop"
-            android:adjustViewBounds="true"
+            android:background="@drawable/bg_gray_rounded"
+            android:clipToOutline="true"
             android:visibility="gone"
             tools:srcCompat="@tools:sample/backgrounds/scenic"
             tools:visibility="visible"
-            android:contentDescription="요리 단계 이미지"/>
+            android:contentDescription="레시피 단계 이미지"
+            android:elevation="4dp"/>
 
+        <!-- 설명 부분 전체를 감싸는 LinearLayout -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/tv_step_number"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:gravity="center"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                tools:text="1" />
-
-            <TextView
-                android:id="@+id/tv_step_description"
-                android:layout_width="0dp"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_gray_rounded"
+            android:elevation="4dp">
+            <LinearLayout
+                android:id="@+id/layout_description_header"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="12dp"
-                android:textSize="15sp"
-                tools:text="양파는 반 개만 사용합니다. 잘게 썰어주세요." />
-        </LinearLayout>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_cardview_only"
+                android:padding="8dp">
 
-        <LinearLayout
-            android:id="@+id/layout_step_timer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp"
-            android:layout_gravity="end"
-            android:visibility="gone"
-            tools:visibility="visible">
+                <TextView
+                    android:id="@+id/tv_step_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="1"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@android:color/black"/>
 
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@android:drawable/ic_menu_recent_history"
-                app:tint="@color/design_default_color_primary"/>
+                <!-- 타이머 레이아웃 (추후 사용) - 헤더 오른쪽으로 옮길 수도 있음 -->
+                <LinearLayout
+                    android:id="@+id/layout_step_timer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center_vertical"
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
-            <TextView
-                android:id="@+id/tv_step_time"
-                android:layout_width="wrap_content"
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_clock"/>
+
+                    <TextView
+                        android:id="@+id/tv_step_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        tools:text="10분"
+                        android:textSize="14sp"
+                        android:textColor="#424242"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_description_body"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:textSize="14sp"
-                tools:text="10분" />
-        </LinearLayout>
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="16dp">
 
+                <TextView
+                    android:id="@+id/tv_step_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="80dp"
+                    android:textSize="15sp"
+                    android:textColor="#424242"
+                    tools:text="DB내용 표시\n설명\n설명\n설명" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
