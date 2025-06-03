@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/search_color"
-        android:paddingTop="24dp" />
+        android:paddingTop="30dp" />
 
     <!-- 상단 바: 뒤로가기 버튼 + 검색창 -->
     <androidx.constraintlayout.widget.ConstraintLayout

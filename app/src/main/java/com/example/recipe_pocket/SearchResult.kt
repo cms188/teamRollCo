@@ -30,29 +30,23 @@ class SearchResult : AppCompatActivity() {
         binding = SearchResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupWindowInsets()
-        setupBackButton()
-        setupRecyclerView()
-        setupSearch()
-
-        // 화면이 열릴 때 초기 (예: 인기 또는 무작위) 레시피 로드
-        loadInitialRecipes()
-    }
-
-    private fun setupWindowInsets() {
+        // Edge-to-edge 처리
         ViewCompat.setOnApplyWindowInsetsListener(binding.SearchResultLayout) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 leftMargin = insets.left
                 bottomMargin = insets.bottom
                 rightMargin = insets.right
+                //topMargin = insets.top
             }
-            // 액션 바/툴바에서 처리하지 않는 경우에만 상단 inset을 소비합니다.
-            // WindowInsetsCompat.CONSUMED
-            // 현재 XML의 경우, 상단 바 레이아웃이 상태 표시줄 아래에 있도록 의도된 것이라면 괜찮습니다.
-            // 상태 표시줄에 대한 상단 패딩은 XML의 첫 번째 LinearLayout에서 처리됩니다.
-            WindowInsetsCompat.CONSUMED // 상단 패딩이 처리되었다고 가정
+            WindowInsetsCompat.CONSUMED
         }
+        setupBackButton()
+        setupRecyclerView()
+        setupSearch()
+
+        // 화면이 열릴 때 초기 (예: 인기 또는 무작위) 레시피 로드
+        loadInitialRecipes()
     }
 
     private fun setupBackButton() {
@@ -76,14 +70,12 @@ class SearchResult : AppCompatActivity() {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val searchQuery = textView.text.toString().trim()
                 performSearch(searchQuery)
-                hideKeyboard(textView) // 검색 후 키보드 숨기기
-                true // 이벤트 소비됨
+                hideKeyboard(textView)
+                true
             } else {
-                false // 이벤트 소비 안 됨
+                false
             }
         }
-        // EditText의 검색 아이콘이 사용자 정의 드로어블인 경우 클릭 가능하게 만들 수도 있습니다.
-        // 표준 drawableEnd의 경우 IME_ACTION_SEARCH가 주요 방법입니다.
     }
 
     private fun performSearch(query: String) {
@@ -165,6 +157,6 @@ class SearchResult : AppCompatActivity() {
     private fun hideKeyboard(view: View) {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
-        view.clearFocus() // 선택 사항: EditText에서 포커스 제거
+        view.clearFocus()
     }
 }

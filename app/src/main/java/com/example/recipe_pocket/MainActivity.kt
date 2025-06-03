@@ -27,12 +27,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pickCookRecipeAdapter: RecipeAdapter
     private lateinit var nCookRecipeAdapter: RecipeAdapter
 
-    // 기본 이미지 리소스 ID (실제 프로젝트의 리소스 ID로 변경하세요)
-    private val defaultRecipeImagePlaceholderResId: Int = R.drawable.bg_main_rounded_gray
-    private val defaultRecipeImageErrorResId: Int = R.drawable.testimg1 // 에러 시 표시할 기본 이미지
-    private val defaultProfileImagePlaceholderResId: Int = R.drawable.bg_main_circle_gray
-    private val defaultProfileImageErrorResId: Int = R.drawable.testimg1 // 프로필 에러 시 기본 이미지 (예: R.drawable.ic_default_profile)
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
