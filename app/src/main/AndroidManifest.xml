@@ -42,6 +42,7 @@
             android:name=".RecipeDetailActivity"
             android:exported="false" />
         <activity android:name=".RecipeReadActivity" />
+        <activity android:name=".RecipeFormActivity" />
         <service
             android:name=".VoiceRecognitionService"
             android:exported="false" />

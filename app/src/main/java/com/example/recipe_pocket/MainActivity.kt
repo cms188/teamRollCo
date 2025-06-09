@@ -91,6 +91,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.fragment_another -> {
                     Toast.makeText(this, "찜 목록 SSZZZ(준비중)", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, RecipeFormActivity::class.java))
                     true
                 }
                 R.id.fragment_settings -> {
