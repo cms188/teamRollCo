@@ -23,7 +23,7 @@ class RecipeDetailActivity : AppCompatActivity() {
         binding = ActivityRecipeMainReadBinding.inflate(layoutInflater) // 바인딩 객체 초기화
         setContentView(binding.root) // 바인딩의 root 뷰를 content view로 설정
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.readRecipeMainLayout) { v, windowInsets -> // R.id.read_recipe_layout 대신 binding.readRecipeLayout 사용
+        ViewCompat.setOnApplyWindowInsetsListener(binding.readRecipeMainLayout) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.updateLayoutParams<MarginLayoutParams> {
                 leftMargin = insets.left

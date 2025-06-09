@@ -43,21 +43,35 @@
 
         <EditText
             android:id="@+id/et_search_bar"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="8dp"
+            android:layout_width="200dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_search_bar_orange_border"
             android:hint="요리1 요리2 구역. 구현 아직 안됨 자리잡기용"
-            android:paddingStart="16dp"
-            android:paddingEnd="12dp"
-            android:textSize="14sp"
-            android:textColor="@android:color/black"
-            app:layout_constraintStart_toEndOf="@id/btn_close"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
             android:importantForAutofill="no"
-            android:inputType="text" />
+            android:inputType="text"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/sound_button"
+            app:layout_constraintHorizontal_bias="0.158"
+            app:layout_constraintStart_toEndOf="@id/btn_close"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/sound_button"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_orange_button_rounded"
+            android:text="버튼"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.689"
+            app:layout_constraintStart_toEndOf="@id/et_search_bar"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
@@ -105,7 +119,7 @@
             android:layout_marginTop="8dp"
             android:max="100"
             tools:progress="14"
-            android:progressDrawable="@drawable/custom_progress_bar" /> <!-- 커스텀 Drawable 사용 -->
+            android:progressDrawable="@drawable/custom_progress_bar" />
 
     </LinearLayout>
 
