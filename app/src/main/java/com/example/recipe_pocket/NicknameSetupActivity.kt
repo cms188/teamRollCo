@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -12,8 +13,19 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 class NicknameSetupActivity : AppCompatActivity() {
+
     private lateinit var firestore: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
+
+    // 이 액티비티가 어떤 모드로 실행되었는지 구분하기 위한 변수
+    private var currentMode: String = MODE_SETUP
+
+    // companion object를 사용해 모드를 나타내는 상수를 정의 (오타 방지)
+    companion object {
+        const val EXTRA_MODE = "ACTIVITY_MODE"
+        const val MODE_SETUP = "MODE_SETUP" // 초기 닉네임 설정 모드
+        const val MODE_UPDATE = "MODE_UPDATE" // 닉네임 변경 모드
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,56 +34,46 @@ class NicknameSetupActivity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
 
-        // intent로부터 email을 받는 대신, 현재 로그인된 사용자 정보에서 직접 가져오는 것이 더 안전하고 정확합니다.
-        // val email = intent.getStringExtra("email") // 이 줄은 필요에 따라 유지하거나 삭제할 수 있습니다.
-        val currentUser = auth.currentUser // 현재 로그인된 사용자를 가져옵니다.
+        // Intent로부터 실행 모드를 받아오고 전달된 값이 없으면 기본값(MODE_SETUP) 사용
+        currentMode = intent.getStringExtra(EXTRA_MODE) ?: MODE_SETUP
 
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            Toast.makeText(this, "로그인 정보가 없습니다.", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
+
+        // UI 요소들 연결
+        val nicknameTitle = findViewById<TextView>(R.id.nicknameTitle)
         val nicknameInput = findViewById<EditText>(R.id.nicknameEditText)
         val saveButton = findViewById<Button>(R.id.saveNicknameButton)
 
+        // 모드에 따라 UI 텍스트 변경
+        if (currentMode == MODE_UPDATE) {
+            nicknameTitle.text = "변경할 닉네임을 입력하세요"
+            saveButton.text = "저장하기"
+        } else { // MODE_SETUP
+            nicknameTitle.text = "사용할 닉네임을 입력해주세요"
+            saveButton.text = "가입하기"
+        }
+
+
         saveButton.setOnClickListener {
             val nickname = nicknameInput.text.toString().trim()
-
-            // 현재 로그인된 사용자가 있는지 확인
-            if (currentUser == null) {
-                Toast.makeText(this, "사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.", Toast.LENGTH_LONG).show()
-                // 예: 로그인 화면으로 이동
-                startActivity(Intent(this, LoginActivity::class.java)) // LoginActivity가 실제 로그인 화면 클래스명인지 확인
-                finish()
-                return@setOnClickListener
-            }
-
-            val userUid = currentUser.uid // 현재 사용자의 고유 UID를 가져옵니다.
-            val userEmail = currentUser.email // 현재 사용자의 이메일을 가져옵니다.
+            val userUid = currentUser.uid
 
             if (nickname.isNotEmpty()) {
                 checkIfNicknameExists(nickname) { exists ->
                     if (exists) {
                         Toast.makeText(this, "이미 사용 중인 닉네임입니다.", Toast.LENGTH_SHORT).show()
                     } else {
-                        val userMap = hashMapOf(
-                            "email" to userEmail, // Firebase Auth에서 가져온 이메일 사용
-                            "nickname" to nickname,
-                            "createdAt" to FieldValue.serverTimestamp()
-                            // 필요하다면 profileImageUrl 등 다른 정보도 여기서 초기화하거나 추가할 수 있습니다.
-                            // 예: "profileImageUrl" to currentUser.photoUrl?.toString()
-                        )
-
-                        // Users 컬렉션에 문서를 추가할 때, 문서 ID를 사용자의 UID로 지정합니다.
-                        // .add() 대신 .document(userUid).set(userMap) 을 사용합니다.
-                        firestore.collection("Users").document(userUid).set(userMap)
-                            .addOnSuccessListener {
-                                Toast.makeText(this, "닉네임 저장 완료!", Toast.LENGTH_SHORT).show()
-                                // 닉네임 설정 후 메인 화면 또는 사용자 페이지 등으로 이동
-                                val intent = Intent(this, MainActivity::class.java) // 또는 UserPageActivity
-                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // 이전 액티비티 스택을 모두 지우고 새 화면 시작
-                                startActivity(intent)
-                                finish()
-                            }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(this, "저장 실패: ${e.message}", Toast.LENGTH_SHORT).show()
-                                Log.e("NicknameSetup", "닉네임 저장 실패", e)
-                            }
+                        // 모드에 따라 Firestore 저장 로직 분기
+                        if (currentMode == MODE_UPDATE) {
+                            updateUserNickname(userUid, nickname)
+                        } else { // MODE_SETUP
+                            setupNewUser(userUid, currentUser.email, nickname)
+                        }
                     }
                 }
             } else {
@@ -80,17 +82,51 @@ class NicknameSetupActivity : AppCompatActivity() {
         }
     }
 
-    // checkIfNicknameExists 함수는 기존과 동일하게 사용 가능합니다.
-    private fun checkIfNicknameExists(nickname: String, callback: (Boolean) -> Unit) {
-        val userRef = firestore.collection("Users")
+    // 신규 사용자 닉네임 설정 로직
+    private fun setupNewUser(uid: String, email: String?, nickname: String) {
+        val userMap = hashMapOf(
+            "email" to email,
+            "nickname" to nickname,
+            "createdAt" to FieldValue.serverTimestamp()
+        )
 
-        userRef.whereEqualTo("nickname", nickname).get()
-            .addOnSuccessListener { querySnapshot ->
-                val nicknameExists = !querySnapshot.isEmpty
-                callback(nicknameExists)
+        firestore.collection("Users").document(uid).set(userMap)
+            .addOnSuccessListener {
+                Toast.makeText(this, "닉네임 저장 완료!", Toast.LENGTH_SHORT).show()
+                // 설정 완료 후 메인 화면으로 이동
+                val intent = Intent(this, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
             }
             .addOnFailureListener { e ->
-                callback(false) // 오류 시 중복 없다고 처리 (네트워크 오류 등)
+                Toast.makeText(this, "저장 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("NicknameSetup", "신규 닉네임 저장 실패", e)
+            }
+    }
+
+    // 기존 사용자 닉네임 변경 로직
+    private fun updateUserNickname(uid: String, nickname: String) {
+        firestore.collection("Users").document(uid).update("nickname", nickname)
+            .addOnSuccessListener {
+                Toast.makeText(this, "닉네임이 변경되었습니다.", Toast.LENGTH_SHORT).show()
+                // 변경 완료 후 이전 화면(UserPageActivity)으로 돌아가기 위해 현재 액티비티를 종료
+                finish()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "변경 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                Log.e("NicknameSetup", "닉네임 업데이트 실패", e)
+            }
+    }
+
+    // 닉네임 중복 확인 함수
+    private fun checkIfNicknameExists(nickname: String, callback: (Boolean) -> Unit) {
+        firestore.collection("Users").whereEqualTo("nickname", nickname).get()
+            .addOnSuccessListener { querySnapshot ->
+                callback(!querySnapshot.isEmpty)
+            }
+            .addOnFailureListener { e ->
+                callback(false)
                 Log.e("NicknameCheck", "닉네임 중복 체크 오류", e)
             }
     }
