@@ -34,7 +34,7 @@
             android:layout_height="48dp"
             android:contentDescription="뒤로가기"
             android:padding="8dp"
-            android:src="@drawable/ic_close"
+            android:src="@drawable/ic_circle_close"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"

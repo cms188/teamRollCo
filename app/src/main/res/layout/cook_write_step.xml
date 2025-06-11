@@ -129,7 +129,7 @@
                         android:layout_gravity="top"
                         android:layout_marginStart="5dp"
                         android:layout_marginEnd="5dp"
-                        android:src="@drawable/ic_tab3"/>
+                        android:src="@drawable/ic_add"/>
                     <EditText
                         android:id="@+id/hour_num"
                         android:layout_width="wrap_content"
@@ -148,7 +148,7 @@
                         android:layout_gravity="top"
                         android:layout_marginStart="5dp"
                         android:layout_marginEnd="5dp"
-                        android:src="@drawable/ic_tab3"/>
+                        android:src="@drawable/ic_remove"/>
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout
@@ -177,7 +177,7 @@
                         android:layout_gravity="top"
                         android:layout_marginStart="5dp"
                         android:layout_marginEnd="5dp"
-                        android:src="@drawable/ic_tab3"/>
+                        android:src="@drawable/ic_add"/>
                     <EditText
                         android:id="@+id/minute_num"
                         android:layout_width="wrap_content"
@@ -196,7 +196,7 @@
                         android:layout_gravity="top"
                         android:layout_marginStart="5dp"
                         android:layout_marginEnd="5dp"
-                        android:src="@drawable/ic_tab3"/>
+                        android:src="@drawable/ic_remove"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

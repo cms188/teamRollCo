@@ -90,7 +90,7 @@ class CookWrite03StepFragment : Fragment() {
         // 버튼 클릭 시 hour, minute 변수를 직접 변경
         binding.hourP.setOnClickListener { if (hour < 23) hour++; updateTimerDisplay() }
         binding.hourM.setOnClickListener { if (hour > 0) hour--; updateTimerDisplay() }
-        binding.minuteP.setOnClickListener { if (minute > 59) minute++; updateTimerDisplay() }
+        binding.minuteP.setOnClickListener { if (minute < 59) minute++; updateTimerDisplay() }
         binding.minuteM.setOnClickListener { if (minute > 0) minute--; updateTimerDisplay() }
     }
 

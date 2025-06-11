@@ -125,7 +125,7 @@ class CookWrite03Activity : AppCompatActivity() {
 
         val addButton = ImageButton(this).apply {
             layoutParams = LinearLayout.LayoutParams(dpToPx(24), dpToPx(24)).apply { marginStart = dpToPx(16) }
-            setImageResource(R.drawable.ic_tab3)
+            setImageResource(R.drawable.ic_add_orange)
             setBackgroundColor(getColor(android.R.color.transparent))
             setOnClickListener {
                 updateAllFragmentsData()
