@@ -1,216 +1,217 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
-    <!-- 단계별 사진 -->
-    <FrameLayout
-        android:id="@+id/representative_photo_frame_layout"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="240dp"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/bg_search_bar_orange_border">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
+        <!-- 단계별 사진 -->
+        <FrameLayout
+            android:id="@+id/representative_photo_frame_layout"
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/bg_search_bar_orange_border">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|center_horizontal"
+                android:gravity="center_horizontal"
+                android:paddingTop="8dp"
+                android:paddingBottom="4dp"
+                android:text="사진"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+
+            <ImageView
+                android:id="@+id/iv_step_photo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="45dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="12dp"
+                android:background="@color/search_color"
+                android:scaleType="centerCrop"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="단계별 사진을 선택하세요"/>
+        </FrameLayout>
+
+        <!-- 단계 제목 -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:text="단계 제목"
             android:gravity="center_horizontal"
-            android:paddingTop="8dp"
-            android:paddingBottom="4dp"
-            android:text="사진"
             android:textColor="#333333"
             android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_step_title"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/bg_search_bar_orange_border"
+            android:hint="무엇을 하나요?"
+            android:paddingHorizontal="16dp"
+            android:textColor="#333333"
+            android:textColorHint="#999999"
+            android:textSize="14sp" />
+
+        <!-- 요리 방법 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="요리 방법"
+            android:gravity="center_horizontal"
+            android:textColor="#333333"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_step_description"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/bg_search_bar_orange_border"
+            android:gravity="top"
+            android:hint="요리 방법을 입력해주세요"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:textColor="#333333"
+            android:textColorHint="#999999"
+            android:textSize="14sp" />
+
+        <!-- 타이머 상세설정 -->
+        <LinearLayout
+            android:id="@+id/write_timer"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:orientation="horizontal"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/bg_search_bar_orange_border"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="시간"
+                    android:gravity="bottom|center"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:id="@+id/hour_p"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:src="@drawable/ic_tab3"/>
+                    <EditText
+                        android:id="@+id/hour_num"
+                        android:layout_width="wrap_content"
+                        android:layout_height="28dp"
+                        android:gravity="top"
+                        android:layout_gravity="top"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:text="0"
+                        android:textSize="24sp"
+                        android:background="@android:color/transparent"/>
+                    <ImageView
+                        android:id="@+id/hour_m"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:src="@drawable/ic_tab3"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="분"
+                    android:gravity="bottom|center"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:id="@+id/minute_p"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:src="@drawable/ic_tab3"/>
+                    <EditText
+                        android:id="@+id/minute_num"
+                        android:layout_width="wrap_content"
+                        android:layout_height="28dp"
+                        android:gravity="top"
+                        android:layout_gravity="top"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:text="0"
+                        android:textSize="24sp"
+                        android:background="@android:color/transparent"/>
+                    <ImageView
+                        android:id="@+id/minute_m"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:src="@drawable/ic_tab3"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/button_add_timer"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_orange_button_rounded"
+            android:gravity="center"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="40dp"
+            android:text="+ 타이머"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
             android:textStyle="bold"/>
-
-        <!-- ⭐ 변경점 1: ID를 iv_step_photo 로 변경 -->
-        <ImageView
-            android:id="@+id/iv_step_photo"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="45dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginBottom="12dp"
-            android:background="@color/search_color"
-            android:scaleType="centerCrop"
-            android:clickable="true"
-            android:focusable="true"
-            android:contentDescription="단계별 사진을 선택하세요"/>
-    </FrameLayout>
-
-    <!-- 단계 제목 -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="단계 제목"
-        android:gravity="center_horizontal"
-        android:textColor="#333333"
-        android:textSize="16sp"
-        android:textStyle="bold" />
-
-    <!-- ⭐ 변경점 2: ID 추가 (et_step_title) 및 textColor 수정 -->
-    <EditText
-        android:id="@+id/et_step_title"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/bg_search_bar_orange_border"
-        android:hint="무엇을 하나요?"
-        android:paddingHorizontal="16dp"
-        android:textColor="#333333"
-        android:textColorHint="#999999"
-        android:textSize="14sp" />
-
-    <!-- 요리 방법 -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="요리 방법"
-        android:gravity="center_horizontal"
-        android:textColor="#333333"
-        android:textSize="16sp"
-        android:textStyle="bold" />
-
-    <!-- ⭐ 변경점 3: ID 추가 (et_step_description) 및 textColor 수정 -->
-    <EditText
-        android:id="@+id/et_step_description"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/bg_search_bar_orange_border"
-        android:gravity="top"
-        android:hint="요리 방법을 입력해주세요"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp"
-        android:textColor="#333333"
-        android:textColorHint="#999999"
-        android:textSize="14sp" />
-
-    <!-- 타이머 상세설정 (ID는 원래 있었으므로 변경 없음) -->
-    <LinearLayout
-        android:id="@+id/write_timer"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:orientation="horizontal"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/bg_search_bar_orange_border"
-        android:visibility="gone">
-
-        <!-- 타이머 내부 구조는 변경 없음 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_weight="1">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="시간"
-                android:gravity="bottom|center"
-                android:textColor="@color/black"
-                android:textSize="20sp"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center_horizontal"
-                android:orientation="horizontal">
-                <ImageView
-                    android:id="@+id/hour_p"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="top"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:src="@drawable/ic_tab3"/>
-                <EditText
-                    android:id="@+id/hour_num"
-                    android:layout_width="wrap_content"
-                    android:layout_height="28dp"
-                    android:gravity="top"
-                    android:layout_gravity="top"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:text="0"
-                    android:textSize="24sp"
-                    android:background="@android:color/transparent"/>
-                <ImageView
-                    android:id="@+id/hour_m"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="top"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:src="@drawable/ic_tab3"/>
-            </LinearLayout>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_weight="1">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="분"
-                android:gravity="bottom|center"
-                android:textColor="@color/black"
-                android:textSize="20sp"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center_horizontal"
-                android:orientation="horizontal">
-                <ImageView
-                    android:id="@+id/minute_p"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="top"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:src="@drawable/ic_tab3"/>
-                <EditText
-                    android:id="@+id/minute_num"
-                    android:layout_width="wrap_content"
-                    android:layout_height="28dp"
-                    android:gravity="top"
-                    android:layout_gravity="top"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:text="0"
-                    android:textSize="24sp"
-                    android:background="@android:color/transparent"/>
-                <ImageView
-                    android:id="@+id/minute_m"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="top"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:src="@drawable/ic_tab3"/>
-            </LinearLayout>
-        </LinearLayout>
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/button_add_timer"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:background="@drawable/bg_orange_button_rounded"
-        android:gravity="center"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="40dp"
-        android:text="+ 타이머"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"/>
-
-</LinearLayout>
+</ScrollView>

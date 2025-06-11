@@ -1,6 +1,7 @@
 package com.example.recipe_pocket
 
 import java.io.Serializable
+import java.util.UUID
 
 // 전체 레시피 데이터를 담는 최상위 클래스
 data class RecipeData(
@@ -18,19 +19,24 @@ data class RecipeData(
     var tools: List<String> = emptyList(),
 
     // 03. 조리 단계
-    var steps: List<RecipeStep> = emptyList()
+    var steps: List<RecipeStep_write> = emptyList()
 ) : Serializable
 
-// 재료 정보
+// ⭐ 변경점: Ingredient 클래스를 Firestore와 호환되도록 수정하고, 이 파일을 유일한 정의 파일로 사용합니다.
+// non-nullable 필드를 nullable로 변경하고, 기본값을 null로 설정하며, 빈 생성자를 추가합니다.
 data class Ingredient(
-    val name: String,
-    val amount: String,
-    val unit: String
-) : Serializable
+    val name: String? = null,
+    val amount: String? = null,
+    val unit: String? = null
+) : Serializable {
+    // Firestore가 toObject() 변환 시 사용할 빈 생성자
+    constructor() : this(null, null, null)
+}
 
 // 조리 단계 정보
-data class RecipeStep(
-    var imageUri: String? = null, // Uri -> String
+data class RecipeStep_write(
+    val id: String = UUID.randomUUID().toString(), // 모든 인스턴스가 고유한 ID를 갖도록 함
+    var imageUri: String? = null,
     var stepTitle: String = "",
     var stepDescription: String = "",
     var timerMinutes: Int = 0,

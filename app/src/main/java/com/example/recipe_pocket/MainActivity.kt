@@ -1,6 +1,5 @@
 package com.example.recipe_pocket
 
-import android.content.Context // 사용하지 않으면 제거
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -83,7 +82,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.fragment_favorite -> {
                     val currentUser = FirebaseAuth.getInstance().currentUser
                     if (currentUser != null) {
-                        startActivity(Intent(this, RecipeWriteActivity::class.java))
+                        startActivity(Intent(this, CookWrite01Activity::class.java))
                     } else {
                         startActivity(Intent(this, LoginActivity::class.java))
                     }
@@ -91,7 +90,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.fragment_another -> {
                     Toast.makeText(this, "찜 목록 SSZZZ(준비중)", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, CookWrite01Activity::class.java))
                     true
                 }
                 R.id.fragment_settings -> {

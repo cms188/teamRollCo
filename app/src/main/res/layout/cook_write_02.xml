@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:id="@+id/Cook_Write_02_Layout">
 
     <!-- 상단 고정 툴바 부분 (변경 없음) -->
     <LinearLayout
@@ -162,16 +163,12 @@
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
-
-    <!-- 변경점 3: 하단에 고정할 버튼 추가 -->
-    <!-- 버튼에 패딩을 주기 위해 컨테이너로 감싸는 것이 좋음 -->
     <LinearLayout
         android:id="@+id/btn_next_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="vertical"
-        android:padding="16dp"
         android:background="@color/white">
 
         <TextView
@@ -180,7 +177,10 @@
             android:layout_height="52dp"
             android:background="@drawable/bg_orange_button_rounded"
             android:gravity="center"
-            android:text="다음 >"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="20dp"
+            android:text="다음  >"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold" />

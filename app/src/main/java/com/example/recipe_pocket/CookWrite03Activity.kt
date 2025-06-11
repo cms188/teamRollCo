@@ -1,161 +1,253 @@
 package com.example.recipe_pocket
 
-import android.os.Build
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import com.example.recipe_pocket.databinding.CookWrite03Binding
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import java.util.*
 
 class CookWrite03Activity : AppCompatActivity() {
 
     private lateinit var binding: CookWrite03Binding
-    private var recipeData: RecipeData? = null
     private lateinit var stepAdapter: CookWrite03StepAdapter
-    private val steps = mutableListOf<RecipeStep>()
+    private val viewModel: CookWriteViewModel by viewModels()
+    private val auth = Firebase.auth
+    private val db = Firebase.firestore
+    private val storage = Firebase.storage
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = CookWrite03Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 02 화면에서 데이터 수신
-        recipeData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getSerializableExtra("recipe_data", RecipeData::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            intent.getSerializableExtra("recipe_data") as? RecipeData
+        ViewCompat.setOnApplyWindowInsetsListener(binding.CookWrite03Layout) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = insets.left
+                bottomMargin = insets.bottom
+                rightMargin = insets.right
+            }
+            WindowInsetsCompat.CONSUMED
         }
 
-        if (recipeData == null) {
-            Toast.makeText(this, "데이터 로딩 실패!", Toast.LENGTH_SHORT).show()
-            finish()
-            return
+        (intent.getSerializableExtra("recipe_data") as? RecipeData)?.let {
+            viewModel.setInitialRecipeData(it)
         }
 
         setupViewPager()
         setupClickListeners()
-        updateStepIndicatorUI()
+        observeViewModel()
     }
 
     private fun setupViewPager() {
-        // 첫 단계 추가
-        steps.add(RecipeStep())
-        stepAdapter = CookWrite03StepAdapter(this, steps)
+        stepAdapter = CookWrite03StepAdapter(this)
         binding.viewPagerSteps.adapter = stepAdapter
 
         binding.viewPagerSteps.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                updateStepIndicatorUI()
+                // 페이지가 선택되면, 인디케이터 UI만 갱신
+                updateIndicators(position)
             }
         })
     }
 
-    private fun setupClickListeners() {
-        binding.ivBack.setOnClickListener {
-            // TODO: "작성을 취소하시겠습니까?" 다이얼로그 추가하면 더 좋음
-            finish()
-        }
+    private fun observeViewModel() {
+        viewModel.steps.observe(this, Observer { steps ->
+            // ViewModel의 steps 데이터가 변경될 때만 어댑터에 리스트를 전달
+            stepAdapter.submitList(steps.toList())
+        })
+    }
 
+    private fun setupClickListeners() {
+        binding.ivBack.setOnClickListener { finish() }
         binding.btnTempSave.setOnClickListener {
             Toast.makeText(this, "임시저장 기능은 아직 지원되지 않습니다.", Toast.LENGTH_SHORT).show()
         }
-
         binding.ivPrevStep.setOnClickListener {
-            if (binding.viewPagerSteps.currentItem > 0) {
-                binding.viewPagerSteps.currentItem -= 1
-            }
+            binding.viewPagerSteps.currentItem -= 1
         }
-
         binding.ivNextStep.setOnClickListener {
-            if (binding.viewPagerSteps.currentItem < steps.size - 1) {
-                binding.viewPagerSteps.currentItem += 1
-            }
+            binding.viewPagerSteps.currentItem += 1
         }
-
-        // 최종 저장 버튼
+        binding.btnRemoveStep.setOnClickListener {
+            updateAllFragmentsData()
+            viewModel.removeStepAt(binding.viewPagerSteps.currentItem)
+        }
         binding.btnSave.setOnClickListener {
-            // Fragment의 onPause가 호출되어 데이터가 저장되도록 페이지를 살짝 변경
-            if (steps.isNotEmpty()) {
-                val currentItem = binding.viewPagerSteps.currentItem
-                if (currentItem > 0) {
-                    binding.viewPagerSteps.setCurrentItem(currentItem - 1, false)
-                    binding.viewPagerSteps.setCurrentItem(currentItem, false)
-                }
-            }
-
-            // 최종 데이터 취합
-            recipeData?.steps = steps
-
-            // TODO: ViewModel과 Repository를 통해 Firebase에 데이터를 저장하는 로직 구현
-            // 현재는 모든 데이터가 제대로 수집되었는지 확인하기 위해 Toast로 출력합니다.
-            Toast.makeText(this, "저장 준비 완료!\n${recipeData.toString()}", Toast.LENGTH_LONG).show()
-
-            // TODO: 저장 완료 후 메인 화면으로 이동하거나 현재 액티비티 종료
-            // finishAffinity() or startActivity(Intent(this, MainActivity::class.java))
+            saveRecipe()
         }
     }
 
-    private fun updateStepIndicatorUI() {
-        val currentPage = binding.viewPagerSteps.currentItem
-        binding.stepIndicatorContainer.removeAllViews()
+    // 인디케이터와 버튼 상태만 업데이트하는 함수
+    private fun updateIndicators(currentPage: Int) {
+        val size = viewModel.steps.value?.size ?: 0
+        // ID가 중복될 수 있으므로, 정확한 컨테이너를 찾기 위해 topBarContainer를 통해 접근
+        val container = binding.topBarContainer.findViewById<LinearLayout>(R.id.step_indicator_container)
+        val scrollView = binding.topBarContainer.findViewById<HorizontalScrollView>(R.id.step_indicator_scroll_view)
 
-        // 단계 번호들 추가
-        for (i in steps.indices) {
-            // ⭐ 변경점: View Binding을 사용하여 item_step_indicator.xml을 인플레이트
-            val itemBinding = com.example.recipe_pocket.databinding.ItemStepIndicatorBinding.inflate(
-                LayoutInflater.from(this),
-                binding.stepIndicatorContainer,
-                false
-            )
+        container.removeAllViews()
+        var currentStepView: View? = null
 
+        for (i in 0 until size) {
+            val itemBinding = com.example.recipe_pocket.databinding.ItemStepIndicatorBinding.inflate(LayoutInflater.from(this), container, false)
             itemBinding.tvStepNumber.text = (i + 1).toString()
+            itemBinding.tvStepNumber.setTextAppearance(if (i == currentPage) R.style.StepIndicatorActive else R.style.StepIndicatorInactive)
+            itemBinding.root.setOnClickListener { binding.viewPagerSteps.currentItem = i }
 
             if (i == currentPage) {
-                itemBinding.tvStepNumber.setTextAppearance(R.style.StepIndicatorActive)
-            } else {
-                itemBinding.tvStepNumber.setTextAppearance(R.style.StepIndicatorInactive)
+                currentStepView = itemBinding.root
             }
 
-            // 단계 번호를 클릭하면 해당 페이지로 이동
-            itemBinding.root.setOnClickListener {
-                binding.viewPagerSteps.currentItem = i
-            }
-            binding.stepIndicatorContainer.addView(itemBinding.root)
+            container.addView(itemBinding.root)
         }
 
-        // 단계 추가(+) 버튼 추가
         val addButton = ImageButton(this).apply {
-            layoutParams = LinearLayout.LayoutParams(dpToPx(24), dpToPx(24)).apply {
-                marginStart = dpToPx(16)
-            }
-            setImageResource(R.drawable.ic_tab3) // TODO: 적절한 아이콘으로 변경
+            layoutParams = LinearLayout.LayoutParams(dpToPx(24), dpToPx(24)).apply { marginStart = dpToPx(16) }
+            setImageResource(R.drawable.ic_tab3)
             setBackgroundColor(getColor(android.R.color.transparent))
             setOnClickListener {
-                steps.add(RecipeStep())
-                stepAdapter.notifyItemInserted(steps.size - 1)
-                binding.viewPagerSteps.currentItem = steps.size - 1
+                updateAllFragmentsData()
+                viewModel.addStep()
+                // 리스트가 업데이트 된 후 마지막 페이지로 이동
+                binding.viewPagerSteps.post {
+                    binding.viewPagerSteps.setCurrentItem(stepAdapter.itemCount - 1, true)
+                }
             }
         }
-        binding.stepIndicatorContainer.addView(addButton)
+        container.addView(addButton)
 
-        // 좌/우 화살표 활성/비활성
-        binding.ivPrevStep.alpha = if (currentPage > 0) 1.0f else 0.3f
-        binding.ivNextStep.alpha = if (currentPage < steps.size - 1) 1.0f else 0.3f
-
-        // 단계 삭제 버튼 표시/숨김
-        binding.btnRemoveStep.visibility = if (steps.size > 1) android.view.View.VISIBLE else android.view.View.GONE
-        binding.btnRemoveStep.setOnClickListener {
-            if (steps.size > 1) {
-                val positionToRemove = binding.viewPagerSteps.currentItem
-                steps.removeAt(positionToRemove)
-                stepAdapter.notifyItemRemoved(positionToRemove)
+        // ▼▼▼ 자동 스크롤 로직을 post 블록 안으로 이동 ▼▼▼
+        // 뷰가 그려진 후(레이아웃 패스가 끝난 후)에 실행되도록 post를 사용
+        scrollView.post {
+            currentStepView?.let { view ->
+                val scrollX = view.left - (scrollView.width / 2) + (view.width / 2)
+                scrollView.smoothScrollTo(scrollX, 0)
             }
+        }
+
+        // 좌우 화살표 및 삭제 버튼 상태 업데이트 (이 부분은 그대로 유지)
+        binding.ivPrevStep.alpha = if (currentPage > 0) 1.0f else 0.3f
+        binding.ivNextStep.alpha = if (currentPage < size - 1) 1.0f else 0.3f
+        binding.btnRemoveStep.visibility = if (size > 1) View.VISIBLE else View.GONE
+    }
+
+    private fun updateAllFragmentsData() {
+        for (i in 0 until (viewModel.steps.value?.size ?: 0)) {
+            // FragmentStateAdapter는 'f' + itemId 형식의 태그를 사용
+            val fragment = supportFragmentManager.findFragmentByTag("f${stepAdapter.getItemId(i)}") as? CookWrite03StepFragment
+            fragment?.updateViewModelData()
+        }
+    }
+
+    private fun saveRecipe() {
+        updateAllFragmentsData()
+
+        val recipeData = viewModel.recipeData.value
+        val steps = viewModel.steps.value
+
+        if (recipeData == null || steps == null) {
+            Toast.makeText(this, "저장할 데이터가 없습니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        recipeData.steps = steps
+        uploadRecipeAndSave(recipeData)
+    }
+
+    private fun uploadRecipeAndSave(data: RecipeData) {
+        binding.btnSave.isEnabled = false
+        binding.btnSave.text = "저장 중..."
+
+        val thumbnailUploadTask = uploadImage(data.thumbnailUrl)
+
+        thumbnailUploadTask.addOnSuccessListener { thumbnailUrl ->
+            val stepImageUploadTasks = data.steps.map { uploadImage(it.imageUri) }
+            Tasks.whenAllSuccess<String>(stepImageUploadTasks).addOnSuccessListener { stepImageUrls ->
+                val firestoreMap = hashMapOf(
+                    "userId" to (auth.currentUser?.uid ?: ""),
+                    "userEmail" to (auth.currentUser?.email ?: ""),
+                    "title" to data.title,
+                    "simpleDescription" to data.description,
+                    "thumbnailUrl" to (thumbnailUrl ?: ""),
+                    "servings" to data.servings,
+                    "category" to data.category,
+                    "difficulty" to data.difficulty,
+                    "cookingTime" to data.cookingTimeMinutes,
+                    "ingredients" to data.ingredients.map { mapOf("name" to it.name, "amount" to it.amount, "unit" to it.unit) },
+                    "tools" to data.tools,
+                    "steps" to data.steps.mapIndexed { index, step ->
+                        mapOf(
+                            "stepNumber" to (index + 1),
+                            "title" to step.stepTitle,
+                            "description" to step.stepDescription,
+                            "imageUrl" to (stepImageUrls.getOrNull(index) ?: ""),
+                            "time" to step.timerMinutes,
+                            "useTimer" to step.useTimer
+                        )
+                    },
+                    "createdAt" to Timestamp.now(),
+                    "updatedAt" to Timestamp.now()
+                )
+
+                db.collection("Recipes").add(firestoreMap)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "레시피가 저장되었습니다.", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this, MainActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        }
+                        startActivity(intent)
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "데이터 저장 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                        binding.btnSave.isEnabled = true
+                        binding.btnSave.text = "저장"
+                    }
+            }.addOnFailureListener { e ->
+                Toast.makeText(this, "단계 이미지 업로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                binding.btnSave.isEnabled = true
+                binding.btnSave.text = "저장"
+            }
+        }.addOnFailureListener { e ->
+            Toast.makeText(this, "대표 이미지 업로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+            binding.btnSave.isEnabled = true
+            binding.btnSave.text = "저장"
+        }
+    }
+
+    private fun uploadImage(uriString: String?): Task<String?> {
+        if (uriString.isNullOrEmpty()) {
+            return Tasks.forResult(null)
+        }
+        val uri = Uri.parse(uriString)
+        val storageRef = storage.reference.child("recipe_images/${UUID.randomUUID()}")
+        return storageRef.putFile(uri).continueWithTask { task ->
+            if (!task.isSuccessful) {
+                task.exception?.let { throw it }
+            }
+            storageRef.downloadUrl
+        }.continueWith { task ->
+            if (task.isSuccessful) task.result.toString() else throw task.exception!!
         }
     }
 

@@ -3,6 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="orange">#FFA94D</color>
+    <color name="orange_dark">#C66900</color> <!-- 주황색의 어두운 버전 -->
     <color name="text_gray">#828282</color>
     <color name="divider_color">#828282</color>
     <color name="light_gray_stroke">#D3D3D3</color>

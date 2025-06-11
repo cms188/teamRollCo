@@ -1,14 +1,23 @@
 package com.example.recipe_pocket
 
 import android.app.Activity
+import androidx.appcompat.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.NumberPicker
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import com.example.recipe_pocket.databinding.CookWrite01Binding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class CookWrite01Activity : AppCompatActivity() {
 
@@ -16,7 +25,9 @@ class CookWrite01Activity : AppCompatActivity() {
     private var currentServings = 1
     private var thumbnailUri: Uri? = null
 
-    // 대표 사진 선택을 위한 ActivityResultLauncher
+    private var cookingHour = 0
+    private var cookingMinute = 0
+
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let {
@@ -28,42 +39,48 @@ class CookWrite01Activity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // ▼▼▼ cook_write_01.xml로 바인딩 클래스 이름 변경 ▼▼▼
         binding = CookWrite01Binding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Edge-to-edge 처리
+        ViewCompat.setOnApplyWindowInsetsListener(binding.CookWrite01Layout) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = insets.left
+                bottomMargin = insets.bottom
+                rightMargin = insets.right
+            }
+            WindowInsetsCompat.CONSUMED
+        }
 
         setupDropdown()
         setupClickListeners()
         updateServingsText()
+        updateCookingTimeText()
     }
 
     private fun setupDropdown() {
         val categories = listOf("한식", "중식", "일식", "양식", "디저트", "기타")
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, categories)
         binding.categoryDropdown.setAdapter(adapter)
-        // 기본값으로 첫 번째 아이템을 설정하고 싶다면 아래 주석을 해제하세요.
-        // binding.categoryDropdown.setText(categories[0], false)
     }
 
     private fun setupClickListeners() {
-        // 뒤로가기
         binding.ivBack.setOnClickListener {
-            // TODO: "작성을 취소하시겠습니까?" 다이얼로그 추가하면 더 좋음
             finish()
         }
 
-        // 임시저장 (단순 알림)
         binding.btnTempSave.setOnClickListener {
             Toast.makeText(this, "임시저장 기능은 아직 지원되지 않습니다.", Toast.LENGTH_SHORT).show()
         }
 
-        // 대표 사진 선택
         binding.ivRepresentativePhoto.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             pickImageLauncher.launch(intent)
         }
 
-        // 인원 조절
         binding.btnServingsMinus.setOnClickListener {
             if (currentServings > 1) {
                 currentServings--
@@ -75,17 +92,13 @@ class CookWrite01Activity : AppCompatActivity() {
             updateServingsText()
         }
 
-        // 조리 시간 (현재는 Toast 메시지만 표시)
         binding.tvCookingTimeHour.setOnClickListener {
-            Toast.makeText(this, "시간 설정 기능 구현 필요", Toast.LENGTH_SHORT).show()
-            // TODO: NumberPickerDialog 등을 띄워 시간 설정 로직 구현
+            showNumberPickerDialog(isHourPicker = true, currentValue = cookingHour)
         }
         binding.tvCookingTimeMinute.setOnClickListener {
-            Toast.makeText(this, "분 설정 기능 구현 필요", Toast.LENGTH_SHORT).show()
-            // TODO: NumberPickerDialog 등을 띄워 분 설정 로직 구현
+            showNumberPickerDialog(isHourPicker = false, currentValue = cookingMinute)
         }
 
-        // 다음 버튼
         binding.btnNext.setOnClickListener {
             if (binding.etRecipeTitle.text.toString().isBlank()) {
                 Toast.makeText(this, "레시피 제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
@@ -95,13 +108,54 @@ class CookWrite01Activity : AppCompatActivity() {
         }
     }
 
+    private fun showNumberPickerDialog(isHourPicker: Boolean, currentValue: Int) {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_number_picker, null)
+        val numberPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker)
+        val unitTextView = dialogView.findViewById<TextView>(R.id.tv_unit)
+
+        numberPicker.wrapSelectorWheel = false
+        numberPicker.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
+
+        if (isHourPicker) {
+            numberPicker.minValue = 0
+            numberPicker.maxValue = 23
+            unitTextView.text = "시간"
+        } else {
+            numberPicker.minValue = 0
+            numberPicker.maxValue = 59
+            unitTextView.text = "분"
+        }
+        numberPicker.value = currentValue
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(if (isHourPicker) "시간 선택" else "분 선택")
+            .setView(dialogView)
+            .setPositiveButton("확인") { _, _ ->
+                if (isHourPicker) {
+                    cookingHour = numberPicker.value
+                } else {
+                    cookingMinute = numberPicker.value
+                }
+                updateCookingTimeText()
+            }
+            .setNegativeButton("취소", null)
+            .show()
+    }
+
     private fun updateServingsText() {
         binding.tvServingsCount.text = "$currentServings 인분"
     }
 
+    private fun updateCookingTimeText() {
+        binding.tvCookingTimeHour.text = "$cookingHour 시간"
+        binding.tvCookingTimeMinute.text = "$cookingMinute 분"
+    }
+
     private fun goToNextStep() {
+        val totalCookingTimeMinutes = (cookingHour * 60) + cookingMinute
+
         val recipeData = RecipeData(
-            thumbnailUrl = thumbnailUri?.toString(), // Uri를 String으로 변환하여 저장
+            thumbnailUrl = thumbnailUri?.toString(),
             category = binding.categoryDropdown.text.toString().ifEmpty { "기타" },
             title = binding.etRecipeTitle.text.toString(),
             description = binding.etRecipeDescription.text.toString(),
@@ -110,8 +164,8 @@ class CookWrite01Activity : AppCompatActivity() {
                 R.id.rb_hard -> "어려움"
                 else -> "보통"
             },
-            servings = currentServings
-            // cookingTimeMinutes 는 다이얼로그 구현 후 설정
+            servings = currentServings,
+            cookingTimeMinutes = totalCookingTimeMinutes
         )
 
         val intent = Intent(this, CookWrite02Activity::class.java).apply {

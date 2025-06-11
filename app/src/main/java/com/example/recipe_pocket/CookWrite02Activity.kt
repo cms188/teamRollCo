@@ -4,11 +4,15 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import com.example.recipe_pocket.databinding.CookWrite02Binding
 import com.example.recipe_pocket.databinding.ItemIngredientBinding
 import com.example.recipe_pocket.databinding.ItemToolBinding
@@ -23,7 +27,17 @@ class CookWrite02Activity : AppCompatActivity() {
         binding = CookWrite02Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // ⭐ 변경점: getSerializableExtra 사용
+        // Edge-to-edge 처리
+        ViewCompat.setOnApplyWindowInsetsListener(binding.CookWrite02Layout) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = insets.left
+                bottomMargin = insets.bottom
+                rightMargin = insets.right
+            }
+            WindowInsetsCompat.CONSUMED
+        }
+
         recipeData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getSerializableExtra("recipe_data", RecipeData::class.java)
         } else {

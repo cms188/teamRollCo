@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:gravity="center_horizontal"
         android:paddingBottom="10dp"
         android:paddingRight="10dp"
         android:paddingLeft="10dp">
@@ -45,39 +46,13 @@
                 android:padding="8dp">
 
                 <TextView
-                    android:id="@+id/tv_step_number"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tv_step_title"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:text="1"
-                    android:textStyle="bold"
+                    android:text="스텝 제목"
                     android:textSize="18sp"
-                    android:textColor="@android:color/black"/>
-
-                <!-- 타이머 레이아웃 (추후 사용) - 헤더 오른쪽으로 옮길 수도 있음 -->
-                <LinearLayout
-                    android:id="@+id/layout_step_timer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginStart="8dp"
-                    android:gravity="center_vertical"
-                    android:visibility="gone"
-                    tools:visibility="visible">
-
-                    <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:src="@drawable/ic_clock"/>
-
-                    <TextView
-                        android:id="@+id/tv_step_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        tools:text="10분"
-                        android:textSize="14sp"
-                        android:textColor="#424242"/>
-                </LinearLayout>
+                    android:textStyle="bold"
+                    android:textColor="@color/black" />
             </LinearLayout>
 
             <LinearLayout
@@ -100,5 +75,12 @@
                     tools:text="DB내용 표시\n설명\n설명\n설명" />
             </LinearLayout>
         </LinearLayout>
+        <com.example.recipe_pocket.CircularTimerView
+            android:id="@+id/circular_timer_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            tools:visibility="visible"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

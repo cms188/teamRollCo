@@ -101,7 +101,7 @@ class RecipeReadActivity : AppCompatActivity() {
     }
 
     private fun displayRecipe(recipe: Recipe) {
-        binding.etSearchBar.setText(recipe.title ?: "레시피 단계")
+        //binding.etSearchBar.setText(recipe.title ?: "레시피 단계")
 
         if (!recipe.steps.isNullOrEmpty()) {
             totalSteps = recipe.steps.size
@@ -259,8 +259,9 @@ class RecipeReadActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        recipeStepAdapter.releaseAllTimers()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(voiceCommandReceiver)
-        // Activity가 파괴될 때 서비스도 중지시키는 것이 일반적
+        // Activity가 파괴될 때 음성인식 서비스도 중지시키는 것이 일반적
         if (isVoiceRecognitionActive) { // 또는 isFinishing()과 함께 체크
             Log.d(TAG, "onDestroy - Stopping VoiceRecognitionService as Activity is being destroyed.")
             stopVoiceRecognitionService()
