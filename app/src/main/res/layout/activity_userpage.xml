@@ -20,4 +20,22 @@
         android:layout_height="wrap_content"
         android:text="로그아웃" />
 
+    <Button
+        android:id="@+id/btnChangeNickname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="닉네임 변경" />
+
+    <Button
+        android:id="@+id/btnChangePassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="비밀번호 변경" />
+
+    <Button
+        android:id="@+id/btnDeleteAccount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="회원탈퇴" />
+
 </LinearLayout>
