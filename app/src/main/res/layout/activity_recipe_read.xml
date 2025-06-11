@@ -69,8 +69,8 @@
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.689"
-            app:layout_constraintStart_toEndOf="perent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/btn_close"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -108,7 +108,7 @@
                 tools:text="1 / 7"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="@color/black"/> <!-- @color/dark_gray 정의 필요 또는 다른 색상 사용 -->
+                android:textColor="@color/black"/>
         </RelativeLayout>
 
         <ProgressBar
