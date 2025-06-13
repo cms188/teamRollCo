@@ -3,6 +3,7 @@ package com.example.recipe_pocket
 import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.LinearLayout
@@ -77,14 +78,15 @@ class RecipeDetailActivity : AppCompatActivity() {
         // --- 기존 정보 표시 ---
         binding.tvRecipeTitle.text = recipe.title ?: "제목 없음"
         binding.tvRecipeSimpleDescription.text = recipe.simpleDescription ?: "간단 설명 없음"
-        var hour = recipe.cookingTime!! / 60
-        var minute = recipe.cookingTime!! % 60
+        val hour = recipe.cookingTime?.div(60) ?: 0
+        val minute = recipe.cookingTime?.rem(60) ?: 0
         if (hour > 0) {
-            binding.tvCookingTime.text = recipe.cookingTime?.let { "${hour}시간 ${minute}분" } ?: "정보 없음"
+            binding.tvCookingTime.text = "${hour}시간 ${minute}분"
         } else {
-            binding.tvCookingTime.text = recipe.cookingTime?.let { "${recipe.cookingTime}분" } ?: "정보 없음"
+            binding.tvCookingTime.text = "${minute}분"
         }
         binding.tvDifficulty.text = recipe.difficulty ?: "정보 없음"
+        binding.tvServings.text = recipe.servings?.let { "${it}인분" } ?: "정보 없음"
 
         recipe.thumbnailUrl?.let {
             if (it.isNotEmpty()) {
@@ -104,34 +106,57 @@ class RecipeDetailActivity : AppCompatActivity() {
             binding.tvStepInfo.text = "단계 정보 없음"
         }
 
-        // --- ⭐ 변경점: 누락되었던 정보 표시 로직 추가 ---
+        binding.ingredientsContainer.removeAllViews() // 기존 뷰가 있다면 모두 제거
 
-        // 1. 인분 정보 표시 (레이아웃에 tvServings 라는 TextView가 있다고 가정)
-        binding.tvServings.text = recipe.servings?.let { "${it}인분" } ?: "정보 없음"
+        if (!recipe.ingredients.isNullOrEmpty()) {
+            val inflater = LayoutInflater.from(this)
+            for (ingredient in recipe.ingredients) {
+                // item_ingredient_display.xml을 inflate
+                val ingredientView = inflater.inflate(R.layout.item_ingredient_display, binding.ingredientsContainer, false)
 
-        // 2. 카테고리 정보 표시 (레이아웃에 tvCategory 라는 TextView가 있다고 가정)
-        //binding.tvCategory.text = recipe.category ?: "기타"
+                // inflate된 뷰 내부의 TextView들을 찾음
+                val nameTextView = ingredientView.findViewById<TextView>(R.id.ingredient_name)
+                val amountTextView = ingredientView.findViewById<TextView>(R.id.ingredient_amount)
 
-        // 3. 재료 목록 표시 (레이아웃에 ingredientsContainer 라는 LinearLayout이 있다고 가정)
-        /*binding.ingredientsContainer.removeAllViews() // 기존 뷰 모두 제거
-        recipe.ingredients?.takeIf { it.isNotEmpty() }?.forEach { ingredient ->
-            val ingredientText = "${ingredient.name} ${ingredient.amount}${ingredient.unit}"
-            val textView = createListItemTextView(ingredientText)
-            binding.ingredientsContainer.addView(textView)
-        } ?: run {
-            val textView = createListItemTextView("등록된 재료가 없습니다.")
-            binding.ingredientsContainer.addView(textView)
+                // 데이터 설정
+                nameTextView.text = ingredient.name ?: ""
+                amountTextView.text = "${ingredient.amount ?: ""}${ingredient.unit ?: ""}".trim()
+
+                // 컨테이너에 완성된 뷰 추가
+                binding.ingredientsContainer.addView(ingredientView)
+            }
+        } else {
+            // 재료가 없을 경우 표시할 텍스트
+            val noIngredientsTextView = TextView(this).apply {
+                text = "등록된 재료가 없습니다."
+                setTextColor(ContextCompat.getColor(context, R.color.text_gray))
+                textSize = 15f
+            }
+            binding.ingredientsContainer.addView(noIngredientsTextView)
         }
 
-        // 4. 조리도구 목록 표시 (레이아웃에 toolsContainer 라는 LinearLayout이 있다고 가정)
-        binding.toolsContainer.removeAllViews() // 기존 뷰 모두 제거
-        recipe.tools?.takeIf { it.isNotEmpty() }?.forEach { toolName ->
-            val textView = createListItemTextView(toolName)
-            binding.toolsContainer.addView(textView)
-        } ?: run {
-            val textView = createListItemTextView("등록된 조리도구가 없습니다.")
-            binding.toolsContainer.addView(textView)
-        }*/
+        binding.toolsContainer.removeAllViews() // 기존 뷰가 있다면 모두 제거
+
+        if (!recipe.tools.isNullOrEmpty()) {
+            val inflater = LayoutInflater.from(this)
+            for (tool in recipe.tools) {
+                val toolView = inflater.inflate(R.layout.item_tool_display, binding.toolsContainer, false)
+                val nameTextView = toolView.findViewById<TextView>(R.id.tool_name)
+                // 데이터 설정
+                nameTextView.text = tool.trim()
+
+                // 컨테이너에 완성된 뷰 추가
+                binding.toolsContainer.addView(toolView)
+            }
+        } else {
+            // 재료가 없을 경우 표시할 텍스트
+            val noToolsTextView = TextView(this).apply {
+                text = "등록된 재료가 없습니다."
+                setTextColor(ContextCompat.getColor(context, R.color.text_gray))
+                textSize = 15f
+            }
+            binding.toolsContainer.addView(noToolsTextView)
+        }
 
 
         // --- 버튼 리스너 설정 ---
@@ -142,22 +167,6 @@ class RecipeDetailActivity : AppCompatActivity() {
         }
         binding.btnGoBack.setOnClickListener {
             finish()
-        }
-    }
-
-    // ⭐ 변경점: 재료/도구 목록에 동적으로 추가할 TextView를 생성하는 헬퍼 함수
-    private fun createListItemTextView(text: String): TextView {
-        return TextView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            this.text = text
-            textSize = 14f // 폰트 크기
-            setTextColor(ContextCompat.getColor(context, R.color.black)) // 텍스트 색상
-            gravity = Gravity.CENTER_VERTICAL
-            val padding = (8 * resources.displayMetrics.density).toInt() // 8dp
-            setPadding(padding, padding, padding, padding)
         }
     }
 }

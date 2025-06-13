@@ -5,18 +5,18 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.viewpager2.adapter.FragmentStateAdapter
 
-// FragmentStateAdapter를 상속받는 것은 유지
 class CookWrite03StepAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
 
     // 어댑터가 현재 리스트를 직접 관리
     private var steps: List<RecipeStep_write> = emptyList()
 
     // DiffUtil을 사용하여 리스트를 업데이트하는 함수
-    fun submitList(newSteps: List<RecipeStep_write>) {
+    fun submitList(newSteps: List<RecipeStep_write>, commitCallback: (() -> Unit)? = null) {
         val diffCallback = StepDiffCallback(this.steps, newSteps)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
         this.steps = newSteps
         diffResult.dispatchUpdatesTo(this)
+        commitCallback?.invoke()
     }
 
     override fun getItemCount(): Int = steps.size

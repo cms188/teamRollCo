@@ -21,6 +21,7 @@
         tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
     <View
+        android:id="@+id/v_image"
         android:layout_width="0dp"
         android:layout_height="150dp"
         android:background="@drawable/bg_gradation"
@@ -36,14 +37,14 @@
         android:fillViewport="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/v_image"
         app:layout_constraintBottom_toTopOf="@id/bottom_controls_container">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="200dp"
+            android:paddingTop="0dp"
             android:paddingBottom="16dp">
 
             <TextView
@@ -136,6 +137,69 @@
                     android:textColor="#4A4A4A"
                     android:textSize="15sp" />
             </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="재료 목록"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="#4A4A4A"
+                android:textSize="17sp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="-16dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/bg_org_r_whit_bg"
+                android:elevation="2dp"
+                android:padding="16dp">
+
+
+                <!-- 재료 목록이 동적으로 추가될 컨테이너 -->
+                <LinearLayout
+                    android:id="@+id/ingredients_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="조리 도구"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:textColor="#4A4A4A"
+                android:textSize="17sp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="-16dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
+                android:background="@drawable/bg_org_r_whit_bg"
+                android:elevation="2dp"
+                android:padding="16dp">
+
+
+                <!-- 재료 목록이 동적으로 추가될 컨테이너 -->
+                <LinearLayout
+                    android:id="@+id/tools_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

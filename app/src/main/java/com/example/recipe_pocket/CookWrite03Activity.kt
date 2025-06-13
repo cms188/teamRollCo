@@ -76,7 +76,11 @@ class CookWrite03Activity : AppCompatActivity() {
     private fun observeViewModel() {
         viewModel.steps.observe(this, Observer { steps ->
             // ViewModel의 steps 데이터가 변경될 때만 어댑터에 리스트를 전달
-            stepAdapter.submitList(steps.toList())
+            stepAdapter.submitList(steps.toList()) {
+                binding.viewPagerSteps.post {
+                    updateIndicators(binding.viewPagerSteps.currentItem)
+                }
+            }
         })
     }
 
@@ -92,8 +96,10 @@ class CookWrite03Activity : AppCompatActivity() {
             binding.viewPagerSteps.currentItem += 1
         }
         binding.btnRemoveStep.setOnClickListener {
-            updateAllFragmentsData()
-            viewModel.removeStepAt(binding.viewPagerSteps.currentItem)
+            if ((viewModel.steps.value?.size ?: 0) > 1) {
+                updateAllFragmentsData()
+                viewModel.removeStepAt(binding.viewPagerSteps.currentItem)
+            }
         }
         binding.btnSave.setOnClickListener {
             saveRecipe()
