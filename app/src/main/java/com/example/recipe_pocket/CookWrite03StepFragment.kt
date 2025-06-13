@@ -22,9 +22,9 @@ class CookWrite03StepFragment : Fragment() {
     private var position: Int = -1
     private var currentStep: RecipeStep_write? = null
 
-    // ▼▼▼ hour, minute 변수를 Fragment가 다시 소유하도록 변경 ▼▼▼
     private var hour: Int = 0
     private var minute: Int = 0
+    private var second: Int = 0 // '초' 변수 추가
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -68,9 +68,11 @@ class CookWrite03StepFragment : Fragment() {
 
             binding.writeTimer.isVisible = data.useTimer
 
-            // ViewModel 데이터로 hour, minute 변수 초기화
-            hour = data.timerMinutes / 60
-            minute = data.timerMinutes % 60
+            // ViewModel 데이터(총 초)로 hour, minute, second 변수 초기화
+            val totalSeconds = data.timerSeconds
+            hour = totalSeconds / 3600
+            minute = (totalSeconds % 3600) / 60
+            second = totalSeconds % 60
             updateTimerDisplay()
             updateTimerButtonText()
         }
@@ -87,17 +89,21 @@ class CookWrite03StepFragment : Fragment() {
             currentStep?.useTimer = newVisibility
             updateTimerButtonText()
         }
-        // 버튼 클릭 시 hour, minute 변수를 직접 변경
+        // 버튼 클릭 시 시간/분/초 값 변경 및 순환 로직 적용
         binding.hourP.setOnClickListener { if (hour < 23) hour++; updateTimerDisplay() }
         binding.hourM.setOnClickListener { if (hour > 0) hour--; updateTimerDisplay() }
-        binding.minuteP.setOnClickListener { if (minute < 59) minute++; updateTimerDisplay() }
-        binding.minuteM.setOnClickListener { if (minute > 0) minute--; updateTimerDisplay() }
+
+        binding.minuteP.setOnClickListener { minute = (minute + 1) % 60; updateTimerDisplay() }
+        binding.minuteM.setOnClickListener { minute = (minute - 1 + 60) % 60; updateTimerDisplay() }
+
+        binding.secondP.setOnClickListener { second = (second + 1) % 60; updateTimerDisplay() }
+        binding.secondM.setOnClickListener { second = (second - 1 + 60) % 60; updateTimerDisplay() }
     }
 
-    // ▼▼▼ UI를 업데이트하는 함수 ▼▼▼
     private fun updateTimerDisplay() {
-        binding.hourNum.setText(hour.toString())
-        binding.minuteNum.setText(minute.toString())
+        binding.hourNum.text = hour.toString()
+        binding.minuteNum.text = minute.toString()
+        binding.secondNum.text = second.toString()
     }
 
     // ViewModel에 최종 데이터를 저장하는 함수
@@ -105,7 +111,8 @@ class CookWrite03StepFragment : Fragment() {
         currentStep?.apply {
             stepTitle = binding.etStepTitle.text.toString()
             stepDescription = binding.etStepDescription.text.toString()
-            timerMinutes = this@CookWrite03StepFragment.hour * 60 + this@CookWrite03StepFragment.minute
+            // 시간, 분, 초를 총 초로 변환하여 저장
+            timerSeconds = this@CookWrite03StepFragment.hour * 3600 + this@CookWrite03StepFragment.minute * 60 + this@CookWrite03StepFragment.second
         }
     }
 
@@ -113,7 +120,6 @@ class CookWrite03StepFragment : Fragment() {
         binding.buttonAddTimer.text = if (binding.writeTimer.isVisible) "- 타이머" else "+ 타이머"
     }
 
-    // 화면이 사라지기 전에 ViewModel에 데이터를 저장
     override fun onPause() {
         super.onPause()
         updateViewModelData()

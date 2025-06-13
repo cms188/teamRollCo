@@ -4,6 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="recipe_pocket.app">
         <option name="selectionMode" value="DROPDOWN" />
+        <DialogSelection />
       </SelectionState>
     </selectionStates>
   </component>

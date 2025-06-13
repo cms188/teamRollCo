@@ -39,13 +39,10 @@ class CircularTimerView @JvmOverloads constructor(
         btnPause = findViewById(R.id.btn_pause)
         btnReset = findViewById(R.id.btn_reset)
 
-        // XML에 정의된 텍스트 크기를 기준으로 px 값 가져오기
         largeTextSize = tvTime.textSize
-        // 작은 텍스트 크기를 sp 단위로 정의하고 px로 변환 (예: 36sp)
         smallTextSize = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP, 36f, resources.displayMetrics
         )
-
 
         btnPlay.setOnClickListener {
             if (!isTimerRunning) {
@@ -64,13 +61,12 @@ class CircularTimerView @JvmOverloads constructor(
         }
     }
 
-    fun setTime(minutes: Int) {
-        if (minutes <= 0) return
-        this.initialTimeInMillis = minutes * 60 * 1000L
+    fun setTime(totalSeconds: Int) {
+        if (totalSeconds <= 0) return
+        this.initialTimeInMillis = totalSeconds * 1000L
         resetTimer()
     }
 
-    // ▼▼▼ private에서 public으로 변경 및 로직 보강 ▼▼▼
     fun startTimer() {
         if (timeLeftInMillis <= 0 || isTimerRunning) return
 
@@ -117,7 +113,7 @@ class CircularTimerView @JvmOverloads constructor(
         val minutes = (totalSeconds % 3600) / 60
         val seconds = totalSeconds % 60
 
-        return if (totalSeconds > 5940) {
+        return if (hours > 0) { // 1시간 이상일 경우 h:m:s 형식으로 표시
             tvTime.setTextSize(TypedValue.COMPLEX_UNIT_PX, smallTextSize)
             String.format("%02d:%02d:%02d", hours, minutes, seconds)
         } else {
@@ -128,7 +124,7 @@ class CircularTimerView @JvmOverloads constructor(
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        // pauseTimer() // 다음 단계로 넘어가면 타이머 멈추게 하는 기능 일단 보류
+        // pauseTimer()
     }
 
     fun releaseTimer() {

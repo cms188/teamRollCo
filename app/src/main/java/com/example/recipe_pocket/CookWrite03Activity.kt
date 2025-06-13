@@ -144,7 +144,6 @@ class CookWrite03Activity : AppCompatActivity() {
         }
         container.addView(addButton)
 
-        // ▼▼▼ 자동 스크롤 로직을 post 블록 안으로 이동 ▼▼▼
         // 뷰가 그려진 후(레이아웃 패스가 끝난 후)에 실행되도록 post를 사용
         scrollView.post {
             currentStepView?.let { view ->
@@ -208,7 +207,7 @@ class CookWrite03Activity : AppCompatActivity() {
                             "title" to step.stepTitle,
                             "description" to step.stepDescription,
                             "imageUrl" to (stepImageUrls.getOrNull(index) ?: ""),
-                            "time" to step.timerMinutes,
+                            "time" to step.timerSeconds, // timerSeconds 값을 "time" 필드에 저장
                             "useTimer" to step.useTimer
                         )
                     },

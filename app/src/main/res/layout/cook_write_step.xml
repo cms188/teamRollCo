@@ -10,7 +10,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- 단계별 사진 -->
         <FrameLayout
             android:id="@+id/representative_photo_frame_layout"
             android:layout_width="match_parent"
@@ -45,7 +44,6 @@
                 android:contentDescription="단계별 사진을 선택하세요"/>
         </FrameLayout>
 
-        <!-- 단계 제목 -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -68,7 +66,6 @@
             android:textColorHint="#999999"
             android:textSize="14sp" />
 
-        <!-- 요리 방법 -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -93,7 +90,6 @@
             android:textColorHint="#999999"
             android:textSize="14sp" />
 
-        <!-- 타이머 상세설정 -->
         <LinearLayout
             android:id="@+id/write_timer"
             android:layout_width="match_parent"
@@ -103,14 +99,15 @@
             android:background="@drawable/bg_search_bar_orange_border"
             android:visibility="gone">
 
+            <!-- 시간 설정 -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:layout_weight="1">
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="0dp"
                     android:layout_weight="1"
                     android:text="시간"
                     android:gravity="bottom|center"
@@ -118,7 +115,7 @@
                     android:textSize="20sp"/>
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="center_horizontal"
                     android:orientation="horizontal">
@@ -127,10 +124,11 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_gravity="top"
+                        android:layout_marginTop="5dp"
                         android:layout_marginStart="5dp"
                         android:layout_marginEnd="5dp"
                         android:src="@drawable/ic_add"/>
-                    <EditText
+                    <TextView
                         android:id="@+id/hour_num"
                         android:layout_width="wrap_content"
                         android:layout_height="28dp"
@@ -146,19 +144,22 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_gravity="top"
+                        android:layout_marginTop="5dp"
                         android:layout_marginStart="5dp"
                         android:layout_marginEnd="5dp"
                         android:src="@drawable/ic_remove"/>
                 </LinearLayout>
             </LinearLayout>
+
+            <!-- 분 설정 -->
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:layout_weight="1">
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="0dp"
                     android:layout_weight="1"
                     android:text="분"
                     android:gravity="bottom|center"
@@ -166,7 +167,7 @@
                     android:textSize="20sp"/>
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="0dp"
                     android:layout_weight="1"
                     android:gravity="center_horizontal"
                     android:orientation="horizontal">
@@ -175,10 +176,11 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_gravity="top"
+                        android:layout_marginTop="5dp"
                         android:layout_marginStart="5dp"
                         android:layout_marginEnd="5dp"
                         android:src="@drawable/ic_add"/>
-                    <EditText
+                    <TextView
                         android:id="@+id/minute_num"
                         android:layout_width="wrap_content"
                         android:layout_height="28dp"
@@ -194,6 +196,60 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_gravity="top"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:src="@drawable/ic_remove"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 초 설정  -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="초"
+                    android:gravity="bottom|center"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/second_p"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:src="@drawable/ic_add"/>
+                    <TextView
+                        android:id="@+id/second_num"
+                        android:layout_width="wrap_content"
+                        android:layout_height="28dp"
+                        android:gravity="top"
+                        android:layout_gravity="top"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:text="0"
+                        android:textSize="24sp"
+                        android:background="@android:color/transparent"/>
+                    <ImageView
+                        android:id="@+id/second_m"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="top"
+                        android:layout_marginTop="5dp"
                         android:layout_marginStart="5dp"
                         android:layout_marginEnd="5dp"
                         android:src="@drawable/ic_remove"/>

@@ -19,6 +19,9 @@ import com.example.recipe_pocket.databinding.ActivityRecipeReadBinding
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class RecipeReadActivity : AppCompatActivity() {
 
@@ -44,21 +47,26 @@ class RecipeReadActivity : AppCompatActivity() {
         if (recipeId == null) {
             Toast.makeText(this, "레시피 정보를 불러올 수 없습니다.", Toast.LENGTH_LONG).show()
             Log.e(TAG, "Recipe ID is null.")
-            finish(); return
+            finish()
+            return
         }
 
         binding.btnClose.setOnClickListener { finish() }
         binding.soundButton.setOnClickListener { toggleVoiceRecognition() }
-        updateSoundButtonState() // 초기 버튼 상태
+        updateSoundButtonState()
 
         initFirebase()
         setupViewPager()
-        loadRecipeData()
 
-        // LocalBroadcastManager 등록 (서비스로부터의 메시지 수신)
+        // loadRecipeData()를 코루틴 내부에서 호출하도록 변경
+        lifecycleScope.launch {
+            loadRecipeData()
+        }
+
+        // LocalBroadcastManager 등록
         LocalBroadcastManager.getInstance(this).registerReceiver(
             voiceCommandReceiver,
-            IntentFilter(VoiceRecognitionService.ACTION_VOICE_COMMAND) // 서비스의 액션으로 변경
+            IntentFilter(VoiceRecognitionService.ACTION_VOICE_COMMAND)
         )
     }
 
@@ -78,34 +86,38 @@ class RecipeReadActivity : AppCompatActivity() {
         })
     }
 
-    private fun loadRecipeData() {
-        firestore.collection("Recipes")
-            .document(recipeId!!)
-            .get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    val recipe = documentSnapshot.toObject(Recipe::class.java)
-                    recipe?.let { displayRecipe(it) }
-                        ?: run {
-                            Toast.makeText(this, "레시피 정보 변환에 실패했습니다.", Toast.LENGTH_SHORT).show()
-                            Log.e(TAG, "Failed to convert document to Recipe object for ID: $recipeId")
-                        }
+    private suspend fun loadRecipeData() {
+        try {
+            val documentSnapshot = firestore.collection("Recipes")
+                .document(recipeId!!)
+                .get()
+                .await()
+
+            if (documentSnapshot.exists()) {
+                val recipe = documentSnapshot.toObject(Recipe::class.java)
+                if (recipe != null) {
+                    displayRecipe(recipe)
                 } else {
-                    Toast.makeText(this, "레시피를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
-                    Log.e(TAG, "No such document with ID: $recipeId")
+                    Toast.makeText(this, "레시피 정보 변환에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                    Log.e(TAG, "Failed to convert document to Recipe object for ID: $recipeId")
                 }
+            } else {
+                Toast.makeText(this, "레시피를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
+                Log.e(TAG, "No such document with ID: $recipeId")
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "데이터 로딩 실패: ${e.message}", Toast.LENGTH_LONG).show()
-                Log.e(TAG, "Error fetching recipe details for ID: $recipeId", e)
-            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "데이터 로딩 실패: ${e.message}", Toast.LENGTH_LONG).show()
+            Log.e(TAG, "Error fetching recipe details for ID: $recipeId", e)
+        }
     }
 
     private fun displayRecipe(recipe: Recipe) {
-        //binding.etSearchBar.setText(recipe.title ?: "레시피 단계")
+        // 이 함수는 UI를 업데이트하므로 메인 스레드에서 실행되어야 함 (launch 블록이 보장)
+        // binding.etSearchBar.setText(recipe.title ?: "레시피 단계")
 
         if (!recipe.steps.isNullOrEmpty()) {
             totalSteps = recipe.steps.size
+            // Firestore에서 가져온 stepNumber가 순서대로 정렬되어 있지 않을 수 있으므로 정렬
             val sortedSteps = recipe.steps.sortedBy { it.stepNumber }
             recipeStepAdapter.updateSteps(sortedSteps)
 
@@ -135,7 +147,6 @@ class RecipeReadActivity : AppCompatActivity() {
         }
     }
 
-    // ▼▼▼ 현재 ViewHolder를 가져오는 헬퍼 함수 추가 ▼▼▼
     private fun getCurrentViewHolder(): RecipeStepAdapter.StepViewHolder? {
         val recyclerView = binding.viewPagerRecipeSteps.getChildAt(0) as? RecyclerView
         if (recyclerView == null) {
@@ -180,7 +191,6 @@ class RecipeReadActivity : AppCompatActivity() {
             if (checkAndRequestAudioPermission()) {
                 startVoiceRecognitionService()
             } else {
-                // 권한 요청 팝업이 뜬 상태. 결과는 onRequestPermissionsResult에서 처리.
                 shouldStartVoiceRecognitionAfterPermission = true // 권한 승인 후 시작하도록 플래그 설정
             }
         } else {
@@ -220,7 +230,6 @@ class RecipeReadActivity : AppCompatActivity() {
         }
     }
 
-    // ▼▼▼ voiceCommandReceiver 메서드 수정 ▼▼▼
     private val voiceCommandReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == VoiceRecognitionService.ACTION_VOICE_COMMAND) {
@@ -282,7 +291,6 @@ class RecipeReadActivity : AppCompatActivity() {
         super.onDestroy()
         recipeStepAdapter.releaseAllTimers()
         LocalBroadcastManager.getInstance(this).unregisterReceiver(voiceCommandReceiver)
-        // Activity가 파괴될 때 음성인식 서비스도 중지시키는 것이 일반적
         if (isVoiceRecognitionActive) { // 또는 isFinishing()과 함께 체크
             Log.d(TAG, "onDestroy - Stopping VoiceRecognitionService as Activity is being destroyed.")
             stopVoiceRecognitionService()
