@@ -1,4 +1,4 @@
-package com.example.recipe_pocket // 실제 패키지명으로 변경
+package com.example.recipe_pocket
 
 import android.Manifest
 import android.app.Service
@@ -37,6 +37,10 @@ class VoiceRecognitionService : Service() {
         const val COMMAND_PREVIOUS = "PREVIOUS"
         const val COMMAND_STOP_RECOGNITION_FROM_VOICE = "STOP_RECOGNITION_FROM_VOICE"
         const val COMMAND_SERVICE_STOPPED_UNEXPECTEDLY = "SERVICE_STOPPED_UNEXPECTEDLY" // 예기치 않은 종료 알림
+
+        // ▼▼▼ 타이머 제어 명령어 추가 ▼▼▼
+        const val COMMAND_TIMER_START = "TIMER_START"
+        const val COMMAND_TIMER_PAUSE = "TIMER_PAUSE"
 
         // RecipeReadActivity에서 서비스 제어를 위한 Action
         const val ACTION_START_RECOGNITION = "ACTION_START_RECOGNITION_SERVICE"
@@ -243,12 +247,15 @@ class VoiceRecognitionService : Service() {
     }
 
     private fun processText(text: String): String? {
-        val lowerText = text.lowercase() // 이전 val lowerText = text.toLowerCase()
+        val lowerText = text.lowercase()
 
         val commandKeywords = mapOf(
             listOf("이전", "이전으로", "이전단계", "이전 단계") to COMMAND_PREVIOUS,
             listOf("다음", "다음으로", "다음단계", "다음 단계") to COMMAND_NEXT,
-            listOf("종료", "음성인식 종료", "그만") to COMMAND_STOP_RECOGNITION_FROM_VOICE
+            listOf("종료", "음성인식 종료", "그만") to COMMAND_STOP_RECOGNITION_FROM_VOICE,
+
+            listOf("타이머 시작", "타이머 재생", "타이머 시작해줘", "타이머 재생해줘") to COMMAND_TIMER_START,
+            listOf("타이머 정지", "타이머 일시정지", "타이머 멈춰줘", "타이머 멈춰", "타이머 정지해줘") to COMMAND_TIMER_PAUSE
         )
 
         for ((keywords, command) in commandKeywords) {

@@ -61,9 +61,9 @@ class MainActivity : AppCompatActivity() {
 
         // ViewPager2 설정 (CookTipItem, CookTipAdapter 클래스가 정의되어 있다고 가정)
         val cookTipItems = listOf(
-            CookTipItem("오늘의 추천 요리팁!", "재료 손질부터 플레이팅까지", R.drawable.testimg1),
-            CookTipItem("간단한 밑반찬 만들기", "냉장고를 든든하게 채워요", R.drawable.testimg2),
-            CookTipItem("특별한 날 홈파티 메뉴", "쉽고 근사하게 준비하기", R.drawable.testimg1)
+            CookTipItem("오늘의 추천 요리팁!", "재료 손질부터 플레이팅까지", R.drawable.bg_no_img_gray),
+            CookTipItem("간단한 밑반찬 만들기", "냉장고를 든든하게 채워요", R.drawable.bg_no_img_gray),
+            CookTipItem("특별한 날 홈파티 메뉴", "쉽고 근사하게 준비하기", R.drawable.bg_no_img_gray)
         )
         val cookTipAdapter = CookTipAdapter(cookTipItems)
         binding.cookTipsViewPager.adapter = cookTipAdapter

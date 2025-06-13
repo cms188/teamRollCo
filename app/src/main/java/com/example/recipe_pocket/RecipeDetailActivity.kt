@@ -92,9 +92,9 @@ class RecipeDetailActivity : AppCompatActivity() {
             if (it.isNotEmpty()) {
                 Glide.with(this).load(it).into(binding.ivRecipeThumbnail)
             } else {
-                binding.ivRecipeThumbnail.setImageResource(R.drawable.bg_bookmark_shape)
+                binding.ivRecipeThumbnail.setImageResource(R.drawable.bg_no_img_gray)
             }
-        } ?: binding.ivRecipeThumbnail.setImageResource(R.drawable.bg_bookmark_shape)
+        } ?: binding.ivRecipeThumbnail.setImageResource(R.drawable.bg_no_img_gray)
 
         recipe.steps?.let {
             if (it.isNotEmpty()) {

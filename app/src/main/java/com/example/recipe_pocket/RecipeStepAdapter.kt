@@ -83,6 +83,18 @@ class RecipeStepAdapter(private var steps: List<RecipeStep>) :
             }
         }
 
+        fun startTimer() {
+            if (circularTimerView.visibility == View.VISIBLE) {
+                circularTimerView.startTimer()
+            }
+        }
+
+        fun pauseTimer() {
+            if (circularTimerView.visibility == View.VISIBLE) {
+                circularTimerView.pauseTimer()
+            }
+        }
+
         // 리소스 정리 메서드 (그대로 유지)
         fun releaseCircularTimer() {
             circularTimerView.releaseTimer()

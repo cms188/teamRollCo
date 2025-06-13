@@ -17,9 +17,9 @@ class RecipeAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() { // 모든 ViewHolder의 공통 부모
 
     // 기본 이미지 ID들은 이전과 동일하게 유지
-    private val defaultRecipeImageErrorResId: Int = R.drawable.testimg1
+    private val defaultRecipeImageErrorResId: Int = R.drawable.bg_no_img_gray
     private val defaultProfileImagePlaceholderResId: Int = R.drawable.bg_main_circle_gray
-    private val defaultProfileImageErrorResId: Int = R.drawable.testimg1
+    private val defaultProfileImageErrorResId: Int = R.drawable.bg_no_img_gray
 
     // 각 카드 타입에 대한 ViewHolder 정의 (이전 답변과 유사)
     // 각 ViewHolder는 해당 카드 레이아웃에 맞는 바인딩 객체를 사용해야 합니다.

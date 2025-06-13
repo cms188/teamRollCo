@@ -1,4 +1,4 @@
-package com.example.recipe_pocket // 실제 패키지명으로 변경
+package com.example.recipe_pocket
 
 import android.Manifest
 import android.content.BroadcastReceiver
@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.recipe_pocket.databinding.ActivityRecipeReadBinding
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 
 class RecipeReadActivity : AppCompatActivity() {
@@ -134,6 +135,16 @@ class RecipeReadActivity : AppCompatActivity() {
         }
     }
 
+    // ▼▼▼ 현재 ViewHolder를 가져오는 헬퍼 함수 추가 ▼▼▼
+    private fun getCurrentViewHolder(): RecipeStepAdapter.StepViewHolder? {
+        val recyclerView = binding.viewPagerRecipeSteps.getChildAt(0) as? RecyclerView
+        if (recyclerView == null) {
+            Log.e(TAG, "RecyclerView not found in ViewPager2")
+            return null
+        }
+        return recyclerView.findViewHolderForAdapterPosition(binding.viewPagerRecipeSteps.currentItem) as? RecipeStepAdapter.StepViewHolder
+    }
+
 
     // --- 음성인식 서비스 관련 메서드 ---
     private fun checkAndRequestAudioPermission(): Boolean {
@@ -209,6 +220,7 @@ class RecipeReadActivity : AppCompatActivity() {
         }
     }
 
+    // ▼▼▼ voiceCommandReceiver 메서드 수정 ▼▼▼
     private val voiceCommandReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == VoiceRecognitionService.ACTION_VOICE_COMMAND) {
@@ -251,6 +263,15 @@ class RecipeReadActivity : AppCompatActivity() {
                             isVoiceRecognitionActive = false
                             updateSoundButtonState()
                         }
+                    }
+                    // 타이머 제어 커맨드 처리 추가
+                    VoiceRecognitionService.COMMAND_TIMER_START -> {
+                        Toast.makeText(this@RecipeReadActivity, "음성 명령: 타이머 시작", Toast.LENGTH_SHORT).show()
+                        getCurrentViewHolder()?.startTimer()
+                    }
+                    VoiceRecognitionService.COMMAND_TIMER_PAUSE -> {
+                        Toast.makeText(this@RecipeReadActivity, "음성 명령: 타이머 정지", Toast.LENGTH_SHORT).show()
+                        getCurrentViewHolder()?.pauseTimer()
                     }
                 }
             }

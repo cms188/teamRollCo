@@ -1,4 +1,3 @@
-// CircularTimerView.kt (수정된 전체 코드)
 package com.example.recipe_pocket
 
 import android.content.Context
@@ -25,7 +24,8 @@ class CircularTimerView @JvmOverloads constructor(
 
     private val progressBar: ProgressBar
     private val tvTime: TextView
-    private val btnPlayPause: ImageButton
+    private val btnPlay: ImageButton
+    private val btnPause: ImageButton
     private val btnReset: ImageButton
 
     private val largeTextSize: Float
@@ -35,7 +35,8 @@ class CircularTimerView @JvmOverloads constructor(
         LayoutInflater.from(context).inflate(R.layout.view_circular_timer, this, true)
         progressBar = findViewById(R.id.progressBar)
         tvTime = findViewById(R.id.tv_time)
-        btnPlayPause = findViewById(R.id.btn_play_pause)
+        btnPlay = findViewById(R.id.btn_play)
+        btnPause = findViewById(R.id.btn_pause)
         btnReset = findViewById(R.id.btn_reset)
 
         // XML에 정의된 텍스트 크기를 기준으로 px 값 가져오기
@@ -46,11 +47,15 @@ class CircularTimerView @JvmOverloads constructor(
         )
 
 
-        btnPlayPause.setOnClickListener {
+        btnPlay.setOnClickListener {
+            if (!isTimerRunning) {
+                startTimer()
+            }
+        }
+
+        btnPause.setOnClickListener {
             if (isTimerRunning) {
                 pauseTimer()
-            } else {
-                startTimer()
             }
         }
 
@@ -65,11 +70,11 @@ class CircularTimerView @JvmOverloads constructor(
         resetTimer()
     }
 
-    private fun startTimer() {
-        if (timeLeftInMillis <= 0) return
+    // ▼▼▼ private에서 public으로 변경 및 로직 보강 ▼▼▼
+    fun startTimer() {
+        if (timeLeftInMillis <= 0 || isTimerRunning) return
 
         isTimerRunning = true
-        updateButtonUI()
 
         countDownTimer = object : CountDownTimer(timeLeftInMillis, 50) {
             override fun onTick(millisUntilFinished: Long) {
@@ -81,15 +86,13 @@ class CircularTimerView @JvmOverloads constructor(
                 timeLeftInMillis = 0
                 isTimerRunning = false
                 updateTimerUI()
-                updateButtonUI()
             }
         }.start()
     }
-
-    private fun pauseTimer() {
+    fun pauseTimer() {
+        if (!isTimerRunning) return
         countDownTimer?.cancel()
         isTimerRunning = false
-        updateButtonUI()
     }
 
     private fun resetTimer() {
@@ -105,14 +108,6 @@ class CircularTimerView @JvmOverloads constructor(
             progressBar.progress = progress
         } else {
             progressBar.progress = 0
-        }
-    }
-
-    private fun updateButtonUI() {
-        if (isTimerRunning) {
-            btnPlayPause.setImageResource(R.drawable.ic_pause)
-        } else {
-            btnPlayPause.setImageResource(R.drawable.ic_play)
         }
     }
 
