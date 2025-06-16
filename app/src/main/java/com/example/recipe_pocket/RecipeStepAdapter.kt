@@ -4,77 +4,108 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
-class RecipeStepAdapter(private var steps: List<RecipeStep>) :
-    RecyclerView.Adapter<RecipeStepAdapter.StepViewHolder>() {
+sealed class RecipePageItem {
+    data class Step(val data: RecipeStep) : RecipePageItem()
+    data class FinishPage(val recipe: Recipe) : RecipePageItem()
+}
 
-    // ViewHolder 인스턴스를 추적하기 위한 세트
+class RecipeStepAdapter(initialRecipe: Recipe?) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private var pageItems: List<RecipePageItem> = emptyList()
+
+    companion object {
+        private const val VIEW_TYPE_STEP = 1
+        private const val VIEW_TYPE_FINISH = 2
+    }
+
+    init {
+        initialRecipe?.let { updateItems(it) }
+    }
+
     private val viewHolders = mutableSetOf<StepViewHolder>()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StepViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.read_recipe_step, parent, false)
-        val holder = StepViewHolder(view)
-        viewHolders.add(holder) // 생성 시 세트에 추가
-        return holder
+    override fun getItemViewType(position: Int): Int {
+        return when (pageItems[position]) {
+            is RecipePageItem.Step -> VIEW_TYPE_STEP
+            is RecipePageItem.FinishPage -> VIEW_TYPE_FINISH
+        }
     }
 
-    override fun onBindViewHolder(holder: StepViewHolder, position: Int) {
-        val step = steps[position]
-        holder.bind(step)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return when (viewType) {
+            VIEW_TYPE_STEP -> {
+                val view = inflater.inflate(R.layout.read_recipe_step, parent, false)
+                val holder = StepViewHolder(view)
+                viewHolders.add(holder)
+                holder
+            }
+            VIEW_TYPE_FINISH -> {
+                val view = inflater.inflate(R.layout.activity_recipe_read_finish, parent, false)
+                FinishViewHolder(view)
+            }
+            else -> throw IllegalArgumentException("Invalid view type: $viewType")
+        }
     }
 
-    override fun getItemCount(): Int = steps.size
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (val item = pageItems[position]) {
+            is RecipePageItem.Step -> (holder as StepViewHolder).bind(item.data)
+            is RecipePageItem.FinishPage -> (holder as FinishViewHolder).bind(item.recipe)
+        }
+    }
 
-    override fun onViewRecycled(holder: StepViewHolder) {
+    override fun getItemCount(): Int = pageItems.size
+
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
-        // 뷰가 재사용될 때 타이머를 초기화하고 세트에서 제거
-        holder.releaseCircularTimer()
-        viewHolders.remove(holder)
+        if (holder is StepViewHolder) {
+            holder.releaseCircularTimer()
+            viewHolders.remove(holder)
+        }
     }
+
     @SuppressLint("NotifyDataSetChanged")
-    fun updateSteps(newSteps: List<RecipeStep>) {
-        steps = newSteps.sortedBy { it.stepNumber }
+    fun updateItems(recipe: Recipe) {
+        val newPageItems = mutableListOf<RecipePageItem>()
+        recipe.steps?.sortedBy { it.stepNumber }?.forEach { step ->
+            newPageItems.add(RecipePageItem.Step(step))
+        }
+        newPageItems.add(RecipePageItem.FinishPage(recipe))
+        this.pageItems = newPageItems
         notifyDataSetChanged()
     }
 
-    // Activity에서 호출하여 모든 타이머를 정리하는 메서드
     fun releaseAllTimers() {
         viewHolders.forEach { it.releaseCircularTimer() }
         viewHolders.clear()
     }
 
     class StepViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // 뷰 참조에서 stepTimerLayout과 stepTimeTextView 제거
         private val stepTitleTextView: TextView = itemView.findViewById(R.id.tv_step_title)
         private val stepDescriptionTextView: TextView = itemView.findViewById(R.id.tv_step_description)
         private val stepImageView: ImageView = itemView.findViewById(R.id.iv_step_image)
         private val circularTimerView: CircularTimerView = itemView.findViewById(R.id.circular_timer_view)
 
         fun bind(step: RecipeStep) {
-            // 제목만 표시 (단계 번호 없음)
             stepTitleTextView.text = if (step.title.isNullOrEmpty()) "요리하기" else step.title
-
-            // 설명 표시
             stepDescriptionTextView.text = step.description
-
-            // 이미지 표시 (if-else 구조 유지)
             if (!step.imageUrl.isNullOrEmpty()) {
                 stepImageView.visibility = View.VISIBLE
-                Glide.with(itemView.context)
-                    .load(step.imageUrl)
-                    .placeholder(R.drawable.bg_bookmark_shape)
-                    .error(R.drawable.bg_bookmark_shape)
+                Glide.with(itemView.context).load(step.imageUrl)
+                    .placeholder(R.drawable.bg_no_img_gray).error(R.drawable.bg_no_img_gray)
                     .into(stepImageView)
             } else {
                 stepImageView.visibility = View.GONE
             }
-
-            // CircularTimerView 상태 관리 (if-else 구조 유지)
             if (step.useTimer == true && step.time != null && step.time > 0) {
                 circularTimerView.visibility = View.VISIBLE
                 circularTimerView.setTime(step.time)
@@ -82,22 +113,37 @@ class RecipeStepAdapter(private var steps: List<RecipeStep>) :
                 circularTimerView.visibility = View.GONE
             }
         }
+        fun startTimer() { if (circularTimerView.visibility == View.VISIBLE) circularTimerView.startTimer() }
+        fun pauseTimer() { if (circularTimerView.visibility == View.VISIBLE) circularTimerView.pauseTimer() }
+        fun releaseCircularTimer() { circularTimerView.releaseTimer() }
+    }
 
-        fun startTimer() {
-            if (circularTimerView.visibility == View.VISIBLE) {
-                circularTimerView.startTimer()
+    class FinishViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        // ID가 재활용 되었으므로, 올바른 ID를 사용합니다.
+        private val title: TextView = itemView.findViewById(R.id.tv_finish_title)
+        private val background: ImageView = itemView.findViewById(R.id.iv_recipe_thumbnail)
+        private val reviewButton: Button = itemView.findViewById(R.id.btn_leave_review)
+        private val bookmarkButton: Button = itemView.findViewById(R.id.btn_add_bookmark)
+        private val doneButton: Button = itemView.findViewById(R.id.btn_done)
+
+        fun bind(recipe: Recipe) {
+            val context = itemView.context
+            title.text = recipe.title ?: "요리 이름"
+
+            Glide.with(context)
+                .load(recipe.thumbnailUrl)
+                .error(R.drawable.bg_no_img_gray)
+                .into(background)
+
+            doneButton.setOnClickListener {
+                (context as? RecipeReadActivity)?.finish()
             }
-        }
-
-        fun pauseTimer() {
-            if (circularTimerView.visibility == View.VISIBLE) {
-                circularTimerView.pauseTimer()
+            reviewButton.setOnClickListener {
+                Toast.makeText(context, "후기 남기기 기능은 준비 중입니다.", Toast.LENGTH_SHORT).show()
             }
-        }
-
-        // 리소스 정리 메서드 (그대로 유지)
-        fun releaseCircularTimer() {
-            circularTimerView.releaseTimer()
+            bookmarkButton.setOnClickListener {
+                Toast.makeText(context, "북마크 기능은 준비 중입니다.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }

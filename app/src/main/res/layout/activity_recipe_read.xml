@@ -1,136 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/read_recipe_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/white"
-    tools:context=".RecipeReadActivity"> <!-- Activity 연결 -->
+    tools:context=".RecipeReadActivity">
 
-    <!-- 상태 표시줄 패딩 -->
+    <!-- 1. 툴바 컨테이너를 화면 상단에 정렬 -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/search_color"
-        android:paddingTop="30dp"/>
-
-    <!-- 상단 바: 뒤로가기 버튼 + 검색창 -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/top_bar_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/search_color"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:paddingStart="8dp"
-        android:paddingEnd="16dp">
-
-        <ImageView
-            android:id="@+id/btn_close"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:contentDescription="뒤로가기"
-            android:padding="8dp"
-            android:src="@drawable/ic_circle_close"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:adjustViewBounds="true"
-            android:scaleType="centerInside" />
-
-        <!--<EditText
-            android:id="@+id/et_search_bar"
-            android:layout_width="200dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_search_bar_orange_border"
-            android:hint="요리1 요리2 구역. 구현 아직 안됨 자리잡기용"
-            android:importantForAutofill="no"
-            android:inputType="text"
-            android:textAlignment="center"
-            android:textColor="@android:color/black"
-            android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/sound_button"
-            app:layout_constraintHorizontal_bias="0.158"
-            app:layout_constraintStart_toEndOf="@id/btn_close"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />-->
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/sound_button"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:background="@drawable/bg_orange_button_rounded"
-            android:text="버튼"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@+id/btn_close"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <LinearLayout
-        android:id="@+id/layout_step_progress_indicator"
+        android:id="@+id/top_bars_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="10dp"
-        android:background="@drawable/bg_search_top"> <!-- 또는 원하는 배경색 -->
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="20dp">
 
-        <RelativeLayout
+        <!-- (툴바 내부 코드는 모두 동일) -->
+        <LinearLayout
+            android:id="@+id/status_bar_padding_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@color/search_color"
+            android:paddingTop="30dp"
+            android:orientation="vertical"/>
 
-            <TextView
-                android:id="@+id/tv_current_step_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                tools:text="1단계"
-                android:textSize="16sp"
-                android:textColor="@android:color/black"
-                android:textStyle="bold"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/top_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/search_color"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="16dp">
 
-            <TextView
-                android:id="@+id/tv_step_pager_indicator"
+            <ImageView
+                android:id="@+id/btn_close"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="뒤로가기"
+                android:padding="8dp"
+                android:src="@drawable/ic_circle_close"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:adjustViewBounds="true"
+                android:scaleType="centerInside" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/sound_button"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                tools:text="1 / 7"
-                android:textSize="14sp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_orange_button_rounded"
+                android:text="버튼"
+                android:textColor="@color/white"
                 android:textStyle="bold"
-                android:textColor="@color/black"/>
-        </RelativeLayout>
-
-        <ProgressBar
-            android:id="@+id/pb_step_progress"
-            style="?android:attr/progressBarStyleHorizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toEndOf="@+id/btn_close"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:id="@+id/layout_step_progress_indicator"
             android:layout_width="match_parent"
-            android:layout_height="6dp"
-            android:layout_marginTop="8dp"
-            android:max="100"
-            tools:progress="14"
-            android:progressDrawable="@drawable/custom_progress_bar" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="10dp"
+            android:background="@drawable/bg_search_top">
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_current_step_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    tools:text="1단계"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tv_step_pager_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    tools:text="1 / 7"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"/>
+            </RelativeLayout>
+
+            <ProgressBar
+                android:id="@+id/pb_step_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:layout_marginTop="8dp"
+                android:max="100"
+                tools:progress="14"
+                android:progressDrawable="@drawable/custom_progress_bar" />
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- ViewPager2로 레시피 단계 표시 -->
+    <!-- 2. ViewPager2를 'top_bars_container'의 아래에 배치 -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager_recipe_steps"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
         android:clipToPadding="false"
-        android:clipChildren="false" />
-</LinearLayout>
+        android:clipChildren="false"
+        android:layout_below="@id/top_bars_container"/>
+
+</RelativeLayout>
