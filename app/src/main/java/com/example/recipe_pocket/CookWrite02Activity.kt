@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
@@ -27,6 +28,8 @@ class CookWrite02Activity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = CookWrite02Binding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         // Edge-to-edge 처리
         ViewCompat.setOnApplyWindowInsetsListener(binding.CookWrite02Layout) { v, windowInsets ->

@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ArrayAdapter
 import android.widget.NumberPicker
 import android.widget.TextView
@@ -43,6 +44,8 @@ class CookWrite01Activity : AppCompatActivity() {
         binding = CookWrite01Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
         // Edge-to-edge 처리
         ViewCompat.setOnApplyWindowInsetsListener(binding.CookWrite01Layout) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -61,7 +64,7 @@ class CookWrite01Activity : AppCompatActivity() {
     }
 
     private fun setupDropdown() {
-        val categories = listOf("한식", "중식", "일식", "양식", "디저트", "기타")
+        val categories = listOf("한식", "중식", "일식", "양식", "디저트", "음료", "기타")
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, categories)
         binding.categoryDropdown.setAdapter(adapter)
     }

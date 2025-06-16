@@ -237,7 +237,7 @@ class RecipeReadActivity : AppCompatActivity() {
                 Log.d(TAG, "Received command from service: $command")
                 when (command) {
                     VoiceRecognitionService.COMMAND_NEXT -> {
-                        Toast.makeText(this@RecipeReadActivity, "음성 명령: 다음", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@RecipeReadActivity, "음성 명령: 다음", Toast.LENGTH_SHORT).show()
                         val currentItem = binding.viewPagerRecipeSteps.currentItem
                         if (currentItem < recipeStepAdapter.itemCount - 1) {
                             binding.viewPagerRecipeSteps.setCurrentItem(currentItem + 1, true)
@@ -250,7 +250,7 @@ class RecipeReadActivity : AppCompatActivity() {
                         }
                     }
                     VoiceRecognitionService.COMMAND_PREVIOUS -> {
-                        Toast.makeText(this@RecipeReadActivity, "음성 명령: 이전", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@RecipeReadActivity, "음성 명령: 이전", Toast.LENGTH_SHORT).show()
                         val currentItem = binding.viewPagerRecipeSteps.currentItem
                         if (currentItem > 0) {
                             binding.viewPagerRecipeSteps.setCurrentItem(currentItem - 1, true)
@@ -259,7 +259,7 @@ class RecipeReadActivity : AppCompatActivity() {
                         }
                     }
                     VoiceRecognitionService.COMMAND_STOP_RECOGNITION_FROM_VOICE -> {
-                        Toast.makeText(this@RecipeReadActivity, "음성 인식 종료", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@RecipeReadActivity, "음성 인식 종료", Toast.LENGTH_SHORT).show()
                         if (isVoiceRecognitionActive) {
                             isVoiceRecognitionActive = false
                             updateSoundButtonState()
@@ -275,11 +275,11 @@ class RecipeReadActivity : AppCompatActivity() {
                     }
                     // 타이머 제어 커맨드 처리 추가
                     VoiceRecognitionService.COMMAND_TIMER_START -> {
-                        Toast.makeText(this@RecipeReadActivity, "음성 명령: 타이머 시작", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@RecipeReadActivity, "음성 명령: 타이머 시작", Toast.LENGTH_SHORT).show()
                         getCurrentViewHolder()?.startTimer()
                     }
                     VoiceRecognitionService.COMMAND_TIMER_PAUSE -> {
-                        Toast.makeText(this@RecipeReadActivity, "음성 명령: 타이머 정지", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@RecipeReadActivity, "음성 명령: 타이머 정지", Toast.LENGTH_SHORT).show()
                         getCurrentViewHolder()?.pauseTimer()
                     }
                 }

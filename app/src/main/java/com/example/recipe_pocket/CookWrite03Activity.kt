@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -40,6 +41,8 @@ class CookWrite03Activity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = CookWrite03Binding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.CookWrite03Layout) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -207,7 +210,7 @@ class CookWrite03Activity : AppCompatActivity() {
                             "title" to step.stepTitle,
                             "description" to step.stepDescription,
                             "imageUrl" to (stepImageUrls.getOrNull(index) ?: ""),
-                            "time" to step.timerSeconds, // timerSeconds 값을 "time" 필드에 저장
+                            "time" to step.timerSeconds,
                             "useTimer" to step.useTimer
                         )
                     },
@@ -217,7 +220,7 @@ class CookWrite03Activity : AppCompatActivity() {
 
                 db.collection("Recipes").add(firestoreMap)
                     .addOnSuccessListener {
-                        Toast.makeText(this, "레시피가 저장되었습니다.", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this, "레시피가 저장되었습니다.", Toast.LENGTH_SHORT).show()
                         val intent = Intent(this, MainActivity::class.java).apply {
                             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         }

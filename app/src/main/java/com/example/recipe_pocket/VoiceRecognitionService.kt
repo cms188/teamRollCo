@@ -255,7 +255,7 @@ class VoiceRecognitionService : Service() {
             listOf("종료", "음성인식 종료", "그만") to COMMAND_STOP_RECOGNITION_FROM_VOICE,
 
             listOf("타이머 시작", "타이머 재생", "타이머 시작해줘", "타이머 재생해줘") to COMMAND_TIMER_START,
-            listOf("타이머 정지", "타이머 일시정지", "타이머 멈춰줘", "타이머 멈춰", "타이머 정지해줘") to COMMAND_TIMER_PAUSE
+            listOf("타이머 정지", "타이머 일시정지", "타이머 일시 정지", "타이머 멈춰줘", "타이머 멈춰", "타이머 정지해줘") to COMMAND_TIMER_PAUSE
         )
 
         for ((keywords, command) in commandKeywords) {
