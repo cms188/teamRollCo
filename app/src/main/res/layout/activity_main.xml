@@ -8,7 +8,6 @@
     android:id="@+id/main_frame_layout"
     android:background="@android:color/white">
 
-    <!-- 기존 스크롤뷰와 하단 네비게이션을 포함하는 LinearLayout -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

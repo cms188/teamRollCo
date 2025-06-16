@@ -9,7 +9,6 @@
     android:background="@color/white"
     tools:context=".RecipeReadActivity">
 
-    <!-- 1. 툴바 컨테이너를 화면 상단에 정렬 -->
     <LinearLayout
         android:id="@+id/top_bars_container"
         android:layout_width="match_parent"
@@ -18,7 +17,6 @@
         android:layout_alignParentTop="true"
         android:layout_marginBottom="20dp">
 
-        <!-- (툴바 내부 코드는 모두 동일) -->
         <LinearLayout
             android:id="@+id/status_bar_padding_view"
             android:layout_width="match_parent"
@@ -113,7 +111,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 2. ViewPager2를 'top_bars_container'의 아래에 배치 -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager_recipe_steps"
         android:layout_width="match_parent"

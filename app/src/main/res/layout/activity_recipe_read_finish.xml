@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="#FFFBF5">
 
-    <!-- 1. activity_recipe_main_read.xml에서 그대로 가져온 상단 이미지 -->
     <ImageView
         android:id="@+id/iv_recipe_thumbnail"
         android:layout_width="match_parent"
@@ -16,7 +15,6 @@
         android:layout_alignParentTop="true"
         tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
-    <!-- 2. activity_recipe_main_read.xml에서 그대로 가져온 그라데이션 뷰 -->
     <View
         android:id="@+id/v_image"
         android:layout_width="match_parent"
@@ -24,7 +22,6 @@
         android:background="@drawable/bg_gradation"
         android:layout_alignBottom="@id/iv_recipe_thumbnail"/>
 
-    <!-- 3. 하단 컨텐츠 영역만 새로운 디자인으로 교체 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

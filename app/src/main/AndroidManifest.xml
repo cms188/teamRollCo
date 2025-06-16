@@ -48,6 +48,9 @@
         <activity android:name=".CookWrite01Activity"/>
         <activity android:name=".CookWrite02Activity"/>
         <activity android:name=".CookWrite03Activity"/>
+        <activity
+            android:name=".BookmarkActivity"
+            android:exported="false" />
         <service
             android:name=".VoiceRecognitionService"
             android:enabled="true"

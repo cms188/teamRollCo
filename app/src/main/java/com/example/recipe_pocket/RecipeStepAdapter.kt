@@ -1,6 +1,7 @@
 package com.example.recipe_pocket
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,8 +9,11 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 sealed class RecipePageItem {
     data class Step(val data: RecipeStep) : RecipePageItem()
@@ -119,7 +123,6 @@ class RecipeStepAdapter(initialRecipe: Recipe?) :
     }
 
     class FinishViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // ID가 재활용 되었으므로, 올바른 ID를 사용합니다.
         private val title: TextView = itemView.findViewById(R.id.tv_finish_title)
         private val background: ImageView = itemView.findViewById(R.id.iv_recipe_thumbnail)
         private val reviewButton: Button = itemView.findViewById(R.id.btn_leave_review)
@@ -135,14 +138,49 @@ class RecipeStepAdapter(initialRecipe: Recipe?) :
                 .error(R.drawable.bg_no_img_gray)
                 .into(background)
 
+            updateBookmarkButtonUI(recipe.isBookmarked)
+
+            bookmarkButton.setOnClickListener {
+                val currentUser = Firebase.auth.currentUser
+                if (currentUser == null) {
+                    Toast.makeText(context, "로그인이 필요한 기능입니다.", Toast.LENGTH_SHORT).show()
+                    context.startActivity(Intent(context, LoginActivity::class.java))
+                    return@setOnClickListener
+                }
+
+                BookmarkManager.toggleBookmark(recipe.id!!, currentUser.uid, recipe.isBookmarked) { result ->
+                    result.onSuccess { newBookmarkState ->
+                        recipe.isBookmarked = newBookmarkState
+                        updateBookmarkButtonUI(newBookmarkState)
+                        val message = if (newBookmarkState) "북마크에 추가되었습니다." else "북마크가 해제되었습니다."
+                        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    }.onFailure {
+                        Toast.makeText(context, "북마크 처리에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
             doneButton.setOnClickListener {
                 (context as? RecipeReadActivity)?.finish()
             }
             reviewButton.setOnClickListener {
                 Toast.makeText(context, "후기 남기기 기능은 준비 중입니다.", Toast.LENGTH_SHORT).show()
             }
-            bookmarkButton.setOnClickListener {
-                Toast.makeText(context, "북마크 기능은 준비 중입니다.", Toast.LENGTH_SHORT).show()
+        }
+
+        private fun updateBookmarkButtonUI(isBookmarked: Boolean) {
+            val context = itemView.context
+            if (isBookmarked) {
+                bookmarkButton.text = "북마크됨"
+                val filledIcon = ContextCompat.getDrawable(context, R.drawable.ic_bookmark_filled)
+                bookmarkButton.setCompoundDrawablesWithIntrinsicBounds(filledIcon, null, null, null)
+                bookmarkButton.compoundDrawables[0]?.setTint(ContextCompat.getColor(context, R.color.orange))
+
+            } else {
+                bookmarkButton.text = "북마크에 추가"
+                val outlineIcon = ContextCompat.getDrawable(context, R.drawable.ic_bookmark_outline_figma)
+                bookmarkButton.setCompoundDrawablesWithIntrinsicBounds(outlineIcon, null, null, null)
+                bookmarkButton.compoundDrawables[0]?.setTintList(null)
             }
         }
     }

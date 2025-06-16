@@ -7,7 +7,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white">
+    android:background="@color/white"
+    >
 
     <!-- 상태 표시줄 패딩 -->
     <LinearLayout
@@ -16,7 +17,6 @@
         android:background="@color/search_color"
         android:paddingTop="30dp" />
 
-    <!-- 상단 바: 뒤로가기 버튼 + 검색창 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top_bar_layout"
         android:layout_width="match_parent"
@@ -38,7 +38,20 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:adjustViewBounds="true"
-            android:scaleType="centerInside" />
+            android:scaleType="centerInside"/>
+
+        <TextView
+            android:id="@+id/tv_bookmark_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="북마크"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp"
+            app:layout_constraintStart_toEndOf="@id/iv_back_button"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
     <!-- 콘텐츠 영역 -->
     <FrameLayout
@@ -48,7 +61,7 @@
         android:background="@color/white">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_search_results"
+            android:id="@+id/recycler_view_bookmarks"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingTop="16dp"
@@ -57,7 +70,7 @@
             tools:listitem="@layout/cook_card_03" />
 
         <TextView
-            android:id="@+id/tv_no_results"
+            android:id="@+id/tv_no_bookmarks"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -76,4 +89,12 @@
             android:visibility="gone"
             tools:visibility="visible" />
     </FrameLayout>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:menu="@menu/menu_bottom_nav"
+        app:labelVisibilityMode="unlabeled"
+        app:itemIconSize="25dp"/>
 </LinearLayout>

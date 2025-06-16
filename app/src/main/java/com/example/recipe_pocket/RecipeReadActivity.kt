@@ -10,19 +10,16 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.recipe_pocket.databinding.ActivityRecipeReadBinding
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -32,6 +29,8 @@ class RecipeReadActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRecipeReadBinding
     private lateinit var recipeStepAdapter: RecipeStepAdapter
     private lateinit var firestore: FirebaseFirestore
+    // ▼▼▼ 이 줄을 추가해주세요 ▼▼▼
+    private lateinit var auth: FirebaseAuth
     private var recipeId: String? = null
     private var totalSteps = 0
 
@@ -48,17 +47,6 @@ class RecipeReadActivity : AppCompatActivity() {
         binding = ActivityRecipeReadBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Edge-to-edge 처리
-        ViewCompat.setOnApplyWindowInsetsListener(binding.readRecipeLayout) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = insets.left
-                bottomMargin = insets.bottom
-                rightMargin = insets.right
-            }
-            WindowInsetsCompat.CONSUMED
-        }
-
         recipeId = intent.getStringExtra("RECIPE_ID")
         if (recipeId == null) {
             Toast.makeText(this, "레시피 정보를 불러올 수 없습니다.", Toast.LENGTH_LONG).show()
@@ -73,12 +61,17 @@ class RecipeReadActivity : AppCompatActivity() {
         initFirebase()
         setupViewPager()
 
-        lifecycleScope.launch { loadRecipeData() }
-
         LocalBroadcastManager.getInstance(this).registerReceiver(
             voiceCommandReceiver,
             IntentFilter(VoiceRecognitionService.ACTION_VOICE_COMMAND)
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch {
+            loadRecipeData()
+        }
     }
 
     override fun onDestroy() {
@@ -92,6 +85,7 @@ class RecipeReadActivity : AppCompatActivity() {
 
     private fun initFirebase() {
         firestore = FirebaseFirestore.getInstance()
+        auth = FirebaseAuth.getInstance()
     }
 
     private fun setToolbarVisibility(isVisible: Boolean) {
@@ -120,9 +114,18 @@ class RecipeReadActivity : AppCompatActivity() {
             val documentSnapshot = firestore.collection("Recipes").document(recipeId!!).get().await()
             if (documentSnapshot.exists()) {
                 val recipe = documentSnapshot.toObject(Recipe::class.java)
-                recipe?.let { displayRecipe(it) } ?: Toast.makeText(this, "레시피 변환 실패", Toast.LENGTH_SHORT).show()
+                if (recipe != null) {
+                    val currentUserId = auth.currentUser?.uid // 수정된 부분
+                    if (currentUserId != null) {
+                        recipe.isBookmarked = recipe.bookmarkedBy?.contains(currentUserId) == true
+                    }
+                    displayRecipe(recipe)
+                } else {
+                    Toast.makeText(this, "레시피 변환 실패", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 Toast.makeText(this, "레시피를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
+                finish()
             }
         } catch (e: Exception) {
             Toast.makeText(this, "데이터 로딩 실패: ${e.message}", Toast.LENGTH_LONG).show()
