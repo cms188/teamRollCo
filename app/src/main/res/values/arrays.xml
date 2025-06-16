@@ -2,9 +2,15 @@
 <resources>
     <string-array name="ingredient_units">
         <item>g</item>
+        <item>Kg</item>
         <item>ml</item>
+        <item>L</item>
         <item>개</item>
+        <item>마리</item>
         <item>큰술</item>
         <item>작은술</item>
+        <item>컵</item>
+        <item>통</item>
+        <item>뿌리</item>
     </string-array>
 </resources>

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
@@ -69,9 +70,9 @@ class CookWrite02Activity : AppCompatActivity() {
 
     private fun addIngredientRow() {
         val itemBinding = ItemIngredientBinding.inflate(layoutInflater, binding.ingredientsContainer, false)
-        val unitAdapter = ArrayAdapter.createFromResource(this, R.array.ingredient_units, android.R.layout.simple_spinner_item)
-        unitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        itemBinding.spinnerUnit.adapter = unitAdapter
+        val unitItems = resources.getStringArray(R.array.ingredient_units)
+        val unitAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, unitItems)
+        itemBinding.unitAutocompleteTextview.setAdapter(unitAdapter)
         itemBinding.deleteMaterial.setOnClickListener {
             binding.ingredientsContainer.removeView(itemBinding.root)
         }
@@ -92,7 +93,7 @@ class CookWrite02Activity : AppCompatActivity() {
             val view = binding.ingredientsContainer.getChildAt(i)
             val name = view.findViewById<EditText>(R.id.a1).text.toString()
             val amount = view.findViewById<EditText>(R.id.a2).text.toString()
-            val unit = view.findViewById<Spinner>(R.id.spinner_unit).selectedItem.toString()
+            val unit = view.findViewById<AutoCompleteTextView>(R.id.unit_autocomplete_textview).text.toString()
             if (name.isNotBlank()) {
                 ingredients.add(Ingredient(name, amount, unit))
             }
