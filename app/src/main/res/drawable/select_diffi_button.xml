@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 버튼이 선택되었을 때의 배경 -->
+    <item android:state_checked="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#FF7A00"/> <!-- 주황색 배경 -->
+            <corners android:radius="8dp"/>
+        </shape>
+    </item>
+    <!-- 기본 상태 (선택되지 않았을 때) -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent"/> <!-- 투명 배경 -->
+        </shape>
+    </item>
+</selector>

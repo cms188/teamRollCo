@@ -2,240 +2,244 @@ package com.example.recipe_pocket
 
 import android.content.Intent
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.annotation.LayoutRes
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.recipe_pocket.databinding.CookCard01Binding // CookCard01.xml에 대한 바인딩
-import com.example.recipe_pocket.databinding.CookCard02Binding // CookCard02.xml에 대한 바인딩
-import com.example.recipe_pocket.databinding.CookCard03Binding // CookCard03.xml에 대한 바인딩
+import com.example.recipe_pocket.databinding.CookCard01Binding
+import com.example.recipe_pocket.databinding.CookCard02Binding
+import com.example.recipe_pocket.databinding.CookCard03Binding
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 class RecipeAdapter(
     private var recipes: List<Recipe>,
-    @LayoutRes private val cardLayoutId: Int // 사용할 카드의 레이아웃 ID를 받음
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() { // 모든 ViewHolder의 공통 부모
+    @LayoutRes private val cardLayoutId: Int
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    // 기본 이미지 ID들은 이전과 동일하게 유지
-    private val defaultRecipeImageErrorResId: Int = R.drawable.testimg1
+    private val defaultRecipeImageErrorResId: Int = R.drawable.bg_no_img_gray
     private val defaultProfileImagePlaceholderResId: Int = R.drawable.bg_main_circle_gray
-    private val defaultProfileImageErrorResId: Int = R.drawable.testimg1
+    private val defaultProfileImageErrorResId: Int = R.drawable.bg_no_img_gray
 
-    // 각 카드 타입에 대한 ViewHolder 정의 (이전 답변과 유사)
-    // 각 ViewHolder는 해당 카드 레이아웃에 맞는 바인딩 객체를 사용해야 합니다.
-    inner class Card01ViewHolder(private val binding: CookCard01Binding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(recipe: Recipe) {
-            // 기존 Card03 ViewHolder의 bind 로직과 동일하게 구현
+    // 뷰 홀더 내부에서 북마크 아이콘을 업데이트하는 공통 함수
+    private fun updateBookmarkIcon(button: ImageButton, isBookmarked: Boolean) {
+        val context = button.context
+        if (isBookmarked) {
+            button.setImageResource(R.drawable.ic_bookmark_filled)
+            button.setColorFilter(ContextCompat.getColor(context, R.color.orange))
+        } else {
+            button.setImageResource(R.drawable.ic_bookmark_outline_figma)
+            button.setColorFilter(ContextCompat.getColor(context, R.color.black))
+        }
+    }
+
+    abstract inner class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        abstract fun bind(recipe: Recipe)
+    }
+
+    inner class Card01ViewHolder(private val binding: CookCard01Binding) : BaseViewHolder(binding.root) {
+        override fun bind(recipe: Recipe) {
             val context = binding.root.context
             binding.recipeNameText.text = recipe.title ?: "제목 없음"
             binding.cookingTimeText.text = recipe.cookingTime?.let { "${it}분" } ?: "시간 정보 없음"
-            // recipe.rating?.let { binding.ratingText.text = String.format("%.1f", it) } ?: run { binding.ratingText.text = "N/A" }
-            //binding.difficultyText.text = recipe.difficulty ?: "정보 없음"
 
             recipe.thumbnailUrl?.let { url ->
                 if (url.isNotEmpty()) {
-                    Glide.with(context)
-                        .load(url)
-                        .error(defaultRecipeImageErrorResId)
-                        .into(binding.recipeImageView)
+                    Glide.with(context).load(url).error(defaultRecipeImageErrorResId).into(binding.recipeImageView)
                 } else {
                     binding.recipeImageView.setImageResource(defaultRecipeImageErrorResId)
                 }
-            } ?: run {
-                binding.recipeImageView.setImageResource(defaultRecipeImageErrorResId)
-            }
+            } ?: binding.recipeImageView.setImageResource(defaultRecipeImageErrorResId)
 
             val author = recipe.author
             if (author != null) {
                 binding.authorNameText.text = author.nickname ?: "작성자 정보 없음"
-                author.profileImageUrl?.let { url ->
-                    if (url.isNotEmpty()) {
-                        Glide.with(context)
-                            .load(url)
-                            .placeholder(defaultProfileImagePlaceholderResId)
-                            .error(defaultProfileImageErrorResId)
-                            .circleCrop()
-                            .into(binding.authorProfileImage)
-                    } else {
-                        binding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
-                    }
-                } ?: run {
-                    binding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
-                }
+                author.profileImageUrl?.takeIf { it.isNotEmpty() }?.let { url ->
+                    Glide.with(context).load(url).placeholder(defaultProfileImagePlaceholderResId)
+                        .error(defaultProfileImageErrorResId).circleCrop().into(binding.authorProfileImage)
+                } ?: binding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
             } else {
                 binding.authorNameText.text = "작성자 미상"
                 binding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
             }
 
+            // 북마크 아이콘 초기 상태 설정
+            updateBookmarkIcon(binding.bookmarkButton, recipe.isBookmarked)
+
+            // 북마크 버튼 클릭 리스너
+            binding.bookmarkButton.setOnClickListener {
+                val currentUser = Firebase.auth.currentUser
+                if (currentUser == null) {
+                    Toast.makeText(context, "로그인이 필요한 기능입니다.", Toast.LENGTH_SHORT).show()
+                    context.startActivity(Intent(context, LoginActivity::class.java))
+                    return@setOnClickListener
+                }
+
+                BookmarkManager.toggleBookmark(recipe.id!!, currentUser.uid, recipe.isBookmarked) { result ->
+                    result.onSuccess { newBookmarkState ->
+                        recipe.isBookmarked = newBookmarkState
+                        updateBookmarkIcon(binding.bookmarkButton, newBookmarkState)
+                    }.onFailure {
+                        Toast.makeText(context, "북마크 처리에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
             binding.root.setOnClickListener {
                 recipe.id?.let { recipeId ->
-                    if (recipeId.isNotEmpty()) {
-                        val intent = Intent(context, RecipeDetailActivity::class.java)
-                        intent.putExtra("RECIPE_ID", recipeId)
-                        context.startActivity(intent)
-                    } else {
-                        Toast.makeText(context, "레시피 정보를 불러올 수 없습니다. (ID 없음)", Toast.LENGTH_SHORT).show()
-                    }
-                } ?: run {
-                    Toast.makeText(context, "레시피 정보를 불러올 수 없습니다. (ID null)", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(context, RecipeDetailActivity::class.java)
+                    intent.putExtra("RECIPE_ID", recipeId)
+                    context.startActivity(intent)
                 }
             }
         }
     }
 
-    inner class Card02ViewHolder(private val binding: CookCard02Binding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(recipe: Recipe) {
-            // 기존 Card03 ViewHolder의 bind 로직과 동일하게 구현
+    inner class Card02ViewHolder(private val binding: CookCard02Binding) : BaseViewHolder(binding.root) {
+        override fun bind(recipe: Recipe) {
+            // Card01ViewHolder의 bind 함수 내용과 거의 동일
             val context = binding.root.context
             binding.recipeNameText.text = recipe.title ?: "제목 없음"
             binding.cookingTimeText.text = recipe.cookingTime?.let { "${it}분" } ?: "시간 정보 없음"
-            // recipe.rating?.let { binding.ratingText.text = String.format("%.1f", it) } ?: run { binding.ratingText.text = "N/A" }
-            //binding.difficultyText.text = recipe.difficulty ?: "정보 없음"
 
             recipe.thumbnailUrl?.let { url ->
                 if (url.isNotEmpty()) {
-                    Glide.with(context)
-                        .load(url)
-                        .error(defaultRecipeImageErrorResId)
-                        .into(binding.recipeImageView)
+                    Glide.with(context).load(url).error(defaultRecipeImageErrorResId).into(binding.recipeImageView)
                 } else {
                     binding.recipeImageView.setImageResource(defaultRecipeImageErrorResId)
                 }
-            } ?: run {
-                binding.recipeImageView.setImageResource(defaultRecipeImageErrorResId)
-            }
+            } ?: binding.recipeImageView.setImageResource(defaultRecipeImageErrorResId)
 
             val author = recipe.author
             if (author != null) {
                 binding.authorNameText.text = author.nickname ?: "작성자 정보 없음"
-                author.profileImageUrl?.let { url ->
-                    if (url.isNotEmpty()) {
-                        Glide.with(context)
-                            .load(url)
-                            .placeholder(defaultProfileImagePlaceholderResId)
-                            .error(defaultProfileImageErrorResId)
-                            .circleCrop()
-                            .into(binding.authorProfileImage)
-                    } else {
-                        binding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
-                    }
-                } ?: run {
-                    binding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
-                }
+                author.profileImageUrl?.takeIf { it.isNotEmpty() }?.let { url ->
+                    Glide.with(context).load(url).placeholder(defaultProfileImagePlaceholderResId)
+                        .error(defaultProfileImageErrorResId).circleCrop().into(binding.authorProfileImage)
+                } ?: binding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
             } else {
                 binding.authorNameText.text = "작성자 미상"
                 binding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
             }
 
+            updateBookmarkIcon(binding.bookmarkButton, recipe.isBookmarked)
+
+            binding.bookmarkButton.setOnClickListener {
+                val currentUser = Firebase.auth.currentUser
+                if (currentUser == null) {
+                    Toast.makeText(context, "로그인이 필요한 기능입니다.", Toast.LENGTH_SHORT).show()
+                    context.startActivity(Intent(context, LoginActivity::class.java))
+                    return@setOnClickListener
+                }
+
+                BookmarkManager.toggleBookmark(recipe.id!!, currentUser.uid, recipe.isBookmarked) { result ->
+                    result.onSuccess { newBookmarkState ->
+                        recipe.isBookmarked = newBookmarkState
+                        updateBookmarkIcon(binding.bookmarkButton, newBookmarkState)
+                    }.onFailure {
+                        Toast.makeText(context, "북마크 처리에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
             binding.root.setOnClickListener {
                 recipe.id?.let { recipeId ->
-                    if (recipeId.isNotEmpty()) {
-                        val intent = Intent(context, RecipeDetailActivity::class.java)
-                        intent.putExtra("RECIPE_ID", recipeId)
-                        context.startActivity(intent)
-                    } else {
-                        Toast.makeText(context, "레시피 정보를 불러올 수 없습니다. (ID 없음)", Toast.LENGTH_SHORT).show()
-                    }
-                } ?: run {
-                    Toast.makeText(context, "레시피 정보를 불러올 수 없습니다. (ID null)", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(context, RecipeDetailActivity::class.java)
+                    intent.putExtra("RECIPE_ID", recipeId)
+                    context.startActivity(intent)
                 }
             }
         }
     }
 
-    inner class Card03ViewHolder(private val binding: CookCard03Binding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(recipe: Recipe) {
-            // 기존 Card03 ViewHolder의 bind 로직과 동일하게 구현
+    inner class Card03ViewHolder(private val binding: CookCard03Binding) : BaseViewHolder(binding.root) {
+        override fun bind(recipe: Recipe) {
+
             val context = binding.root.context
             binding.recipeNameText.text = recipe.title ?: "제목 없음"
             binding.cookingTimeText.text = recipe.cookingTime?.let { "${it}분" } ?: "시간 정보 없음"
-           // recipe.rating?.let { binding.ratingText.text = String.format("%.1f", it) } ?: run { binding.ratingText.text = "N/A" }
             binding.difficultyText.text = recipe.difficulty ?: "정보 없음"
 
             recipe.thumbnailUrl?.let { url ->
                 if (url.isNotEmpty()) {
-                    Glide.with(context)
-                        .load(url)
-                        .error(defaultRecipeImageErrorResId)
-                        .into(binding.recipeImageView)
+                    Glide.with(context).load(url).error(defaultRecipeImageErrorResId).into(binding.recipeImageView)
                 } else {
                     binding.recipeImageView.setImageResource(defaultRecipeImageErrorResId)
                 }
-            } ?: run {
-                binding.recipeImageView.setImageResource(defaultRecipeImageErrorResId)
-            }
+            } ?: binding.recipeImageView.setImageResource(defaultRecipeImageErrorResId)
 
             val author = recipe.author
             if (author != null) {
-                binding.authorNameText.text = author.nickname ?: "작성자 정보 없음"
-                author.profileImageUrl?.let { url ->
-                    if (url.isNotEmpty()) {
-                        Glide.with(context)
-                            .load(url)
-                            .placeholder(defaultProfileImagePlaceholderResId)
-                            .error(defaultProfileImageErrorResId)
-                            .circleCrop()
-                            .into(binding.authorProfileImage)
-                    } else {
-                        binding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
-                    }
-                } ?: run {
-                    binding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
+                if (!author.title.isNullOrEmpty()) {
+                    binding.authorTitleText.visibility = View.VISIBLE
+                    binding.authorTitleText.text = author.title
+                } else {
+                    binding.authorTitleText.visibility = View.GONE
                 }
+                binding.authorNameText.text = author.nickname ?: "작성자 정보 없음"
+                author.profileImageUrl?.takeIf { it.isNotEmpty() }?.let { url ->
+                    Glide.with(context).load(url).placeholder(defaultProfileImagePlaceholderResId)
+                        .error(defaultProfileImageErrorResId).circleCrop().into(binding.authorProfileImage)
+                } ?: binding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
             } else {
                 binding.authorNameText.text = "작성자 미상"
                 binding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
             }
 
+            updateBookmarkIcon(binding.bookmarkButton, recipe.isBookmarked)
+
+            binding.bookmarkButton.setOnClickListener {
+                val currentUser = Firebase.auth.currentUser
+                if (currentUser == null) {
+                    Toast.makeText(context, "로그인이 필요한 기능입니다.", Toast.LENGTH_SHORT).show()
+                    context.startActivity(Intent(context, LoginActivity::class.java))
+                    return@setOnClickListener
+                }
+
+                BookmarkManager.toggleBookmark(recipe.id!!, currentUser.uid, recipe.isBookmarked) { result ->
+                    result.onSuccess { newBookmarkState ->
+                        recipe.isBookmarked = newBookmarkState
+                        updateBookmarkIcon(binding.bookmarkButton, newBookmarkState)
+                    }.onFailure {
+                        Toast.makeText(context, "북마크 처리에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
             binding.root.setOnClickListener {
                 recipe.id?.let { recipeId ->
-                    if (recipeId.isNotEmpty()) {
-                        val intent = Intent(context, RecipeDetailActivity::class.java)
-                        intent.putExtra("RECIPE_ID", recipeId)
-                        context.startActivity(intent)
-                    } else {
-                        Toast.makeText(context, "레시피 정보를 불러올 수 없습니다. (ID 없음)", Toast.LENGTH_SHORT).show()
-                    }
-                } ?: run {
-                    Toast.makeText(context, "레시피 정보를 불러올 수 없습니다. (ID null)", Toast.LENGTH_SHORT).show()
+                    val intent = Intent(context, RecipeDetailActivity::class.java)
+                    intent.putExtra("RECIPE_ID", recipeId)
+                    context.startActivity(intent)
                 }
             }
         }
     }
+
     override fun getItemViewType(position: Int): Int {
-        return cardLayoutId // 생성자에서 받은 레이아웃 ID를 그대로 반환
+        return cardLayoutId
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        // viewType (여기서는 cardLayoutId와 동일)에 따라 ViewHolder 생성
         return when (viewType) {
-            R.layout.cook_card_01 -> {
-                val binding = CookCard01Binding.inflate(inflater, parent, false)
-                Card01ViewHolder(binding)
-            }
-            R.layout.cook_card_02 -> {
-                val binding = CookCard02Binding.inflate(inflater, parent, false)
-                Card02ViewHolder(binding)
-            }
-            R.layout.cook_card_03 -> {
-                val binding = CookCard03Binding.inflate(inflater, parent, false)
-                Card03ViewHolder(binding)
-            }
+            R.layout.cook_card_01 -> Card01ViewHolder(CookCard01Binding.inflate(inflater, parent, false))
+            R.layout.cook_card_02 -> Card02ViewHolder(CookCard02Binding.inflate(inflater, parent, false))
+            R.layout.cook_card_03 -> Card03ViewHolder(CookCard03Binding.inflate(inflater, parent, false))
             else -> throw IllegalArgumentException("Unsupported layout ID: $viewType")
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val recipe = recipes[position]
-        when (holder) {
-            is Card01ViewHolder -> holder.bind(recipe)
-            is Card02ViewHolder -> holder.bind(recipe)
-            is Card03ViewHolder -> holder.bind(recipe)
-        }
+        (holder as BaseViewHolder).bind(recipes[position])
     }
 
     override fun getItemCount(): Int = recipes.size
+
     fun updateRecipes(newRecipes: List<Recipe>) {
         this.recipes = newRecipes
         notifyDataSetChanged()

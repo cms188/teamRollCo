@@ -5,11 +5,20 @@
     <!-- 포그라운드 서비스 권한 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
 
     <application
         android:hardwareAccelerated="true"
@@ -42,12 +51,29 @@
             android:name=".RecipeDetailActivity"
             android:exported="false" />
         <activity android:name=".RecipeReadActivity" />
-        <activity android:name=".RecipeFormActivity" />
+        <activity android:name=".CookWrite01Activity"/>
+        <activity android:name=".CookWrite02Activity"/>
+        <activity android:name=".CookWrite03Activity"/>
+        <activity
+            android:name=".BookmarkActivity"
+            android:exported="false" />
+        <activity android:name=".UserFeedActivity"/>
+        <activity
+            android:name=".MyRecipesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".FollowListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TitleListActivity"
+            android:exported="false" />
         <service
             android:name=".VoiceRecognitionService"
-            android:exported="false" />
-
-
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
     </application>
-
 </manifest>

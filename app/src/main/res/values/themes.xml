@@ -1,13 +1,22 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.recipe_pocket" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="android:windowBackground">@color/white</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
-        <!-- 또는 직접 색상 코드 사용 -->
-        <!-- <item name="android:windowBackground">#FFFFFF</item> -->
-    </style>
+        <!-- 주요 브랜드 색상 (앱 바, 주요 버튼 등) -->
+        <item name="colorPrimary">@color/orange</item>
+        <!-- colorPrimary의 어두운 버전 (상태 표시줄 등) -->
+        <item name="colorPrimaryVariant">@color/orange_dark</item>
+        <!-- colorPrimary 위에 표시되는 텍스트/아이콘 색상 -->
+        <item name="colorOnPrimary">@color/white</item>
 
+        <!-- 보조 브랜드 색상 (체크박스, 포커스된 텍스트 필드 등) -->
+        <item name="colorSecondary">@color/orange</item>
+        <item name="colorSecondaryVariant">@color/orange_dark</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- 상태 표시줄 색상 -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <!-- 상태 표시줄 아이콘 색상 (어두운 배경이므로 밝게) -->
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+    </style>
     <style name="Theme.recipe_pocket" parent="Base.Theme.recipe_pocket" />
 </resources>

@@ -11,8 +11,9 @@ android:orientation="horizontal">
 <!-- 재료 입력칸 -->
 <LinearLayout
     android:id="@+id/frameb"
-    android:layout_width="325dp"
+    android:layout_width="match_parent"
     android:layout_height="50dp"
+    android:layout_weight="1"
     android:background="@drawable/bg_search_bar_orange_border"
     android:elevation="4dp"
     android:orientation="horizontal">
@@ -26,16 +27,17 @@ android:orientation="horizontal">
         android:textColor="@color/black"
         android:background="@drawable/bg_main_rounded_top_white"
         android:textColorHint="#CCCCCC"
-        android:textSize="16dp"/>
+        android:textSize="16dp"
+        android:maxLines="1"
+        android:singleLine="true"/>
 
 </LinearLayout>
 
 <ImageButton
     android:id="@+id/button_delete"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:src="@drawable/ic_arrow_back"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:src="@drawable/ic_close"
     android:background="@color/white"
-    android:layout_margin="5dp"
-    />
+    android:layout_margin="5dp"/>
 </LinearLayout>

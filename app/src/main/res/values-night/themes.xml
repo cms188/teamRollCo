@@ -1,7 +1,41 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.recipe_pocket" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <style name="Base.Theme.recipe_pocket" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- 주요 브랜드 색상 -->
+        <item name="colorPrimary">@color/orange</item>
+        <item name="colorPrimaryVariant">@color/orange_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- 보조 브랜드 색상 -->
+        <item name="colorSecondary">@color/orange</item>
+        <item name="colorSecondaryVariant">@color/orange_dark</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- 상태 표시줄 색상 -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <!-- 상태 표시줄 아이콘 색상 (어두운 배경이므로 밝게) -->
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
     </style>
+    <style name="Theme.recipe_pocket" parent="Base.Theme.recipe_pocket" />
+
 </resources>
+
+<!-- 원래 야간모드 내용 -->
+<!--
+<resources xmlns:tools="http://schemas.android.com/tools">
+    &lt;!&ndash; Base application theme. &ndash;&gt;
+    <style name="Base.Theme.recipe_pocket" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        &lt;!&ndash; 주요 브랜드 색상 &ndash;&gt;
+        <item name="colorPrimary">@color/orange</item>
+        <item name="colorPrimaryVariant">@color/orange_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        &lt;!&ndash; 보조 브랜드 색상 &ndash;&gt;
+        <item name="colorSecondary">@color/orange</item>
+        <item name="colorSecondaryVariant">@color/orange_dark</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        &lt;!&ndash; 상태 표시줄 색상 &ndash;&gt;
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    </style>
+    <style name="Theme.recipe_pocket" parent="Base.Theme.recipe_pocket" />
+</resources>-->

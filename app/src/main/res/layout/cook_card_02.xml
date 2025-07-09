@@ -61,7 +61,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp">
 
-        <!-- 요리 이름 -->
         <TextView
             android:id="@+id/recipe_name_text"
             android:layout_width="0dp"
@@ -80,7 +79,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- 평점 표시 (별 아이콘 + 텍스트) -->
         <LinearLayout
             android:id="@+id/rating_display_layout"
             android:layout_width="wrap_content"
@@ -111,51 +109,80 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp">
 
-        <!-- 작성자 정보 (클릭 가능) -->
-        <LinearLayout
+        <!-- 작성자 정보 (클릭 가능, ConstraintLayout으로 변경) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/author_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
-            android:gravity="center_vertical"
-            android:minWidth="48dp"
-            android:minHeight="48dp"
-            android:orientation="horizontal"
-            android:paddingTop="0dp">
+            android:paddingVertical="4dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/cooking_time_text"
+            app:layout_constraintHorizontal_bias="0.0"
+            android:layout_marginEnd="8dp">
 
             <ImageView
                 android:id="@+id/author_profile_image"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:layout_marginEnd="6dp"
                 android:background="@drawable/bg_main_circle_gray"
                 android:clipToOutline="true"
                 android:contentDescription="@string/profile_image"
                 android:scaleType="centerCrop"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
             <TextView
-                android:id="@+id/author_name_text"
+                android:id="@+id/author_title_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/profile_name"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_author_title"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:textColor="@color/orange"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:layout_constraintBaseline_toBaselineOf="@+id/author_name_text"
+                app:layout_constraintStart_toEndOf="@+id/author_profile_image"
+                tools:text="요리 장인"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/author_name_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:textColor="@color/darker_gray"
-                android:textSize="16sp" />
-        </LinearLayout>
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/author_title_text"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="@string/profile_name" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- 조리 시간 -->
         <TextView
             android:id="@+id/cooking_time_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/cooking_time"
-            android:textSize="16sp"
             android:textColor="@color/darker_gray"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            tools:text="@string/cooking_time" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

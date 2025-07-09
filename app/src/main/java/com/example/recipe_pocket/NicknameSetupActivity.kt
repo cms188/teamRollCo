@@ -87,6 +87,7 @@ class NicknameSetupActivity : AppCompatActivity() {
         val userMap = hashMapOf(
             "email" to email,
             "nickname" to nickname,
+            "profileImageUrl" to "",
             "createdAt" to FieldValue.serverTimestamp()
         )
 
