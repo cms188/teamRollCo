@@ -1,247 +1,227 @@
 package com.example.recipe_pocket
 
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import android.widget.Button
-import android.widget.TextView
+import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.EmailAuthProvider
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.firestore.FirebaseFirestore
+import com.bumptech.glide.Glide
+import com.example.recipe_pocket.databinding.ActivityUserpageBinding
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 
 class UserPageActivity : AppCompatActivity() {
-    private lateinit var auth: FirebaseAuth
-    private lateinit var firestore: FirebaseFirestore
-    private lateinit var greetingTextView: TextView
+
+    private lateinit var binding: ActivityUserpageBinding
+    private val auth = Firebase.auth
+    private val firestore = Firebase.firestore
+    private val storage = Firebase.storage
+
+    // 이미지 픽커 결과 처리를 위한 런처
+    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { uri ->
+                uploadProfilePicture(uri)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_userpage)
+        binding = ActivityUserpageBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        auth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
-
-        // UI 요소 연결
-        greetingTextView = findViewById(R.id.greetingTextView)
-        val changeNicknameButton: Button = findViewById(R.id.btnChangeNickname)
-        val changePasswordButton: Button = findViewById(R.id.btnChangePassword)
-        val logoutButton: Button = findViewById(R.id.btnLogout)
-        val deleteAccountButton: Button = findViewById(R.id.btnDeleteAccount)
-
-        // 리스너 설정
-        changeNicknameButton.setOnClickListener { handleChangeNickname() }
-        changePasswordButton.setOnClickListener { handleChangePassword() }
-        logoutButton.setOnClickListener { logoutUser() }
-        deleteAccountButton.setOnClickListener { showDeleteAccountConfirmation() }
+        setupClickListeners()
+        setupBottomNavigation()
     }
 
     override fun onResume() {
         super.onResume()
         loadUserData()
+        binding.bottomNavigationView.menu.findItem(R.id.fragment_settings).isChecked = true
     }
 
+    /**
+     * Firestore에서 현재 로그인된 사용자의 데이터를 불러와 UI에 적용하는 함수
+     */
     private fun loadUserData() {
         val currentUser = auth.currentUser
         if (currentUser == null) {
-            navigateToLoginActivity()
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
             return
         }
 
         firestore.collection("Users").document(currentUser.uid).get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
-                    greetingTextView.text = "${document.getString("nickname")}님, 환영합니다."
-                } else {
-                    navigateToNicknameSetup()
-                }
-            }
-            .addOnFailureListener { e ->
-                greetingTextView.text = "환영합니다."
-                Log.e("Firestore", "닉네임 조회 실패", e)
-            }
-    }
+                    val nickname = document.getString("nickname") ?: "닉네임 없음"
+                    binding.tvNickname.text = nickname
 
-    // 닉네임 변경 화면으로 이동
-    private fun handleChangeNickname() {
-        val intent = Intent(this, NicknameSetupActivity::class.java)
-        intent.putExtra(NicknameSetupActivity.EXTRA_MODE, NicknameSetupActivity.MODE_UPDATE)
-        startActivity(intent)
-    }
-
-    // 비밀번호 변경 로직
-    private fun handleChangePassword() {
-        val currentUser = auth.currentUser ?: return
-
-        // 사용자의 로그인 제공자 확인
-        val providerId = currentUser.providerData.find { it.providerId == EmailAuthProvider.PROVIDER_ID }
-
-        if (providerId != null) {
-            // 이메일/비밀번호 사용자일 경우
-            showPasswordResetDialog()
-        } else {
-            // Google 사용자일 경우
-            val googleProvider = currentUser.providerData.find { it.providerId == GoogleAuthProvider.PROVIDER_ID }
-            if (googleProvider != null) {
-                Toast.makeText(this, "Google 계정 사용자는 Google에서 비밀번호를 변경해야 합니다.", Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(this, "이 계정은 비밀번호를 변경할 수 없습니다.", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    // 비밀번호 재설정 이메일 발송 확인 다이얼로그
-    private fun showPasswordResetDialog() {
-        val userEmail = auth.currentUser?.email
-        if (userEmail == null) {
-            Toast.makeText(this, "이메일 정보를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        AlertDialog.Builder(this)
-            .setTitle("비밀번호 변경")
-            .setMessage("$userEmail 주소로 비밀번호 재설정 링크를 보내시겠습니까?")
-            .setPositiveButton("보내기") { _, _ ->
-                auth.sendPasswordResetEmail(userEmail)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Toast.makeText(this, "이메일을 발송했습니다. 메일함을 확인해주세요.", Toast.LENGTH_LONG).show()
-                        } else {
-                            Toast.makeText(this, "이메일 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()
-                            Log.e("PasswordReset", "발송 실패", task.exception)
-                        }
-                    }
-            }
-            .setNegativeButton("취소", null)
-            .show()
-    }
-
-    // 회원 탈퇴 확인 다이얼로그
-    private fun showDeleteAccountConfirmation() {
-        AlertDialog.Builder(this)
-            .setTitle("회원 탈퇴")
-            .setMessage("정말로 탈퇴하시겠습니까? 작성한 게시글을 포함한 계정과 관련된 모든 데이터가 영구적으로 삭제되며, 복구할 수 없습니다.")
-            .setPositiveButton("탈퇴하기") { _, _ ->
-                deleteUserAccount()
-            }
-            .setNegativeButton("취소", null)
-            .show()
-    }
-
-    private fun deleteUserAccount() {
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
-            Toast.makeText(this, "로그인 정보가 없습니다.", Toast.LENGTH_SHORT).show()
-            return
-        }
-        val userUid = currentUser.uid
-
-        // 회원 탈퇴 프로세스 시작
-        // 1. 사용자가 작성한 모든 레시피 삭제
-        deleteUserRecipes(userUid) { recipeDeletionSuccess ->
-            if (recipeDeletionSuccess) {
-                // 2. Firestore에서 사용자 프로필 문서 삭제
-                deleteUserProfile(userUid) { profileDeletionSuccess ->
-                    if (profileDeletionSuccess) {
-                        // 3. Firebase Authentication에서 사용자 계정 삭제
-                        deleteFirebaseAuthUser(currentUser)
+                    val title = document.getString("title")
+                    if (!title.isNullOrEmpty()) {
+                        binding.tvTitleBadge.visibility = View.VISIBLE
+                        binding.tvTitleBadge.text = title
                     } else {
-                        // 프로필 삭제 실패 시 처리
-                        Toast.makeText(this, "사용자 정보 삭제에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_LONG).show()
+                        binding.tvTitleBadge.visibility = View.GONE
                     }
+
+                    val imageUrl = document.getString("profileImageUrl")
+                    if (!imageUrl.isNullOrEmpty()) {
+                        Glide.with(this).load(imageUrl)
+                            .placeholder(R.drawable.ic_profile_placeholder)
+                            .error(R.drawable.ic_profile_placeholder)
+                            .into(binding.ivProfilePicture)
+                    } else {
+                        binding.ivProfilePicture.setImageResource(R.drawable.ic_profile_placeholder)
+                    }
+
+                    // ### 이 부분이 빠져있었습니다! ###
+                    // 게시물, 팔로워, 팔로잉 수 UI 업데이트
+                    binding.tvRecipeCountClickable.text = "게시물\n${document.getLong("recipeCount") ?: 0}"
+                    binding.tvFollowerCountClickable.text = "팔로워\n${document.getLong("followerCount") ?: 0}"
+                    binding.tvFollowingCountClickable.text = "팔로잉\n${document.getLong("followingCount") ?: 0}"
+
+                } else {
+                    // 사용자 문서가 없는 경우의 처리
                 }
-            } else {
-                // 레시피 삭제 실패 시 처리
-                Toast.makeText(this, "게시물 삭제에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_LONG).show()
             }
+            .addOnFailureListener {
+                // 데이터 로드 실패 시 처리
+            }
+    }
+
+    private fun setupClickListeners() {
+        binding.ivBackButton.setOnClickListener { finish() }
+
+        // 프로필 사진 클릭 리스너
+        binding.ivProfilePicture.setOnClickListener {
+            openGallery()
+        }
+
+        // 게시물, 팔로워, 팔로잉 텍스트 클릭 리스너
+        binding.tvRecipeCountClickable.setOnClickListener {
+            startActivity(Intent(this, MyRecipesActivity::class.java))
+        }
+        binding.tvFollowerCountClickable.setOnClickListener {
+            openFollowList("followers")
+        }
+        binding.tvFollowingCountClickable.setOnClickListener {
+            openFollowList("following")
+        }
+
+        // 그리드 메뉴 클릭 리스너
+        binding.menuMyRecipes.setOnClickListener {
+            startActivity(Intent(this, MyRecipesActivity::class.java))
+        }
+        binding.menuBookmarks.setOnClickListener {
+            startActivity(Intent(this, BookmarkActivity::class.java))
+        }
+        binding.menuTitles.setOnClickListener {
+            startActivity(Intent(this, TitleListActivity::class.java))
+        }
+        binding.menuEditProfile.setOnClickListener {
+            startActivity(Intent(this, EditProfileActivity::class.java))
+        }
+
+        binding.menuTitles.setOnClickListener {
+            startActivity(Intent(this, TitleListActivity::class.java)) // 주석 해제
         }
     }
 
     /**
-     * 1단계: 사용자가 작성한 모든 레시피를 삭제
-     * @param uid 삭제할 사용자의 UID
-     * @param onComplete 작업 완료 후 결과를 전달하는 콜백 함수
+     * 갤러리를 열어 이미지를 선택하는 함수
      */
-    private fun deleteUserRecipes(uid: String, onComplete: (Boolean) -> Unit) {
-        firestore.collection("Recipes").whereEqualTo("userId", uid).get()
-            .addOnSuccessListener { querySnapshot ->
-                // 한 번에 여러 문서를 삭제하기 위해 WriteBatch 사용 (효율적)
-                val batch = firestore.batch()
-                for (document in querySnapshot.documents) {
-                    batch.delete(document.reference)
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        pickImageLauncher.launch(intent)
+    }
+
+    /**
+     * 선택한 이미지를 Firebase Storage에 업로드하는 함수
+     */
+    private fun uploadProfilePicture(imageUri: Uri) {
+        val currentUser = auth.currentUser ?: return
+        val storageRef = storage.reference.child("profile_pictures/${currentUser.uid}")
+        Toast.makeText(this, "프로필 사진을 업로드 중입니다...", Toast.LENGTH_SHORT).show()
+        storageRef.putFile(imageUri)
+            .addOnSuccessListener {
+                storageRef.downloadUrl.addOnSuccessListener { uri ->
+                    updateProfileUrlInFirestore(uri.toString())
                 }
-
-                batch.commit()
-                    .addOnSuccessListener {
-                        Log.d("DeleteAccount", "사용자의 모든 레시피 삭제 성공 (총 ${querySnapshot.size()}개)")
-                        onComplete(true) // 성공 콜백 호출
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("DeleteAccount", "레시피 일괄 삭제 실패", e)
-                        onComplete(false) // 실패 콜백 호출
-                    }
             }
             .addOnFailureListener { e ->
-                Log.e("DeleteAccount", "사용자의 레시피 조회 실패", e)
-                onComplete(false) // 실패 콜백 호출
+                Toast.makeText(this, "업로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
     /**
-     * 2단계: Firestore의 Users 컬렉션에서 사용자 프로필 문서를 삭제
-     * @param uid 삭제할 사용자의 UID
-     * @param onComplete 작업 완료 후 결과를 전달하는 콜백 함수
+     * Storage에 업로드된 이미지 URL을 Firestore 사용자 문서에 저장하는 함수
      */
-    private fun deleteUserProfile(uid: String, onComplete: (Boolean) -> Unit) {
-        firestore.collection("Users").document(uid).delete()
+    private fun updateProfileUrlInFirestore(url: String) {
+        val currentUser = auth.currentUser ?: return
+        firestore.collection("Users").document(currentUser.uid)
+            .update("profileImageUrl", url)
             .addOnSuccessListener {
-                Log.d("DeleteAccount", "Firestore 사용자 프로필 문서 삭제 성공")
-                onComplete(true)
+                Toast.makeText(this, "프로필 사진이 변경되었습니다.", Toast.LENGTH_SHORT).show()
+                // 화면에 즉시 반영
+                Glide.with(this).load(url).into(binding.ivProfilePicture)
             }
-            .addOnFailureListener { e ->
-                Log.e("DeleteAccount", "Firestore 사용자 프로필 문서 삭제 실패", e)
-                onComplete(false)
+            .addOnFailureListener {
+                Toast.makeText(this, "프로필 사진 정보 저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
     }
 
     /**
-     * 3단계: Firebase Authentication에서 사용자 계정을 삭제
-     * @param user 삭제할 FirebaseUser 객체
+     * 팔로워/팔로잉 목록 액티비티를 여는 함수
+     * @param mode "followers" 또는 "following"을 전달하여 모드를 구분
      */
-    private fun deleteFirebaseAuthUser(user: com.google.firebase.auth.FirebaseUser) {
-        user.delete()
-            .addOnSuccessListener {
-                Log.d("DeleteAccount", "Firebase Auth 계정 삭제 성공")
-                Toast.makeText(this, "회원 탈퇴가 완료되었습니다.", Toast.LENGTH_SHORT).show()
-                navigateToLoginActivity()
-            }
-            .addOnFailureListener { e ->
-                Log.e("DeleteAccount", "Firebase Auth 계정 삭제 실패", e)
-                Toast.makeText(this, "계정 삭제에 실패했습니다. 다시 로그인 후 시도해주세요.", Toast.LENGTH_LONG).show()
-                // 이 경우, 사용자를 로그아웃시키고 다시 로그인하도록 유도
-                logoutUser()
-            }
-    }
-
-    private fun logoutUser() {
-        auth.signOut()
-        Toast.makeText(this, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show()
-        navigateToLoginActivity()
-    }
-
-    private fun navigateToNicknameSetup() {
-        val intent = Intent(this, NicknameSetupActivity::class.java)
+    private fun openFollowList(mode: String) {
+        val intent = Intent(this, FollowListActivity::class.java).apply {
+            putExtra("USER_ID", auth.currentUser?.uid)
+            putExtra("MODE", mode)
+        }
         startActivity(intent)
-        finish()
     }
 
-    private fun navigateToLoginActivity() {
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
+    /**
+     * 하단 네비게이션 메뉴의 동작을 설정하는 함수
+     */
+    private fun setupBottomNavigation() {
+        binding.bottomNavigationView.setOnItemReselectedListener { /* 아무것도 하지 않음 */ }
+
+        binding.bottomNavigationView.setOnItemSelectedListener { item ->
+            if (item.itemId == R.id.fragment_settings) {
+                return@setOnItemSelectedListener true
+            }
+
+            val intent = when (item.itemId) {
+                R.id.fragment_home -> Intent(this, MainActivity::class.java)
+                R.id.fragment_search -> Intent(this, SearchResult::class.java)
+                R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
+                R.id.fragment_favorite -> {
+                    if(auth.currentUser != null) {
+                        startActivity(Intent(this, CookWrite01Activity::class.java))
+                    } else {
+                        startActivity(Intent(this, LoginActivity::class.java))
+                    }
+                    return@setOnItemSelectedListener true
+                }
+                else -> null
+            }
+
+            intent?.let {
+                it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                startActivity(it)
+                overridePendingTransition(0, 0)
+            }
+            true
+        }
     }
 }

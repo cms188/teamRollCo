@@ -41,6 +41,25 @@ object RecipeLoader {
         return recipe
     }
 
+    suspend fun loadSingleRecipeWithAuthor(recipeId: String): Result<Recipe?> {
+        return try {
+            // Firestore에서 해당 ID의 레시피 문서를 가져옴
+            val documentSnapshot = db.collection("Recipes").document(recipeId).get().await()
+
+            if (documentSnapshot.exists()) {
+                // 문서가 존재하면, 작성자 정보를 포함하여 Recipe 객체로 변환
+                val recipe = enrichRecipeWithAuthor(documentSnapshot)
+                Result.success(recipe)
+            } else {
+                // 문서가 존재하지 않으면 null을 반환
+                Result.success(null)
+            }
+        } catch (e: Exception) {
+            // 작업 중 예외 발생 시 Result.failure 반환
+            Result.failure(e)
+        }
+    }
+
     suspend fun loadMultipleRandomRecipesWithAuthor(count: Int): Result<List<Recipe>> {
         return try {
             val recipeQueryResult = db.collection("Recipes").get().await()
@@ -89,6 +108,24 @@ object RecipeLoader {
         return try {
             val querySnapshot = db.collection("Recipes")
                 .whereArrayContains("bookmarkedBy", currentUserId)
+                .get()
+                .await()
+
+            val recipes = coroutineScope {
+                querySnapshot.documents.map { doc ->
+                    async { enrichRecipeWithAuthor(doc) }
+                }.awaitAll().filterNotNull()
+            }
+            Result.success(recipes)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun loadRecipesByUserId(userId: String): Result<List<Recipe>> {
+        return try {
+            val querySnapshot = db.collection("Recipes")
+                .whereEqualTo("userId", userId)
                 .get()
                 .await()
 

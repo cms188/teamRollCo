@@ -3,6 +3,7 @@ package com.example.recipe_pocket
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +24,8 @@ import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -42,7 +45,7 @@ class CookWrite03Activity : AppCompatActivity() {
         binding = CookWrite03Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.CookWrite03Layout) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -70,7 +73,6 @@ class CookWrite03Activity : AppCompatActivity() {
         binding.viewPagerSteps.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                // 페이지가 선택되면, 인디케이터 UI만 갱신
                 updateIndicators(position)
             }
         })
@@ -78,7 +80,6 @@ class CookWrite03Activity : AppCompatActivity() {
 
     private fun observeViewModel() {
         viewModel.steps.observe(this, Observer { steps ->
-            // ViewModel의 steps 데이터가 변경될 때만 어댑터에 리스트를 전달
             stepAdapter.submitList(steps.toList()) {
                 binding.viewPagerSteps.post {
                     updateIndicators(binding.viewPagerSteps.currentItem)
@@ -109,10 +110,8 @@ class CookWrite03Activity : AppCompatActivity() {
         }
     }
 
-    // 인디케이터와 버튼 상태만 업데이트하는 함수
     private fun updateIndicators(currentPage: Int) {
         val size = viewModel.steps.value?.size ?: 0
-        // ID가 중복될 수 있으므로, 정확한 컨테이너를 찾기 위해 topBarContainer를 통해 접근
         val container = binding.topBarContainer.findViewById<LinearLayout>(R.id.step_indicator_container)
         val scrollView = binding.topBarContainer.findViewById<HorizontalScrollView>(R.id.step_indicator_scroll_view)
 
@@ -128,7 +127,6 @@ class CookWrite03Activity : AppCompatActivity() {
             if (i == currentPage) {
                 currentStepView = itemBinding.root
             }
-
             container.addView(itemBinding.root)
         }
 
@@ -139,7 +137,6 @@ class CookWrite03Activity : AppCompatActivity() {
             setOnClickListener {
                 updateAllFragmentsData()
                 viewModel.addStep()
-                // 리스트가 업데이트 된 후 마지막 페이지로 이동
                 binding.viewPagerSteps.post {
                     binding.viewPagerSteps.setCurrentItem(stepAdapter.itemCount - 1, true)
                 }
@@ -147,7 +144,6 @@ class CookWrite03Activity : AppCompatActivity() {
         }
         container.addView(addButton)
 
-        // 뷰가 그려진 후(레이아웃 패스가 끝난 후)에 실행되도록 post를 사용
         scrollView.post {
             currentStepView?.let { view ->
                 val scrollX = view.left - (scrollView.width / 2) + (view.width / 2)
@@ -155,7 +151,6 @@ class CookWrite03Activity : AppCompatActivity() {
             }
         }
 
-        // 좌우 화살표 및 삭제 버튼 상태 업데이트 (이 부분은 그대로 유지)
         binding.ivPrevStep.alpha = if (currentPage > 0) 1.0f else 0.3f
         binding.ivNextStep.alpha = if (currentPage < size - 1) 1.0f else 0.3f
         binding.btnRemoveStep.visibility = if (size > 1) View.VISIBLE else View.GONE
@@ -163,7 +158,6 @@ class CookWrite03Activity : AppCompatActivity() {
 
     private fun updateAllFragmentsData() {
         for (i in 0 until (viewModel.steps.value?.size ?: 0)) {
-            // FragmentStateAdapter는 'f' + itemId 형식의 태그를 사용
             val fragment = supportFragmentManager.findFragmentByTag("f${stepAdapter.getItemId(i)}") as? CookWrite03StepFragment
             fragment?.updateViewModelData()
         }
@@ -171,10 +165,8 @@ class CookWrite03Activity : AppCompatActivity() {
 
     private fun saveRecipe() {
         updateAllFragmentsData()
-
         val recipeData = viewModel.recipeData.value
         val steps = viewModel.steps.value
-
         if (recipeData == null || steps == null) {
             Toast.makeText(this, "저장할 데이터가 없습니다.", Toast.LENGTH_SHORT).show()
             return
@@ -220,7 +212,19 @@ class CookWrite03Activity : AppCompatActivity() {
 
                 db.collection("Recipes").add(firestoreMap)
                     .addOnSuccessListener {
-                        //Toast.makeText(this, "레시피가 저장되었습니다.", Toast.LENGTH_SHORT).show()
+                        // 레시피 저장 성공 후, 사용자 문서 업데이트
+                        val userRef = db.collection("Users").document(auth.currentUser!!.uid)
+                        userRef.update("recipeCount", FieldValue.increment(1))
+                            .addOnSuccessListener {
+                                Log.d("RecipeSave", "recipeCount 업데이트 성공")
+                                // 칭호 획득 조건 확인
+                                checkAndGrantTitle(userRef)
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w("RecipeSave", "recipeCount 업데이트 실패", e)
+                            }
+
+                        // 메인 화면으로 이동
                         val intent = Intent(this, MainActivity::class.java).apply {
                             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         }
@@ -240,6 +244,38 @@ class CookWrite03Activity : AppCompatActivity() {
             Toast.makeText(this, "대표 이미지 업로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
             binding.btnSave.isEnabled = true
             binding.btnSave.text = "저장"
+        }
+    }
+
+    /**
+     * 칭호 획득 조건을 확인하고, 조건 충족 시 칭호를 부여하는 함수
+     * @param userRef 현재 사용자의 Firestore 문서 참조
+     */
+    private fun checkAndGrantTitle(userRef: DocumentReference) {
+        userRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val currentCount = document.getLong("recipeCount") ?: 0
+                var newTitle: String? = null
+
+                // =======================================================
+                // ▼▼▼ 칭호 조건과 종류는 여기에서 수정합니다 ▼▼▼
+                // =======================================================
+                when (currentCount) {
+                    3L -> newTitle = "새싹 요리사"
+                    10L -> newTitle = "우리집 요리사"
+                    25L -> newTitle = "요리 장인"
+                    50L -> newTitle = "레시피 마스터"
+                }
+                // =======================================================
+
+                if (newTitle != null) {
+                    // 획득한 칭호 목록(unlockedTitles)에 중복되지 않게 추가
+                    userRef.update("unlockedTitles", FieldValue.arrayUnion(newTitle))
+                        .addOnSuccessListener {
+                            Toast.makeText(applicationContext, "'$newTitle' 칭호를 획득했습니다!", Toast.LENGTH_LONG).show()
+                        }
+                }
+            }
         }
     }
 

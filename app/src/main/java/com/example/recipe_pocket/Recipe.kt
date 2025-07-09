@@ -56,7 +56,8 @@ data class RecipeStep(
 @IgnoreExtraProperties
 data class User(
     val nickname: String? = null,
-    val profileImageUrl: String? = null
+    val profileImageUrl: String? = null,
+    val title: String? = null
 ) {
     constructor() : this(null, null)
 }

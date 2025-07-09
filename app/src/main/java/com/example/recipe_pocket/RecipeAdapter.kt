@@ -174,6 +174,12 @@ class RecipeAdapter(
 
             val author = recipe.author
             if (author != null) {
+                if (!author.title.isNullOrEmpty()) {
+                    binding.authorTitleText.visibility = View.VISIBLE
+                    binding.authorTitleText.text = author.title
+                } else {
+                    binding.authorTitleText.visibility = View.GONE
+                }
                 binding.authorNameText.text = author.nickname ?: "작성자 정보 없음"
                 author.profileImageUrl?.takeIf { it.isNotEmpty() }?.let { url ->
                     Glide.with(context).load(url).placeholder(defaultProfileImagePlaceholderResId)
