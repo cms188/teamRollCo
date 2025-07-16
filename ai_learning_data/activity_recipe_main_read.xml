@@ -320,23 +320,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/btn_edit_recipe"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
-        android:padding="13dp"
-        android:src="@drawable/ic_edit"
-        android:visibility="gone"
-        tools:visibility="visible"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="레시피 수정"
-        app:layout_constraintEnd_toStartOf="@+id/btn_delete_recipe"
-        app:layout_constraintTop_toTopOf="@+id/btn_close"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_close"
-        app:tint="@color/white"/>
-
-    <ImageView
         android:id="@+id/btn_delete_recipe"
         android:layout_width="55dp"
         android:layout_height="55dp"

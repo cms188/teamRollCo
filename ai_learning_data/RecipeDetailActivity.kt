@@ -136,15 +136,8 @@ class RecipeDetailActivity : AppCompatActivity() {
             binding.btnDeleteRecipe.setOnClickListener {
                 showDeleteConfirmationDialog()
             }
-            binding.btnEditRecipe.visibility = View.VISIBLE // 수정 버튼 보이기
-            binding.btnEditRecipe.setOnClickListener {
-                val intent = Intent(this, RecipeEditActivity::class.java)
-                intent.putExtra("RECIPE_ID", recipeId)
-                startActivity(intent)
-            }
         } else {
             binding.btnDeleteRecipe.visibility = View.GONE
-            binding.btnEditRecipe.visibility = View.GONE // 수정 버튼 숨기기
         }
 
         // 나머지 레시피 정보 UI 업데이트

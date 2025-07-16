@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_user_page"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".UserPageActivity">
+
+    <!-- 상단 바 (뒤로가기, 타이틀) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/top_bar_layout"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_arrow_back"
+            android:padding="16dp"
+            android:contentDescription="뒤로가기"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:tint="@color/black" />
+
+        <TextView
+            android:id="@+id/tv_username_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="마이페이지"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 프로필 영역 -->
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/iv_profile_picture"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/ic_profile_placeholder"
+        app:civ_border_color="@color/orange"
+        app:civ_border_width="2dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_bar_layout" />
+
+    <TextView
+        android:id="@+id/tv_title_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/bg_title_badge"
+        android:paddingStart="8dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="2dp"
+        android:textColor="@color/orange"
+        android:textSize="12sp"
+        android:visibility="gone"
+        tools:text="[요리 장인]"
+        tools:visibility="visible"
+        app:layout_constraintStart_toEndOf="@+id/iv_profile_picture"
+        app:layout_constraintTop_toTopOf="@+id/iv_profile_picture" />
+
+    <TextView
+        android:id="@+id/tv_nickname"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:text="요리왕 김레시피"
+        app:layout_constraintStart_toEndOf="@+id/iv_profile_picture"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title_badge"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_profile_picture"/>
+
+    <!-- 팔로워 정보 -->
+    <LinearLayout
+        android:id="@+id/follow_info_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal"
+        android:paddingVertical="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_profile_picture">
+
+        <!-- '게시물' 클릭 가능하도록 id 변경 및 속성 추가 -->
+        <TextView
+            android:id="@+id/tv_recipe_count_clickable"
+            style="@style/FollowInfoText"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            tools:text="게시물\n12" />
+
+        <View style="@style/VerticalDivider"/>
+
+        <!-- '팔로워' 클릭 가능하도록 id 변경 및 속성 추가 -->
+        <TextView
+            android:id="@+id/tv_follower_count_clickable"
+            style="@style/FollowInfoText"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            tools:text="팔로워\n150" />
+
+        <View style="@style/VerticalDivider"/>
+
+        <!-- '팔로잉' 클릭 가능하도록 id 변경 및 속성 추가 -->
+        <TextView
+            android:id="@+id/tv_following_count_clickable"
+            style="@style/FollowInfoText"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            tools:text="팔로잉\n45" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="8dp"
+        android:background="#F5F5F5"
+        app:layout_constraintTop_toBottomOf="@+id/follow_info_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- 메뉴 버튼 영역 -->
+    <androidx.gridlayout.widget.GridLayout
+        android:id="@+id/menu_grid"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:columnCount="3"
+        app:rowCount="2"
+        app:layout_constraintTop_toBottomOf="@+id/divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- 내 레시피 -->
+        <LinearLayout
+            android:id="@+id/menu_my_recipes"
+            style="@style/UserPageMenuButton"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill">
+            <ImageView
+                style="@style/UserPageMenuIcon"
+                android:src="@drawable/ic_my_recipes"
+                app:tint="#424242" /> <!-- 색상 통일 -->
+            <TextView style="@style/UserPageMenuText" android:text="내 레시피" />
+        </LinearLayout>
+
+        <!-- 북마크 -->
+        <LinearLayout
+            android:id="@+id/menu_bookmarks"
+            style="@style/UserPageMenuButton"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill">
+            <ImageView
+                style="@style/UserPageMenuIcon"
+                android:src="@drawable/ic_bookmark_filled"
+                app:tint="#424242" /> <!-- 색상 통일 -->
+            <TextView style="@style/UserPageMenuText" android:text="북마크" />
+        </LinearLayout>
+
+        <!-- 칭호 -->
+        <LinearLayout
+            android:id="@+id/menu_titles"
+            style="@style/UserPageMenuButton"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill">
+            <ImageView
+                style="@style/UserPageMenuIcon"
+                android:src="@drawable/ic_title_badge"
+                app:tint="#424242" /> <!-- 색상 통일 -->
+            <TextView style="@style/UserPageMenuText" android:text="칭호" />
+        </LinearLayout>
+
+        <!-- 회원정보 수정 -->
+        <LinearLayout
+            android:id="@+id/menu_edit_profile"
+            style="@style/UserPageMenuButton"
+            app:layout_columnWeight="1"
+            app:layout_gravity="fill">
+            <ImageView
+                style="@style/UserPageMenuIcon"
+                android:src="@drawable/ic_settings"
+                app:tint="#424242" /> <!-- 색상 통일 -->
+            <TextView style="@style/UserPageMenuText" android:text="회원정보 수정" />
+        </LinearLayout>
+
+    </androidx.gridlayout.widget.GridLayout>
+
+    <!-- 하단 네비게이션 -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:menu="@menu/menu_bottom_nav"
+        app:labelVisibilityMode="unlabeled"
+        app:itemIconSize="25dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
