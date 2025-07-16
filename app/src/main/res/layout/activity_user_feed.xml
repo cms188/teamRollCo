@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white"
-    tools:context=".UserFeedActivity">
+    tools:context=".ui.user.UserFeedActivity">
 
     <!-- 상단 바 -->
     <androidx.constraintlayout.widget.ConstraintLayout

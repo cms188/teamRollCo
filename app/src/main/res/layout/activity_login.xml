@@ -9,7 +9,7 @@
     android:background="@color/white"
     android:paddingStart="32dp"
     android:paddingEnd="32dp"
-    tools:context=".LoginActivity">
+    tools:context=".ui.auth.LoginActivity">
 
     <!-- 뒤로가기 버튼 -->
     <ImageView

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFBF5"
-    tools:context=".RecipeDetailActivity">
+    tools:context=".ui.recipe.read.RecipeDetailActivity">
 
     <ImageView
         android:id="@+id/iv_recipe_thumbnail"

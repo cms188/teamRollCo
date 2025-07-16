@@ -10,9 +10,13 @@ import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.recipe_pocket.data.Recipe
 import com.example.recipe_pocket.databinding.CookCard01Binding
 import com.example.recipe_pocket.databinding.CookCard02Binding
 import com.example.recipe_pocket.databinding.CookCard03Binding
+import com.example.recipe_pocket.ui.auth.LoginActivity
+import com.example.recipe_pocket.ui.recipe.read.RecipeDetailActivity
+import com.example.recipe_pocket.ui.user.bookmark.BookmarkManager
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 

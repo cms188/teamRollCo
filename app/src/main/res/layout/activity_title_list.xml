@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white"
-    tools:context=".TitleListActivity">
+    tools:context=".ui.user.TitleListActivity">
 
     <!-- 상단 바 (뒤로가기, 타이틀, 해제 버튼) -->
     <androidx.constraintlayout.widget.ConstraintLayout
