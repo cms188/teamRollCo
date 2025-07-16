@@ -42,17 +42,6 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:contentDescription="단계별 사진을 선택하세요"/>
-
-            <ImageButton
-                android:id="@+id/btn_remove_this_step"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="top|end"
-                android:layout_margin="8dp"
-                android:src="@drawable/ic_close"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="8dp"
-                android:contentDescription="이 과정 삭제" />
         </FrameLayout>
 
         <TextView
