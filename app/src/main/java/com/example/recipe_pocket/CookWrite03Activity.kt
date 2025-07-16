@@ -18,7 +18,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import com.example.recipe_pocket.ai.AITagGenerator
 import com.example.recipe_pocket.databinding.CookWrite03Binding
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
@@ -30,6 +32,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import java.util.*
+import kotlinx.coroutines.launch
 
 class CookWrite03Activity : AppCompatActivity() {
 
@@ -166,16 +169,39 @@ class CookWrite03Activity : AppCompatActivity() {
     private fun saveRecipe() {
         updateAllFragmentsData()
         val recipeData = viewModel.recipeData.value
-        val steps = viewModel.steps.value
-        if (recipeData == null || steps == null) {
+        if (recipeData == null) {
             Toast.makeText(this, "저장할 데이터가 없습니다.", Toast.LENGTH_SHORT).show()
             return
         }
-        recipeData.steps = steps
-        uploadRecipeAndSave(recipeData)
+
+        binding.btnSave.isEnabled = false
+        binding.btnSave.text = "태그 생성 중..."
+
+        // AI 태그 생성을 위해 레시피 정보를 조합
+        val recipeContentForAI = """
+            - 레시피 제목: ${recipeData.title}
+            - 간단한 설명: ${recipeData.description}
+            - 주요 재료: ${recipeData.ingredients.joinToString(", ") { it.name ?: "" }}
+        """.trimIndent()
+
+        // 코루틴을 사용하여 비동기로 API 호출
+        lifecycleScope.launch {
+            val tagResult = AITagGenerator.generateTags(recipeContentForAI)
+
+            tagResult.onSuccess { generatedTags ->
+                // 태그 생성 성공 시, 이미지 업로드 및 최종 저장 단계로 진행
+                uploadRecipeAndSave(recipeData, generatedTags)
+            }.onFailure { exception ->
+                // 태그 생성 실패 시, 사용자에게 알림
+                Log.e("AITagGenerator", "태그 생성 실패", exception)
+                Toast.makeText(this@CookWrite03Activity, "AI 태그 생성에 실패했습니다. 레시피는 태그 없이 저장됩니다.", Toast.LENGTH_LONG).show()
+                // 실패하더라도 레시피 저장은 계속 진행 (태그는 비어있음)
+                uploadRecipeAndSave(recipeData, emptySet())
+            }
+        }
     }
 
-    private fun uploadRecipeAndSave(data: RecipeData) {
+    private fun uploadRecipeAndSave(data: RecipeData, tags: Set<String>) {
         binding.btnSave.isEnabled = false
         binding.btnSave.text = "저장 중..."
 
@@ -206,6 +232,7 @@ class CookWrite03Activity : AppCompatActivity() {
                             "useTimer" to step.useTimer
                         )
                     },
+                    "tags" to tags.toList(),
                     "createdAt" to Timestamp.now(),
                     "updatedAt" to Timestamp.now()
                 )
