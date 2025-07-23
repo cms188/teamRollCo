@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_review_write"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    android:background="@color/cream">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_basic" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="0dp">
+
+            <ImageView
+                android:id="@+id/main_image"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:src="@drawable/testimg1"
+                android:clipToOutline="true" />
+            <!--android:background="@drawable/bg_rounded_image"-->
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/notosans_bold"
+                android:gravity="center_horizontal"
+                android:text="요리 이름"
+                android:textSize="30sp"
+                android:textColor="@color/text_brown"
+                android:paddingTop="20dp"
+                android:includeFontPadding="false"/>
+
+            <!-- 별점 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:background="@android:color/transparent"
+                android:translationZ="2dp"
+                android:outlineSpotShadowColor="#FF9020"
+                android:outlineAmbientShadowColor="#FF9020"
+                app:cardElevation="4dp"
+                app:cardCornerRadius="16dp"
+                app:cardUseCompatPadding="false">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:background="@color/white">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/notosans_regular"
+                        android:gravity="center_horizontal"
+                        android:text="레시피가 마음에 드셨나요?"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_brown"
+                        android:paddingBottom="12dp"
+                        android:includeFontPadding="false" />
+
+                    <!-- 별점 슬라이더 -->
+                    <androidx.appcompat.widget.AppCompatRatingBar
+                        android:id="@+id/customRatingBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="46dp"
+                        android:numStars="5"
+                        android:stepSize="0.5"
+                        android:rating="0"
+                        android:progressDrawable="@drawable/rating_slider"
+                        android:isIndicator="false"
+                        android:layout_gravity="center"
+                        android:scaleX="1.1"
+                        android:scaleY="1.1"/>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- 맛 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:background="@android:color/transparent"
+                android:translationZ="2dp"
+                android:outlineSpotShadowColor="#FF9020"
+                android:outlineAmbientShadowColor="#FF9020"
+                app:cardElevation="4dp"
+                app:cardCornerRadius="16dp"
+                app:cardUseCompatPadding="false">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:background="@color/white"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/notosans_medium"
+                        android:gravity="center_horizontal"
+                        android:text="맛"
+                        android:textSize="18sp"
+                        android:paddingBottom="12dp"
+                        android:includeFontPadding="false" />
+
+                    <RadioGroup
+                        android:id="@+id/radio_flavor"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/radio_flavor_good"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="10dp"
+                            android:translationZ="2dp"
+                            android:text="맛있어요"
+                            android:fontFamily="@font/notosans_regular"
+                            android:textColor="@animator/btn_text_selector"
+                            android:button="@null"
+                            android:background="@drawable/bg_radio_button_selector"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:outlineSpotShadowColor="@color/main_orange"
+                            android:outlineAmbientShadowColor="@color/main_orange"/>
+
+                        <RadioButton
+                            android:id="@+id/radio_flavor_normal"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="10dp"
+                            android:translationZ="2dp"
+                            android:text="먹을만해요"
+                            android:fontFamily="@font/notosans_regular"
+                            android:textColor="@animator/btn_text_selector"
+                            android:button="@null"
+                            android:background="@drawable/bg_radio_button_selector"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:outlineSpotShadowColor="@color/main_orange"
+                            android:outlineAmbientShadowColor="@color/main_orange"/>
+
+                        <RadioButton
+                            android:id="@+id/radio_flavor_bad"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="0dp"
+                            android:translationZ="3dp"
+                            android:text="별로예요"
+                            android:fontFamily="@font/notosans_regular"
+                            android:textColor="@animator/btn_text_selector"
+                            android:button="@null"
+                            android:background="@drawable/bg_radio_button_selector"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:outlineSpotShadowColor="@color/main_orange"
+                            android:outlineAmbientShadowColor="@color/main_orange"/>
+
+
+                    </RadioGroup>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- 난이도 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:background="@android:color/transparent"
+                android:translationZ="2dp"
+                android:outlineSpotShadowColor="#FF9020"
+                android:outlineAmbientShadowColor="#FF9020"
+                app:cardElevation="4dp"
+                app:cardCornerRadius="16dp"
+                app:cardUseCompatPadding="false">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:background="@color/white"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/notosans_medium"
+                        android:gravity="center_horizontal"
+                        android:text="난이도"
+                        android:textSize="18sp"
+                        android:paddingBottom="12dp"
+                        android:includeFontPadding="false" />
+
+                    <RadioGroup
+                        android:id="@+id/radio_difficulty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/radio_difficulty_easy"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="10dp"
+                            android:translationZ="2dp"
+                            android:text="쉬워요"
+                            android:fontFamily="@font/notosans_regular"
+                            android:textColor="@animator/btn_text_selector"
+                            android:button="@null"
+                            android:background="@drawable/bg_radio_button_selector"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:outlineSpotShadowColor="@color/main_orange"
+                            android:outlineAmbientShadowColor="@color/main_orange"/>
+
+                        <RadioButton
+                            android:id="@+id/radio_difficulty_normal"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="10dp"
+                            android:translationZ="2dp"
+                            android:text="보통이에요"
+                            android:fontFamily="@font/notosans_regular"
+                            android:textColor="@animator/btn_text_selector"
+                            android:button="@null"
+                            android:background="@drawable/bg_radio_button_selector"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:outlineSpotShadowColor="@color/main_orange"
+                            android:outlineAmbientShadowColor="@color/main_orange"/>
+
+                        <RadioButton
+                            android:id="@+id/radio_difficulty_hard"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="0dp"
+                            android:translationZ="2dp"
+                            android:text="어려워요"
+                            android:fontFamily="@font/notosans_regular"
+                            android:textColor="@animator/btn_text_selector"
+                            android:button="@null"
+                            android:background="@drawable/bg_radio_button_selector"
+                            android:gravity="center"
+                            android:textSize="14sp"
+                            android:outlineSpotShadowColor="@color/main_orange"
+                            android:outlineAmbientShadowColor="@color/main_orange"/>
+
+                    </RadioGroup>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- 평가 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:background="@android:color/transparent"
+                android:translationZ="2dp"
+                android:outlineSpotShadowColor="#FF9020"
+                android:outlineAmbientShadowColor="#FF9020"
+                app:cardElevation="4dp"
+                app:cardCornerRadius="16dp"
+                app:cardUseCompatPadding="false">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:background="@color/white"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/notosans_medium"
+                        android:gravity="center_horizontal"
+                        android:text="요리 후기"
+                        android:textSize="18sp"
+                        android:paddingBottom="12dp"
+                        android:includeFontPadding="false" />
+
+                    <EditText
+                        android:id="@+id/editText_feedback"
+                        android:layout_width="match_parent"
+                        android:layout_height="240dp"
+                        android:hint="레시피에 후기를 남겨주세요."
+                        android:paddingTop="4dp"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:textSize="16sp"
+                        android:background="@drawable/bg_edittext"
+                        android:fontFamily="@font/notosans_regular"
+                        android:gravity="top|start"
+                        android:inputType="textMultiLine" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- 완료 버튼 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_submit"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:padding="0dp"
+                android:layout_margin="20dp"
+                android:text="완료"
+                android:textSize="20sp"
+                android:fontFamily="@font/notosans_bold"
+                android:gravity="center"
+                android:backgroundTint="@color/main_orange"
+                app:cornerRadius="20dp"
+                android:textColor="@android:color/white" />
+
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
