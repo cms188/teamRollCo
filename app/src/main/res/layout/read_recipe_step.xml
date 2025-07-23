@@ -14,7 +14,7 @@
         android:paddingBottom="10dp">
 
         <!-- 타이머는 하단에 고정 -->
-        <com.example.recipe_pocket.CircularTimerView
+        <com.example.recipe_pocket.ui.recipe.read.CircularTimerView
             android:id="@+id/circular_timer_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

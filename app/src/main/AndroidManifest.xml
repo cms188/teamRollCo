@@ -32,7 +32,7 @@
         android:theme="@style/Theme.recipe_pocket"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.main.MainActivity"
             android:hardwareAccelerated="true"
             android:exported="true">
             <intent-filter>
@@ -41,40 +41,40 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RecipeWriteActivity" />
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".RegisterActivity" />
-        <activity android:name=".SearchResult"/>
-        <activity android:name=".UserPageActivity"/>
-        <activity android:name=".NicknameSetupActivity"/>
+        <activity android:name=".ui.recipe.legacy_write.RecipeWriteActivity" />
+        <activity android:name=".ui.auth.LoginActivity" />
+        <activity android:name=".ui.auth.RegisterActivity" />
+        <activity android:name=".ui.recipe.search.SearchResult"/>
+        <activity android:name=".ui.user.UserPageActivity"/>
+        <activity android:name=".ui.auth.NicknameSetupActivity"/>
         <activity
-            android:name=".RecipeDetailActivity"
+            android:name=".ui.recipe.read.RecipeDetailActivity"
             android:exported="false" />
-        <activity android:name=".RecipeReadActivity" />
-        <activity android:name=".CookWrite01Activity"/>
-        <activity android:name=".CookWrite02Activity"/>
-        <activity android:name=".CookWrite03Activity"/>
+        <activity android:name=".ui.recipe.read.RecipeReadActivity" />
+        <activity android:name=".ui.recipe.write.CookWrite01Activity"/>
+        <activity android:name=".ui.recipe.write.CookWrite02Activity"/>
+        <activity android:name=".ui.recipe.write.CookWrite03Activity"/>
         <activity
-            android:name=".BookmarkActivity"
+            android:name=".ui.user.bookmark.BookmarkActivity"
             android:exported="false" />
-        <activity android:name=".UserFeedActivity"/>
+        <activity android:name=".ui.user.UserFeedActivity"/>
         <activity
-            android:name=".MyRecipesActivity"
-            android:exported="false" />
-        <activity
-            android:name=".EditProfileActivity"
+            android:name=".ui.user.MyRecipesActivity"
             android:exported="false" />
         <activity
-            android:name=".FollowListActivity"
+            android:name=".ui.auth.EditProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".TitleListActivity"
+            android:name=".ui.user.FollowListActivity"
             android:exported="false" />
         <activity
-            android:name=".RecipeEditActivity"
+            android:name=".ui.user.TitleListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.recipe.write.RecipeEditActivity"
             android:exported="false" />
         <service
-            android:name=".VoiceRecognitionService"
+            android:name=".service.VoiceRecognitionService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="microphone" />

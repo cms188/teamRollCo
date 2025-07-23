@@ -106,168 +106,33 @@
         <LinearLayout
             android:id="@+id/write_timer"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:layout_marginBottom="10dp"
-            android:background="@drawable/bg_search_bar_orange_border"
             android:visibility="gone">
 
-            <!-- 시간 설정 -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_weight="1">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:text="시간"
-                    android:gravity="bottom|center"
-                    android:textColor="@color/black"
-                    android:textSize="20sp"/>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:orientation="horizontal">
-                    <ImageView
-                        android:id="@+id/hour_m"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="top"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginEnd="5dp"
-                        android:src="@drawable/ic_remove"/>
-                    <TextView
-                        android:id="@+id/hour_num"
-                        android:layout_width="wrap_content"
-                        android:layout_height="28dp"
-                        android:gravity="top"
-                        android:layout_gravity="top"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginEnd="5dp"
-                        android:text="0"
-                        android:textSize="24sp"
-                        android:background="@android:color/transparent"/>
-                    <ImageView
-                        android:id="@+id/hour_p"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="top"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginEnd="5dp"
-                        android:src="@drawable/ic_add"/>
-                </LinearLayout>
-            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="타이머 시간 설정"
+                android:gravity="center_horizontal"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-            <!-- 분 설정 -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_weight="1">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:text="분"
-                    android:gravity="bottom|center"
-                    android:textColor="@color/black"
-                    android:textSize="20sp"/>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:orientation="horizontal">
-                    <ImageView
-                        android:id="@+id/minute_m"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="top"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginEnd="5dp"
-                        android:src="@drawable/ic_remove"/>
-                    <TextView
-                        android:id="@+id/minute_num"
-                        android:layout_width="wrap_content"
-                        android:layout_height="28dp"
-                        android:gravity="top"
-                        android:layout_gravity="top"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginEnd="5dp"
-                        android:text="0"
-                        android:textSize="24sp"
-                        android:background="@android:color/transparent"/>
-                    <ImageView
-                        android:id="@+id/minute_p"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="top"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginEnd="5dp"
-                        android:src="@drawable/ic_add"/>
-                </LinearLayout>
-            </LinearLayout>
+            <TextView
+                android:id="@+id/tv_timer_display"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_search_bar_orange_border"
+                android:gravity="center"
+                android:text="00시간 00분 00초"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:clickable="true"
+                android:focusable="true"/>
 
-            <!-- 초 설정  -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_weight="1">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:text="초"
-                    android:gravity="bottom|center"
-                    android:textColor="@color/black"
-                    android:textSize="20sp"/>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:id="@+id/second_m"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="top"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginEnd="5dp"
-                        android:src="@drawable/ic_remove"/>
-                    <TextView
-                        android:id="@+id/second_num"
-                        android:layout_width="wrap_content"
-                        android:layout_height="28dp"
-                        android:gravity="top"
-                        android:layout_gravity="top"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginEnd="5dp"
-                        android:text="0"
-                        android:textSize="24sp"
-                        android:background="@android:color/transparent"/>
-                    <ImageView
-                        android:id="@+id/second_p"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="top"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginEnd="5dp"
-                        android:src="@drawable/ic_add"/>
-                </LinearLayout>
-            </LinearLayout>
         </LinearLayout>
 
         <TextView
