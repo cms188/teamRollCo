@@ -1,6 +1,7 @@
 package com.example.recipe_pocket.ui.recipe.write
 
 import android.R
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -8,21 +9,18 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
-import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.example.recipe_pocket.repository.RecipeLoader
 import com.example.recipe_pocket.data.Ingredient
 import com.example.recipe_pocket.data.Recipe
-import com.example.recipe_pocket.data.RecipeStep
 import com.example.recipe_pocket.databinding.ActivityRecipeEditBinding
-import com.example.recipe_pocket.databinding.CookWriteStepBinding
 import com.example.recipe_pocket.databinding.ItemIngredientBinding
 import com.example.recipe_pocket.databinding.ItemToolBinding
 import com.google.android.gms.tasks.Task
@@ -45,10 +43,13 @@ class RecipeEditActivity : AppCompatActivity() {
 
     // 이미지 URI와 런처 관리
     private var thumbnailUri: Uri? = null
-    private val stepImageUris = mutableMapOf<View, Uri?>()
     private lateinit var thumbnailLauncher: ActivityResultLauncher<Intent>
     private lateinit var stepImageLauncher: ActivityResultLauncher<Intent>
-    private var currentStepImageView: ImageView? = null
+
+    // ViewPager2 관련 변수
+    private lateinit var stepAdapter: RecipeEditStepAdapter
+    private var currentStepImagePosition: Int = -1
+    private val newStepImageUris = mutableMapOf<Int, Uri>() // 새로 선택된 이미지 URI 관리
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +65,7 @@ class RecipeEditActivity : AppCompatActivity() {
 
         setupLaunchers()
         setupClickListeners()
+        setupViewPager() // ViewPager 설정 추가
         loadRecipeData()
     }
 
@@ -80,23 +82,48 @@ class RecipeEditActivity : AppCompatActivity() {
         stepImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 result.data?.data?.let { uri ->
-                    currentStepImageView?.let { imageView ->
-                        imageView.setImageURI(uri)
-                        // 여기서 imageView.rootView.parent는 FrameLayout 이므로, 그 부모인 LinearLayout의 자식인 stepView를 키로 사용해야 합니다.
-                        // CookWriteStepBinding의 루트 뷰를 키로 사용하도록 수정합니다.
-                        val stepView = imageView.parent.parent as View
-                        stepImageUris[stepView] = uri
+                    if (currentStepImagePosition != -1) {
+                        // 새로 선택된 이미지 URI를 맵에 저장
+                        newStepImageUris[currentStepImagePosition] = uri
+                        // 어댑터에 알려 UI를 즉시 업데이트
+                        stepAdapter.updateImageUri(currentStepImagePosition, uri)
+                        currentStepImagePosition = -1 // 리셋
                     }
                 }
             }
         }
     }
 
+    private fun setupViewPager() {
+        stepAdapter = RecipeEditStepAdapter(this,
+            onImageClick = { position ->
+                currentStepImagePosition = position
+                val intent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
+                stepImageLauncher.launch(intent)
+            },
+            onRemoveClick = { position ->
+                stepAdapter.removeStepAt(position)
+                // 삭제 후 맵에서도 해당 URI 정보 제거
+                newStepImageUris.remove(position)
+
+                updateArrowVisibility(binding.viewPagerSteps.currentItem)
+            }
+        )
+
+        binding.viewPagerSteps.adapter = stepAdapter
+
+        binding.viewPagerSteps.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                binding.tvStepIndicator.text = "${position + 1} / ${stepAdapter.itemCount}"
+                updateArrowVisibility(position)
+            }
+        })
+    }
+
     private fun loadRecipeData() {
-        binding.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {
             val result = RecipeLoader.loadSingleRecipeWithAuthor(recipeId!!)
-            binding.progressBar.visibility = View.GONE
             result.onSuccess { recipe ->
                 if (recipe != null) {
                     originalRecipe = recipe
@@ -130,7 +157,29 @@ class RecipeEditActivity : AppCompatActivity() {
         // 도구
         recipe.tools?.forEach { addToolRow(it) }
         // 단계
-        recipe.steps?.sortedBy { it.stepNumber }?.forEach { addStepView(it) }
+        recipe.steps?.let {
+            stepAdapter.setSteps(it)
+            binding.tvStepIndicator.text = "1 / ${it.size}"
+            updateArrowVisibility(0)
+        }
+    }
+
+    /**
+     * 현재 페이지 위치에 따라 좌/우 화살표의 가시성을 조절하는 함수
+     */
+    private fun updateArrowVisibility(position: Int) {
+        val totalSteps = stepAdapter.itemCount
+        // 단계가 1개뿐이면 모든 화살표를 숨김
+        if (totalSteps <= 1) {
+            binding.ivPrevStep.visibility = View.INVISIBLE
+            binding.ivNextStep.visibility = View.INVISIBLE
+            return
+        }
+
+        // 첫 번째 페이지일 경우 왼쪽 화살표 숨김
+        binding.ivPrevStep.visibility = if (position > 0) View.VISIBLE else View.INVISIBLE
+        // 마지막 페이지일 경우 오른쪽 화살표 숨김
+        binding.ivNextStep.visibility = if (position < totalSteps - 1) View.VISIBLE else View.INVISIBLE
     }
 
 
@@ -144,7 +193,17 @@ class RecipeEditActivity : AppCompatActivity() {
         }
         binding.buttonAddIngredient.setOnClickListener { addIngredientRow(null) }
         binding.buttonAddTool.setOnClickListener { addToolRow(null) }
-        binding.buttonAddStep.setOnClickListener { addStepView(null) }
+        binding.buttonAddStep.setOnClickListener {
+            stepAdapter.addStep()
+            binding.viewPagerSteps.currentItem = stepAdapter.itemCount - 1 // 마지막 페이지로 이동
+        }
+
+        binding.ivPrevStep.setOnClickListener {
+            binding.viewPagerSteps.currentItem -= 1
+        }
+        binding.ivNextStep.setOnClickListener {
+            binding.viewPagerSteps.currentItem += 1
+        }
     }
 
     // --- 행 추가 함수들 ---
@@ -175,66 +234,10 @@ class RecipeEditActivity : AppCompatActivity() {
         binding.toolsContainer.addView(itemBinding.root)
     }
 
-    private fun addStepView(step: RecipeStep?) {
-        val stepBinding = CookWriteStepBinding.inflate(layoutInflater, binding.stepsContainer, false)
-        val stepView = stepBinding.root
-
-        step?.let {
-            stepBinding.etStepTitle.setText(it.title)
-            stepBinding.etStepDescription.setText(it.description)
-            if (!it.imageUrl.isNullOrEmpty()) {
-                Glide.with(this).load(it.imageUrl).into(stepBinding.ivStepPhoto)
-            }
-            stepBinding.writeTimer.visibility = if(it.useTimer == true) View.VISIBLE else View.GONE
-            if (it.useTimer == true && it.time != null) {
-                val totalSeconds = it.time
-                stepBinding.hourNum.text = (totalSeconds / 3600).toString()
-                stepBinding.minuteNum.text = ((totalSeconds % 3600) / 60).toString()
-                stepBinding.secondNum.text = (totalSeconds % 60).toString()
-            }
-        }
-
-        stepBinding.ivStepPhoto.setOnClickListener {
-            currentStepImageView = stepBinding.ivStepPhoto
-            val intent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
-            stepImageLauncher.launch(intent)
-        }
-
-        // 각 단계의 삭제 버튼 리스너 설정
-        stepBinding.btnRemoveThisStep.setOnClickListener {
-            // 최소 1개의 단계는 유지
-            if (binding.stepsContainer.childCount > 1) {
-                // 이미지 URI 맵에서도 해당 뷰의 정보를 삭제
-                stepImageUris.remove(stepView)
-                // 부모 뷰(steps_container)에서 이 단계 뷰를 제거
-                binding.stepsContainer.removeView(stepView)
-                // 삭제 후, 남아있는 단계들의 삭제 버튼 가시성 업데이트
-                updateStepRemoveButtonVisibility()
-            } else {
-                Toast.makeText(this, "최소 한 개의 과정은 필요합니다.", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        binding.stepsContainer.addView(stepView)
-        // 뷰 추가 후, 모든 단계의 삭제 버튼 가시성 업데이트
-        updateStepRemoveButtonVisibility()
-    }
-
-    // 단계 삭제 버튼의 가시성을 업데이트하는 함수
-    private fun updateStepRemoveButtonVisibility() {
-        // 모든 단계 뷰를 순회
-        binding.stepsContainer.children.forEach { view ->
-            val stepBinding = CookWriteStepBinding.bind(view)
-            // 단계가 1개 초과일 때만 삭제 버튼을 보이게 함
-            stepBinding.btnRemoveThisStep.isVisible = binding.stepsContainer.childCount > 1
-        }
-    }
-
-
     // --- 저장 로직 ---
     private fun saveChanges() {
-        binding.progressBar.visibility = View.VISIBLE
         binding.btnSave.isEnabled = false
+        binding.btnSave.text = "저장 중..." // 로딩 상태 표시
 
         lifecycleScope.launch {
             try {
@@ -245,19 +248,18 @@ class RecipeEditActivity : AppCompatActivity() {
                     originalRecipe?.thumbnailUrl
                 }
 
-                val stepImageUploadTasks = binding.stepsContainer.children.map { stepView ->
-                    val uri = stepImageUris[stepView]
-                    val originalUrl = originalRecipe?.steps?.find {
-                        val stepBinding = CookWriteStepBinding.bind(stepView)
-                        it.title == stepBinding.etStepTitle.text.toString() && it.description == stepBinding.etStepDescription.text.toString()
-                    }?.imageUrl
+                val currentStepsData = stepAdapter.collectAllStepsData()
 
-                    if (uri != null) {
-                        uploadImage(uri, "recipe_images/${UUID.randomUUID()}")
+                val stepImageUploadTasks = currentStepsData.mapIndexed { index, step ->
+                    val newUri = newStepImageUris[index]
+                    if (newUri != null) {
+                        // 새 이미지가 있으면 업로드
+                        uploadImage(newUri, "recipe_images/${UUID.randomUUID()}")
                     } else {
-                        Tasks.forResult(originalUrl) // 기존 URL 유지
+                        // 없으면 기존 URL 유지
+                        Tasks.forResult(step.imageUrl)
                     }
-                }.toList()
+                }
 
                 val stepImageUrls = Tasks.whenAllSuccess<String?>(stepImageUploadTasks).await()
 
@@ -279,20 +281,14 @@ class RecipeEditActivity : AppCompatActivity() {
                     name
                 }.toList()
 
-                val steps = binding.stepsContainer.children.mapIndexed { index, view ->
-                    val stepBinding = CookWriteStepBinding.bind(view)
-                    val hour = stepBinding.hourNum.text.toString().toIntOrNull() ?: 0
-                    val minute = stepBinding.minuteNum.text.toString().toIntOrNull() ?: 0
-                    val second = stepBinding.secondNum.text.toString().toIntOrNull() ?: 0
-                    val useTimer = stepBinding.writeTimer.visibility == View.VISIBLE
-
+                val steps = currentStepsData.mapIndexed { index, stepData ->
                     mapOf(
                         "stepNumber" to (index + 1),
-                        "title" to stepBinding.etStepTitle.text.toString(),
-                        "description" to stepBinding.etStepDescription.text.toString(),
+                        "title" to stepData.title,
+                        "description" to stepData.description,
                         "imageUrl" to (stepImageUrls.getOrNull(index) ?: ""),
-                        "time" to (hour * 3600 + minute * 60 + second),
-                        "useTimer" to useTimer
+                        "time" to stepData.time,
+                        "useTimer" to stepData.useTimer
                     )
                 }.toList()
 
@@ -313,15 +309,15 @@ class RecipeEditActivity : AppCompatActivity() {
                 Toast.makeText(this@RecipeEditActivity, "레시피가 수정되었습니다.", Toast.LENGTH_SHORT).show()
                 // 수정 완료 후 액티비티 종료
                 val resultIntent = Intent()
-                setResult(RESULT_OK, resultIntent)
+                setResult(Activity.RESULT_OK, resultIntent)
                 finish()
 
 
             } catch (e: Exception) {
                 Toast.makeText(this@RecipeEditActivity, "저장 실패: ${e.message}", Toast.LENGTH_LONG).show()
             } finally {
-                binding.progressBar.visibility = View.GONE
                 binding.btnSave.isEnabled = true
+                binding.btnSave.text = "수정완료" // 원래 텍스트로 복구
             }
         }
     }

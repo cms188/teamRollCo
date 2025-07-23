@@ -174,29 +174,90 @@
                     android:text="+ 조리도구 추가" />
             </LinearLayout>
 
-
-            <!-- 조리 과정 (CookWrite03) -->
-            <TextView style="@style/CookWriteTitle" android:text="조리 과정" />
-            <LinearLayout
-                android:id="@+id/steps_container"
+            <!-- 조리 과정 -->
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/button_add_step"
-                style="@style/CookWriteAddButton"
-                android:layout_marginTop="8dp"
-                android:text="+ 과정 추가" />
+                <!-- 조리 과정 타이틀 -->
+                <TextView
+                    android:id="@+id/tv_steps_header"
+                    style="@style/CookWriteTitle"
+                    android:text="조리 과정"
+                    android:gravity="center"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
 
-            <ProgressBar
-                android:id="@+id/progress_bar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                tools:visibility="visible"/>
+                <!-- 왼쪽 화살표 -->
+                <ImageView
+                    android:id="@+id/iv_prev_step"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_arrow_back"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="12dp"
+                    android:visibility="invisible"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/tv_steps_header"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_steps_header"
+                    app:tint="@color/black"
+                    tools:visibility="visible"/>
+
+                <!-- 오른쪽 화살표 -->
+                <ImageView
+                    android:id="@+id/iv_next_step"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_arrow_back"
+                    android:rotation="180"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="12dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/tv_steps_header"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_steps_header"
+                    app:tint="@color/black"
+                    tools:visibility="visible"/>
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/view_pager_steps"
+                    android:layout_width="match_parent"
+                    android:layout_height="780dp"
+                    android:layout_marginTop="8dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_steps_header"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_step_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    app:layout_constraintTop_toBottomOf="@+id/view_pager_steps"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:text="1 / 5" />
+
+                <TextView
+                    android:id="@+id/button_add_step"
+                    style="@style/CookWriteAddButton"
+                    android:layout_marginTop="8dp"
+                    android:text="+ 과정 추가"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_step_indicator"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
     </ScrollView>
+
 </RelativeLayout>

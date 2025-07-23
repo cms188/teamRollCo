@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.NumberPicker
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -14,6 +15,7 @@ import androidx.fragment.app.activityViewModels
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.data.RecipeStep_write
 import com.example.recipe_pocket.databinding.CookWriteStepBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class CookWrite03StepFragment : Fragment() {
 
@@ -91,22 +93,68 @@ class CookWrite03StepFragment : Fragment() {
             currentStep?.useTimer = newVisibility
             updateTimerButtonText()
         }
-        // 버튼 클릭 시 시간/분/초 값 변경 및 순환 로직 적용
-        binding.hourP.setOnClickListener { if (hour < 23) hour++; updateTimerDisplay() }
-        binding.hourM.setOnClickListener { if (hour > 0) hour--; updateTimerDisplay() }
-
-        binding.minuteP.setOnClickListener { minute = (minute + 1) % 60; updateTimerDisplay() }
-        binding.minuteM.setOnClickListener { minute = (minute - 1 + 60) % 60; updateTimerDisplay() }
-
-        binding.secondP.setOnClickListener { second = (second + 1) % 60; updateTimerDisplay() }
-        binding.secondM.setOnClickListener { second = (second - 1 + 60) % 60; updateTimerDisplay() }
+        // ▼▼▼ 변경된 부분 ▼▼▼
+        // 기존의 +, - 버튼 리스너들을 모두 제거하고, 타이머 표시 TextView의 리스너를 추가합니다.
+        binding.tvTimerDisplay.setOnClickListener {
+            showTimePickerDialog()
+        }
+        // ▲▲▲ 변경된 부분 ▲▲▲
     }
 
+    // ▼▼▼ 추가된 함수 ▼▼▼
+    private fun showTimePickerDialog() {
+        // 새로 만든 dialog_time_picker.xml 레이아웃을 인플레이트합니다.
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_time_picker, null)
+        val hourPicker = dialogView.findViewById<NumberPicker>(R.id.picker_hour)
+        val minutePicker = dialogView.findViewById<NumberPicker>(R.id.picker_minute)
+        val secondPicker = dialogView.findViewById<NumberPicker>(R.id.picker_second)
+
+        // 각 NumberPicker의 설정 (범위, 초기값 등)
+        hourPicker.apply {
+            minValue = 0
+            maxValue = 23
+            value = hour
+            wrapSelectorWheel = false
+            descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
+        }
+        minutePicker.apply {
+            minValue = 0
+            maxValue = 59
+            value = minute
+            wrapSelectorWheel = true // 분/초는 순환되도록 설정
+            descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
+        }
+        secondPicker.apply {
+            minValue = 0
+            maxValue = 59
+            value = second
+            wrapSelectorWheel = true // 분/초는 순환되도록 설정
+            descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
+        }
+
+        // MaterialAlertDialog를 사용하여 다이얼로그 생성
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("타이머 설정")
+            .setView(dialogView)
+            .setPositiveButton("확인") { _, _ ->
+                // "확인" 버튼 클릭 시, NumberPicker에서 선택된 값들을 변수에 저장
+                hour = hourPicker.value
+                minute = minutePicker.value
+                second = secondPicker.value
+                // 화면에 변경된 시간을 업데이트
+                updateTimerDisplay()
+            }
+            .setNegativeButton("취소", null)
+            .show()
+    }
+    // ▲▲▲ 추가된 함수 ▲▲▲
+
+    // ▼▼▼ 변경된 함수 ▼▼▼
     private fun updateTimerDisplay() {
-        binding.hourNum.text = hour.toString()
-        binding.minuteNum.text = minute.toString()
-        binding.secondNum.text = second.toString()
+        // 시간, 분, 초를 보기 좋은 형식의 문자열로 만들어 tvTimerDisplay에 설정합니다.
+        binding.tvTimerDisplay.text = String.format("%02d시간 %02d분 %02d초", hour, minute, second)
     }
+    // ▲▲▲ 변경된 함수 ▲▲▲
 
     // ViewModel에 최종 데이터를 저장하는 함수
     fun updateViewModelData() {
