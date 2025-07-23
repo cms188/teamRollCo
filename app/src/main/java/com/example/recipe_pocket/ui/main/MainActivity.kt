@@ -22,6 +22,7 @@ import com.example.recipe_pocket.ui.recipe.search.SearchResult
 import com.example.recipe_pocket.ui.user.UserPageActivity
 import com.example.recipe_pocket.data.CookTipItem
 import com.example.recipe_pocket.databinding.ActivityMainBinding
+import com.example.recipe_pocket.weather.WeatherMainActivity
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -146,7 +147,8 @@ class MainActivity : AppCompatActivity() {
 
             val currentUser = FirebaseAuth.getInstance().currentUser
             val intent = when (item.itemId) {
-                R.id.fragment_search -> Intent(this, SearchResult::class.java)
+                //R.id.fragment_search -> Intent(this, SearchResult::class.java) //임시변경
+                R.id.fragment_search -> Intent(this, WeatherMainActivity::class.java) //weathermainactivity로 이동 임시변경
                 R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
                 R.id.fragment_favorite -> {
                     if (currentUser != null) Intent(this, CookWrite01Activity::class.java)

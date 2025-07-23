@@ -18,7 +18,7 @@ data class PromptFeedback(val blockReason: String?)
 
 // Retrofit 서비스 인터페이스
 interface GeminiApiService {
-    @POST("v1beta/models/gemini-2.5-flash-lite-preview-06-17:generateContent")
+    @POST("v1beta/models/gemini-2.5-flash:generateContent")
     suspend fun generateContent(
         @Query("key") apiKey: String,
         @Body request: GeminiRequest

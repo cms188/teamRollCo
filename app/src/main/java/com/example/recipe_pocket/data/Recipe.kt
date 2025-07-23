@@ -24,6 +24,7 @@ data class Recipe(
     val servings: Int? = null,
     val ingredients: List<Ingredient>? = null,
     val bookmarkedBy: List<String>? = null,
+    val tags: List<String>? = null,
 
     @get:Exclude @set:Exclude
     var author: User? = null,

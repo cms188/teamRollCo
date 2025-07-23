@@ -3,8 +3,11 @@ package com.example.recipe_pocket.ai
 import com.example.recipe_pocket.BuildConfig
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.logging.Logger // Logger 임포트 추가
 
 object AITagGenerator {
+
+    private val logger: Logger = Logger.getLogger(AITagGenerator::class.java.name)
 
     private val retrofit by lazy {
         Retrofit.Builder()
@@ -23,6 +26,8 @@ object AITagGenerator {
             val request = GeminiRequest(listOf(Content(listOf(Part(prompt)))))
             val apiKey = BuildConfig.GEMINI_API_KEY
             val response = service.generateContent(apiKey, request)
+
+            logger.info("AI 응답 전체: $response")
 
             if (response.candidates.isNullOrEmpty()) {
                 val blockReason = response.promptFeedback?.blockReason ?: "응답 없음"
@@ -58,8 +63,12 @@ object AITagGenerator {
             4.  **'쾌적한날' 태그 활용**: '쾌적한날'은 덥지도 춥지도 않은, 야외 활동하기 좋은 날씨를 의미합니다. 이 날씨에는 피크닉, 가벼운 나들이 등에 어울리는 음식(예: 샌드위치, 샐러드, 도시락)을 추천하는 데 해당 태그를 사용합니다.
             5.  **복합적, 문화적 추론**: 단순 사실 관계를 넘어, 음식의 특성과 상황 간의 복합적인 연관성을 추론해야 합니다.
                 -   (예시 2) **김치찌개**: '미세먼지나쁨' 또는 '미세먼지매우나쁨'일 경우, 목의 칼칼함을 해소하기 위해 칼칼한 국물 요리가 생각날 수 있으므로 해당 태그들을 추가합니다.
-                -   (예시 3) **삼계탕**: 뜨거운 보양식이지만, 한국의 '이열치열' 문화에 따라 '매우더운날', '더운날'에도 즐겨 찾습니다. 따라서 삼계탕 레시피에는 해당 태그들을 포함해야 합니다.
+                -   (예시 3) **삼계탕**: 뜨거운 보양식이지만, 한국의 '이열치열' 문화에 따라 '매우더운날', '더운날'에도 즐겨 찾습니다. 따라서 삼계탕 레시피에는 해당 태그들을 포함해야 합니다. (이는 주로 국물류 음식에 한합니다.)
             6.  **출력 형식**: 최종 결과는 다른 설명 없이, 쉼표(,)로만 구분된 태그 목록 문자열로만 응답해야 합니다. (예: "더운날,맑은날,미세먼지보통,습도높음")
+            
+            7. 레시피와 일치하는 태그를 모두 적어야됩니다. 예 : 아이스크림 (매우더운날,더운날,맑은날,미세먼지좋음,미세먼지보통,미세먼지나쁨,미세먼지매우나쁨,습도높음)
+            8. 온도는 모두 일치해도 최소 한가지의 태그는 없어야 합니다. 예로 닭강정은 언제나 먹어도 상관없지만, 뜨거운 음식이기에 매우더운날 태그는 제거해야합니다. (아니면 더운날도 같이 제거해도 됩니다.)
+            
             
             --- 
             [분석할 레시피 정보]

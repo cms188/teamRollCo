@@ -18,7 +18,7 @@ object RecipeLoader {
     private val db: FirebaseFirestore = Firebase.firestore
     private val auth = Firebase.auth
 
-    private suspend fun enrichRecipeWithAuthor(document: DocumentSnapshot): Recipe? {
+    suspend fun enrichRecipeWithAuthor(document: DocumentSnapshot): Recipe? {
         val recipe = document.toObject(Recipe::class.java) ?: return null
         recipe.id = document.id
 

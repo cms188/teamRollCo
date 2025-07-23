@@ -13,6 +13,8 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <queries>
         <intent>
@@ -73,6 +75,11 @@
         <activity
             android:name=".ui.recipe.write.RecipeEditActivity"
             android:exported="false" />
+        <activity android:name=".weather.WeatherMainActivity" android:exported="false"/>
+        <activity android:name=".weather.LocationActivity" android:exported="false"/>
+        <activity android:name=".weather.AirQualityActivity" android:exported="false"/>
+        <activity android:name=".weather.WeatherActivity" android:exported="false" />
+
         <service
             android:name=".service.VoiceRecognitionService"
             android:enabled="true"

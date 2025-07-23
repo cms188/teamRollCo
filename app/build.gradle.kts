@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -47,6 +48,12 @@ android {
 
         val geminiApiKey = localProperties.getProperty("GEMINI_API_KEY") ?: ""
         buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
+
+        val weatherServiceKey = localProperties.getProperty("WEATHER_API_KEY") ?: ""
+        buildConfigField("String", "WEATHER_API_KEY", "\"$weatherServiceKey\"")
+
+        val airKoreaServiceKey = localProperties.getProperty("AIR_API_KEY") ?: ""
+        buildConfigField("String", "AIR_API_KEY", "\"$airKoreaServiceKey\"")
     }
 
 
@@ -76,8 +83,8 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
-        viewBinding = true
         buildConfig = true
+        viewBinding = true
     }
 }
 
@@ -113,5 +120,8 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     // JSON 데이터를 Kotlin 객체로 변환해주는 Gson 컨버터
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // 코루틴 lifecycle-scope 의존성
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }
 
