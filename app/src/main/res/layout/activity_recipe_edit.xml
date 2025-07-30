@@ -79,19 +79,19 @@
             <!-- 기본 정보 (CookWrite01) -->
             <TextView style="@style/CookWriteTitle" android:text="기본 정보" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            <TextView
+                android:id="@+id/btn_select_category"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:layout_marginBottom="16dp"
-                android:hint="카테고리">
-
-                <AutoCompleteTextView
-                    android:id="@+id/categoryDropdown"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
+                android:background="@drawable/bg_search_bar_orange_border"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:hint="카테고리"
+                android:textColorHint="@color/text_gray"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
 
             <FrameLayout
                 android:layout_width="match_parent"

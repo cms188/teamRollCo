@@ -13,7 +13,7 @@ data class Recipe(
     val title: String? = null,
     val thumbnailUrl: String? = null,
     val cookingTime: Int? = null,
-    val category: String? = null,
+    val category: Any? = null,
     val createdAt: Timestamp? = null,
     val difficulty: String? = null,
     val simpleDescription: String? = null,
@@ -31,6 +31,14 @@ data class Recipe(
     @get:Exclude @set:Exclude
     var isBookmarked: Boolean = false
 ) {
+    @get:Exclude
+    val categoryList: List<String>?
+        get() = when (category) {
+            is String -> listOf(category) // 기존 String 데이터를 List로 변환
+            is List<*> -> @Suppress("UNCHECKED_CAST") (category as? List<String>) // 신규 List 데이터
+            else -> null
+        }
+
     constructor() : this(
         id = null, userId = null, title = null, thumbnailUrl = null, cookingTime = null,
         category = null, createdAt = null, difficulty = null, simpleDescription = null,

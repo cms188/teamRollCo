@@ -6,7 +6,7 @@ import java.util.UUID
 data class RecipeData(
     // 01. 기본 정보
     var thumbnailUrl: String? = null, // Uri -> String
-    var category: String = "기타",
+    var category: List<String> = emptyList(),
     var title: String = "",
     var description: String = "",
     var difficulty: String = "보통",

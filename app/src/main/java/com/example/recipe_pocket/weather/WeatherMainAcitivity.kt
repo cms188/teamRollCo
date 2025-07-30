@@ -5,11 +5,13 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.RecipeAdapter
 import com.example.recipe_pocket.data.Recipe
@@ -54,6 +56,8 @@ class WeatherMainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = WeatherBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        var imageView = binding.imageview
+        Glide.with(this).load(R.raw.testgif).into(imageView)
 
         initializeUI()
         startLocationActivity()

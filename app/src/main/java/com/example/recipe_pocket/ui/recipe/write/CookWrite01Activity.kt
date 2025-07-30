@@ -1,21 +1,23 @@
 package com.example.recipe_pocket.ui.recipe.write
 
-import android.R
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.ArrayAdapter
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
+import com.example.recipe_pocket.R
 import com.example.recipe_pocket.data.RecipeData
 import com.example.recipe_pocket.databinding.CookWrite01Binding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -23,30 +25,46 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 class CookWrite01Activity : AppCompatActivity() {
 
     private lateinit var binding: CookWrite01Binding
-    private var currentServings = 1
-    private var thumbnailUri: Uri? = null
+    private var recipeData = RecipeData() // RecipeData 객체를 멤버 변수로 관리
 
     private var cookingHour = 0
     private var cookingMinute = 0
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == RESULT_OK) {
+        if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let {
-                thumbnailUri = it
+                recipeData.thumbnailUrl = it.toString()
                 binding.ivRepresentativePhoto.setImageURI(it)
             }
         }
     }
 
+    // [추가] 카테고리 선택 결과를 처리할 ActivityResultLauncher
+    private val categorySelectionLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.getStringArrayListExtra(CategorySelectionActivity.EXTRA_SELECTED_CATEGORIES)?.let { selected ->
+                    recipeData.category = selected
+                    updateCategoryButtonText()
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // ▼▼▼ cook_write_01.xml로 바인딩 클래스 이름 변경 ▼▼▼
         binding = CookWrite01Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
-        // Edge-to-edge 처리
+        setupWindowInsets()
+        setupClickListeners()
+        updateServingsText()
+        updateCookingTimeText()
+        updateCategoryButtonText() // 초기 텍스트 설정
+    }
+
+    private fun setupWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.CookWrite01Layout) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
@@ -56,17 +74,6 @@ class CookWrite01Activity : AppCompatActivity() {
             }
             WindowInsetsCompat.CONSUMED
         }
-
-        setupDropdown()
-        setupClickListeners()
-        updateServingsText()
-        updateCookingTimeText()
-    }
-
-    private fun setupDropdown() {
-        val categories = listOf("한식", "중식", "일식", "양식", "디저트", "음료", "기타")
-        val adapter = ArrayAdapter(this, R.layout.simple_dropdown_item_1line, categories)
-        binding.categoryDropdown.setAdapter(adapter)
     }
 
     private fun setupClickListeners() {
@@ -79,19 +86,28 @@ class CookWrite01Activity : AppCompatActivity() {
         }
 
         binding.ivRepresentativePhoto.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*"
+            val intent = Intent(Intent.ACTION_PICK).apply {
+                type = "image/*"
+            }
             pickImageLauncher.launch(intent)
         }
 
+        // [추가] 카테고리 선택 버튼 클릭 리스너
+        binding.btnSelectCategory.setOnClickListener {
+            val intent = Intent(this, CategorySelectionActivity::class.java).apply {
+                putStringArrayListExtra(CategorySelectionActivity.EXTRA_SELECTED_CATEGORIES, ArrayList(recipeData.category))
+            }
+            categorySelectionLauncher.launch(intent)
+        }
+
         binding.btnServingsMinus.setOnClickListener {
-            if (currentServings > 1) {
-                currentServings--
+            if (recipeData.servings > 1) {
+                recipeData.servings--
                 updateServingsText()
             }
         }
         binding.btnServingsPlus.setOnClickListener {
-            currentServings++
+            recipeData.servings++
             updateServingsText()
         }
 
@@ -112,9 +128,9 @@ class CookWrite01Activity : AppCompatActivity() {
     }
 
     private fun showNumberPickerDialog(isHourPicker: Boolean, currentValue: Int) {
-        val dialogView = LayoutInflater.from(this).inflate(com.example.recipe_pocket.R.layout.dialog_number_picker, null)
-        val numberPicker = dialogView.findViewById<NumberPicker>(com.example.recipe_pocket.R.id.number_picker)
-        val unitTextView = dialogView.findViewById<TextView>(com.example.recipe_pocket.R.id.tv_unit)
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_number_picker, null)
+        val numberPicker = dialogView.findViewById<NumberPicker>(R.id.number_picker)
+        val unitTextView = dialogView.findViewById<TextView>(R.id.tv_unit)
 
         numberPicker.wrapSelectorWheel = false
         numberPicker.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS
@@ -146,7 +162,7 @@ class CookWrite01Activity : AppCompatActivity() {
     }
 
     private fun updateServingsText() {
-        binding.tvServingsCount.text = "$currentServings 인분"
+        binding.tvServingsCount.text = "${recipeData.servings} 인분"
     }
 
     private fun updateCookingTimeText() {
@@ -154,22 +170,27 @@ class CookWrite01Activity : AppCompatActivity() {
         binding.tvCookingTimeMinute.text = "$cookingMinute 분"
     }
 
-    private fun goToNextStep() {
-        val totalCookingTimeMinutes = (cookingHour * 60) + cookingMinute
+    // [추가] 선택된 카테고리에 따라 버튼 텍스트 업데이트
+    private fun updateCategoryButtonText() {
+        if (recipeData.category.isEmpty()) {
+            binding.btnSelectCategory.text = "카테고리를 선택해주세요"
+            binding.btnSelectCategory.setTextColor(ContextCompat.getColor(this, R.color.text_gray))
+        } else {
+            binding.btnSelectCategory.text = recipeData.category.joinToString(", ")
+            binding.btnSelectCategory.setTextColor(ContextCompat.getColor(this, R.color.black))
+        }
+    }
 
-        val recipeData = RecipeData(
-            thumbnailUrl = thumbnailUri?.toString(),
-            category = binding.categoryDropdown.text.toString().ifEmpty { "기타" },
-            title = binding.etRecipeTitle.text.toString(),
-            description = binding.etRecipeDescription.text.toString(),
-            difficulty = when (binding.rgDifficulty.checkedRadioButtonId) {
-                com.example.recipe_pocket.R.id.rb_easy -> "쉬움"
-                com.example.recipe_pocket.R.id.rb_hard -> "어려움"
-                else -> "보통"
-            },
-            servings = currentServings,
-            cookingTimeMinutes = totalCookingTimeMinutes
-        )
+    private fun goToNextStep() {
+        // 입력된 데이터를 recipeData 객체에 업데이트
+        recipeData.title = binding.etRecipeTitle.text.toString()
+        recipeData.description = binding.etRecipeDescription.text.toString()
+        recipeData.difficulty = when (binding.rgDifficulty.checkedRadioButtonId) {
+            R.id.rb_easy -> "쉬움"
+            R.id.rb_hard -> "어려움"
+            else -> "보통"
+        }
+        recipeData.cookingTimeMinutes = (cookingHour * 60) + cookingMinute
 
         val intent = Intent(this, CookWrite02Activity::class.java).apply {
             putExtra("recipe_data", recipeData)

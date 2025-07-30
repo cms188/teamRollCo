@@ -2,9 +2,9 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.recipe_pocket" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- 전역 기본 폰트 -->
-        <item name="android:fontFamily">@font/notosans_regular</item>
-        <!-- 기본 텍스트 색상 -->
-        <item name="android:textColor">@color/text_brown</item>
+        <!--<item name="android:fontFamily">@font/notosans_regular</item>
+        &lt;!&ndash; 기본 텍스트 색상 &ndash;&gt;
+        <item name="android:textColor">@color/text_brown</item>-->
 
         <!-- 주요 브랜드 색상 (앱 바, 주요 버튼 등) -->
         <item name="colorPrimary">@color/orange</item>
