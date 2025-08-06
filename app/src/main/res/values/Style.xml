@@ -82,7 +82,7 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="CookWriteEditText" parent="Widget.AppCompat.EditText">
+    <style name="CookWriteEditsText" parent="Widget.AppCompat.EditText">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">48dp</item>
         <item name="android:layout_marginBottom">24dp</item>

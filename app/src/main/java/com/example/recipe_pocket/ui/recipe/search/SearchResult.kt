@@ -29,7 +29,7 @@ class SearchResult : AppCompatActivity() {
 
     private lateinit var binding: SearchResultBinding
     private lateinit var recipeAdapter: RecipeAdapter
-    private var currentQuery: String? = null // 현재 검색어를 저장하는 변수
+    private var currentQuery: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,11 +41,22 @@ class SearchResult : AppCompatActivity() {
         setupRecyclerView()
         setupSearch()
         setupBottomNavigation()
+
+        // 전달받은 검색어가 있으면 자동으로 검색
+        val searchQuery = intent.getStringExtra("search_query")
+        if (!searchQuery.isNullOrBlank()) {
+            binding.etSearchBar.setText(searchQuery)
+            currentQuery = searchQuery
+            loadData(searchQuery)
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        loadData(currentQuery)
+        // 검색어가 없을 때만 데이터 로드
+        if (currentQuery.isNullOrBlank()) {
+            loadData(null)
+        }
         binding.bottomNavigationView.menu.findItem(R.id.fragment_search).isChecked = true
     }
 
@@ -82,9 +93,36 @@ class SearchResult : AppCompatActivity() {
                 currentQuery = query
                 loadData(currentQuery)
                 hideKeyboard(textView)
+
+                // 검색 통계 업데이트 (SearchScreenActivity와 동일하게)
+                updateSearchStatistics(query)
                 true
             } else {
                 false
+            }
+        }
+    }
+
+    private fun updateSearchStatistics(query: String) {
+        if (query.isBlank()) return
+
+        lifecycleScope.launch {
+            try {
+                val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                val searchDoc = firestore.collection("search_statistics")
+                    .document(query.lowercase())
+
+                searchDoc.update("count", com.google.firebase.firestore.FieldValue.increment(1))
+                    .addOnFailureListener {
+                        // 문서가 없으면 새로 생성
+                        searchDoc.set(mapOf(
+                            "keyword" to query,
+                            "count" to 1,
+                            "lastSearched" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                        ))
+                    }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -108,60 +146,66 @@ class SearchResult : AppCompatActivity() {
                         val message = if (query.isNullOrBlank()) "표시할 레시피가 없습니다." else "'${query}'에 대한 검색 결과가 없습니다."
                         binding.tvNoResults.text = message
                         binding.tvNoResults.visibility = View.VISIBLE
-                        recipeAdapter.updateRecipes(emptyList())
                     } else {
                         binding.recyclerViewSearchResults.visibility = View.VISIBLE
-                        binding.tvNoResults.visibility = View.GONE
                         recipeAdapter.updateRecipes(recipes)
                     }
                 },
-                onFailure = {
-                    binding.tvNoResults.text = "데이터를 불러오는 중 오류가 발생했습니다."
+                onFailure = { exception ->
+                    binding.tvNoResults.text = "레시피를 불러오는 중 오류가 발생했습니다."
                     binding.tvNoResults.visibility = View.VISIBLE
                 }
             )
         }
     }
 
-    private fun setupBottomNavigation() {
-        binding.bottomNavigationView.setOnItemReselectedListener { /* 아무것도 하지 않음 */ }
-
-        binding.bottomNavigationView.setOnItemSelectedListener { item ->
-            if (item.itemId == R.id.fragment_search) {
-                return@setOnItemSelectedListener true
-            }
-
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            val intent = when (item.itemId) {
-                R.id.fragment_home -> Intent(this, MainActivity::class.java)
-                R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
-                R.id.fragment_favorite -> {
-                    if (currentUser != null) Intent(this, CookWrite01Activity::class.java)
-                    else Intent(this, LoginActivity::class.java)
-                }
-                R.id.fragment_settings -> {
-                    if (currentUser != null) Intent(this, UserPageActivity::class.java)
-                    else Intent(this, LoginActivity::class.java)
-                }
-                else -> null
-            }
-
-            intent?.let {
-                if (item.itemId == R.id.fragment_favorite || item.itemId == R.id.fragment_settings) {
-                    startActivity(it)
-                } else {
-                    it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    startActivity(it)
-                    overridePendingTransition(0, 0)
-                }
-            }
-            true
-        }
-    }
-
     private fun hideKeyboard(view: View) {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
-        view.clearFocus()
+    }
+
+    private fun setupBottomNavigation() {
+        binding.bottomNavigationView.selectedItemId = R.id.fragment_search
+
+        binding.bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.fragment_home -> {
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
+                    true
+                }
+                R.id.fragment_search -> {
+                    // 현재 SearchResult에 있으므로 SearchScreen으로 이동
+                    startActivity(Intent(this, SearchScreenActivity::class.java))
+                    finish()
+                    true
+                }
+                R.id.fragment_another -> {
+                    if (FirebaseAuth.getInstance().currentUser != null) {
+                        startActivity(Intent(this, CookWrite01Activity::class.java))
+                    } else {
+                        startActivity(Intent(this, LoginActivity::class.java))
+                    }
+                    true
+                }
+                R.id.fragment_favorite -> {
+                    if (FirebaseAuth.getInstance().currentUser != null) {
+                        startActivity(Intent(this, BookmarkActivity::class.java))
+                    } else {
+                        startActivity(Intent(this, LoginActivity::class.java))
+                    }
+                    true
+                }
+                R.id.fragment_settings -> {
+                    if (FirebaseAuth.getInstance().currentUser != null) {
+                        startActivity(Intent(this, UserPageActivity::class.java))
+                    } else {
+                        startActivity(Intent(this, LoginActivity::class.java))
+                    }
+                    true
+                }
+                else -> false
+            }
+        }
     }
 }
