@@ -1,226 +1,551 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_user_page"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    tools:context=".UserPageActivity">
+    android:background="@color/white">
 
-    <!-- 상단 바 (뒤로가기, 타이틀) -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/top_bar_layout"
-        android:layout_width="0dp"
-        android:layout_height="?attr/actionBarSize"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+    <!-- 툴바 -->
+    <include layout="@layout/toolbar_basic"/>
 
-        <ImageView
-            android:id="@+id/iv_back_button"
-            android:layout_width="wrap_content"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_arrow_back"
-            android:padding="16dp"
-            android:contentDescription="뒤로가기"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:tint="@color/black" />
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
-        <TextView
-            android:id="@+id/tv_username_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="마이페이지"
-            android:textSize="18sp"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            <!-- 프로필 카드 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/white">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                    <!-- 사용자 프로필 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
 
-    <!-- 프로필 영역 -->
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/iv_profile_picture"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:src="@drawable/ic_profile_placeholder"
-        app:civ_border_color="@color/orange"
-        app:civ_border_width="2dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_bar_layout" />
+                        <!-- 프로필 이미지 -->
+                        <ImageView
+                            android:id="@+id/imageView_profile"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:src="@drawable/bg_author_profile"
+                            android:scaleType="centerCrop"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?android:attr/selectableItemBackgroundBorderless" />
 
-    <TextView
-        android:id="@+id/tv_title_badge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:background="@drawable/bg_title_badge"
-        android:paddingStart="8dp"
-        android:paddingTop="2dp"
-        android:paddingEnd="8dp"
-        android:paddingBottom="2dp"
-        android:textColor="@color/orange"
-        android:textSize="12sp"
-        android:visibility="gone"
-        tools:text="[요리 장인]"
-        tools:visibility="visible"
-        app:layout_constraintStart_toEndOf="@+id/iv_profile_picture"
-        app:layout_constraintTop_toTopOf="@+id/iv_profile_picture" />
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="0dp"
+                            android:gravity="center_vertical" >
 
-    <TextView
-        android:id="@+id/tv_nickname"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        tools:text="요리왕 김레시피"
-        app:layout_constraintStart_toEndOf="@+id/iv_profile_picture"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title_badge"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_profile_picture"/>
+                            <!-- 정보 수정 -->
+                            <TextView
+                                android:id="@+id/textView_editInfo"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="정보 수정"
+                                android:textSize="14sp"
+                                android:textColor="@color/text_sub"
+                                android:fontFamily="@font/notosans_regular"
+                                android:includeFontPadding="false"
+                                android:layout_marginTop="4dp"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:background="?android:attr/selectableItemBackgroundBorderless"/>
 
-    <!-- 팔로워 정보 -->
-    <LinearLayout
-        android:id="@+id/follow_info_layout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:orientation="horizontal"
-        android:paddingVertical="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iv_profile_picture">
+                            <!-- 사용자 명 -->
+                            <TextView
+                                android:id="@+id/textView_authorName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="이름"
+                                android:textSize="24sp"
+                                android:textColor="@color/black20"
+                                android:fontFamily="@font/notosans_bold"
+                                android:includeFontPadding="false" />
+                        </LinearLayout>
 
-        <!-- '게시물' 클릭 가능하도록 id 변경 및 속성 추가 -->
-        <TextView
-            android:id="@+id/tv_recipe_count_clickable"
-            style="@style/FollowInfoText"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground"
-            tools:text="게시물\n12" />
+                    </LinearLayout>
 
-        <View style="@style/VerticalDivider"/>
+                    <!-- 칭호 -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardView_badge"
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp"
+                        android:layout_marginBottom="10dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="1dp"
+                        app:cardBackgroundColor="@color/primary_cream"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?android:attr/selectableItemBackground">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="10dp"
+                            android:gravity="center_vertical">
 
-        <!-- '팔로워' 클릭 가능하도록 id 변경 및 속성 추가 -->
-        <TextView
-            android:id="@+id/tv_follower_count_clickable"
-            style="@style/FollowInfoText"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground"
-            tools:text="팔로워\n150" />
+                            <TextView
+                                android:id="@+id/textView_badge"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="칭호"
+                                android:textSize="18sp"
+                                android:textColor="@color/text_primary"
+                                android:fontFamily="@font/notosans_medium"
+                                android:includeFontPadding="false" />
 
-        <View style="@style/VerticalDivider"/>
+                            <ImageView
+                                android:id="@+id/icon_arrow"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@drawable/ic_arrow_right_r"
+                                android:alpha="0.7"
+                                android:scaleX="1.2"
+                                android:scaleY="1.2"/>
 
-        <!-- '팔로잉' 클릭 가능하도록 id 변경 및 속성 추가 -->
-        <TextView
-            android:id="@+id/tv_following_count_clickable"
-            style="@style/FollowInfoText"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackground"
-            tools:text="팔로잉\n45" />
-    </LinearLayout>
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
 
-    <View
-        android:id="@+id/divider"
-        android:layout_width="0dp"
-        android:layout_height="8dp"
-        android:background="#F5F5F5"
-        app:layout_constraintTop_toBottomOf="@+id/follow_info_layout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
 
-    <!-- 메뉴 버튼 영역 -->
-    <androidx.gridlayout.widget.GridLayout
-        android:id="@+id/menu_grid"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:columnCount="3"
-        app:rowCount="2"
-        app:layout_constraintTop_toBottomOf="@+id/divider"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+                        <!-- 내가 쓴 레시피 -->
+                        <LinearLayout
+                            android:id="@+id/layout_myRecipes"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:padding="12dp"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?android:attr/selectableItemBackgroundBorderless">
 
-        <!-- 내 레시피 -->
-        <LinearLayout
-            android:id="@+id/menu_my_recipes"
-            style="@style/UserPageMenuButton"
-            app:layout_columnWeight="1"
-            app:layout_gravity="fill">
-            <ImageView
-                style="@style/UserPageMenuIcon"
-                android:src="@drawable/ic_my_recipes"
-                app:tint="#424242" /> <!-- 색상 통일 -->
-            <TextView style="@style/UserPageMenuText" android:text="내 레시피" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="내 레시피"
+                                android:textSize="14sp"
+                                android:textColor="@color/text_sub"/>
+
+                            <TextView
+                                android:id="@+id/textView_myRecipesCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="22sp"
+                                android:textColor="@color/black20"
+                                android:fontFamily="@font/notosans_bold"
+                                android:includeFontPadding="false"/>
+                        </LinearLayout>
+
+                        <!-- 구분선 -->
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="50dp"
+                            android:background="@color/primary_divider"
+                            android:layout_gravity="center"/>
+
+                        <!-- 팔로워 -->
+                        <LinearLayout
+                            android:id="@+id/layout_followers"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:padding="12dp"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?android:attr/selectableItemBackgroundBorderless">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="팔로워"
+                                android:textSize="14sp"
+                                android:textColor="@color/text_sub"/>
+
+                            <TextView
+                                android:id="@+id/textView_followersCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="22sp"
+                                android:textColor="@color/black20"
+                                android:fontFamily="@font/notosans_bold"
+                                android:includeFontPadding="false"/>
+                        </LinearLayout>
+
+                        <!-- 구분선 -->
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="50dp"
+                            android:background="@color/primary_divider"
+                            android:layout_gravity="center"/>
+
+                        <!-- 팔로잉 -->
+                        <LinearLayout
+                            android:id="@+id/layout_following"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:padding="12dp"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?android:attr/selectableItemBackgroundBorderless">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="팔로잉"
+                                android:textSize="14sp"
+                                android:textColor="@color/text_sub"/>
+
+                            <TextView
+                                android:id="@+id/textView_followingCount"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="22sp"
+                                android:textColor="@color/black20"
+                                android:fontFamily="@font/notosans_bold"
+                                android:includeFontPadding="false"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+
+            <!-- 빠른 메뉴 -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView_quickMenu"
+                android:layout_width="match_parent"
+                android:layout_height="90dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:gravity="center">
+
+                    <!-- 북마크 -->
+                    <LinearLayout
+                        android:id="@+id/layout_bookmark"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="14dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackgroundBorderless">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_bookmark"
+                            android:layout_gravity="center" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minHeight="32dp"
+                            android:text="북마크"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"
+                            android:fontFamily="@font/notosans_medium"
+                            android:includeFontPadding="false"
+                            android:gravity="center"
+                            android:layout_marginTop="4dp" />
+
+                    </LinearLayout>
+
+                    <!-- 구분선  -->
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="50dp"
+                        android:background="@color/primary_divider"
+                        android:layout_gravity="center"/>
+
+                    <!-- 좋아요 -->
+                    <LinearLayout
+                        android:id="@+id/layout_like"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="14dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackgroundBorderless">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_like"
+                            android:layout_gravity="center" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minHeight="32dp"
+                            android:text="좋아요"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"
+                            android:fontFamily="@font/notosans_medium"
+                            android:includeFontPadding="false"
+                            android:gravity="center"
+                            android:layout_marginTop="4dp" />
+
+                    </LinearLayout>
+
+                    <!-- 구분선 -->
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="50dp"
+                        android:background="@color/primary_divider"
+                        android:layout_gravity="center"/>
+
+                    <!-- 리뷰 관리 -->
+                    <LinearLayout
+                        android:id="@+id/layout_reviewManage"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="14dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackgroundBorderless">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_star_stroke"
+                            android:layout_gravity="center"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minHeight="32dp"
+                            android:text="리뷰 관리"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"
+                            android:fontFamily="@font/notosans_medium"
+                            android:includeFontPadding="false"
+                            android:gravity="center"
+                            android:layout_marginTop="4dp" />
+
+                    </LinearLayout>
+
+                    <!-- 구분선 -->
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="50dp"
+                        android:background="@color/primary_divider"
+                        android:layout_gravity="center"/>
+
+                    <!-- 최근 본 레시피 -->
+                    <LinearLayout
+                        android:id="@+id/layout_recentRecipe"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="14dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackgroundBorderless">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_clock"
+                            android:layout_gravity="center" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="최근 본\n레시피"
+                            android:minHeight="32dp"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"
+                            android:fontFamily="@font/notosans_medium"
+                            android:includeFontPadding="false"
+                            android:gravity="center"
+                            android:layout_marginTop="4dp"
+                            android:lineSpacingExtra="1dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+
+            <!-- 설정 메뉴 -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView_menu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp">
+
+                    <!-- 메뉴 이름 -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="설정"
+                        android:textSize="18sp"
+                        android:textColor="@color/black"
+                        android:fontFamily="@font/notosans_bold"
+                        android:padding="16dp"
+                        android:gravity="start"/>
+
+                    <!-- 구분선 -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/primary_divider"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"/>
+
+                    <!-- 테마 -->
+                    <LinearLayout
+                        android:id="@+id/layout_theme"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackground">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="테마"
+                            android:textSize="16sp"
+                            android:textColor="@color/black20"
+                            android:fontFamily="@font/notosans_medium"
+                            android:includeFontPadding="false" />
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_arrow_right_r"
+                            android:alpha="0.7" />
+
+                    </LinearLayout>
+
+                    <!-- 구분선 -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/primary_divider"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"/>
+
+                    <!-- 메뉴 -->
+                    <LinearLayout
+                        android:id="@+id/layout_none"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackground">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="메뉴"
+                            android:textSize="16sp"
+                            android:textColor="@color/black20"
+                            android:fontFamily="@font/notosans_medium"
+                            android:includeFontPadding="false" />
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_arrow_right_r"
+                            android:alpha="0.7" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
         </LinearLayout>
 
-        <!-- 북마크 -->
-        <LinearLayout
-            android:id="@+id/menu_bookmarks"
-            style="@style/UserPageMenuButton"
-            app:layout_columnWeight="1"
-            app:layout_gravity="fill">
-            <ImageView
-                style="@style/UserPageMenuIcon"
-                android:src="@drawable/ic_bookmark_filled"
-                app:tint="#424242" /> <!-- 색상 통일 -->
-            <TextView style="@style/UserPageMenuText" android:text="북마크" />
-        </LinearLayout>
+    </ScrollView>
 
-        <!-- 칭호 -->
-        <LinearLayout
-            android:id="@+id/menu_titles"
-            style="@style/UserPageMenuButton"
-            app:layout_columnWeight="1"
-            app:layout_gravity="fill">
-            <ImageView
-                style="@style/UserPageMenuIcon"
-                android:src="@drawable/ic_title_badge"
-                app:tint="#424242" /> <!-- 색상 통일 -->
-            <TextView style="@style/UserPageMenuText" android:text="칭호" />
-        </LinearLayout>
-
-        <!-- 회원정보 수정 -->
-        <LinearLayout
-            android:id="@+id/menu_edit_profile"
-            style="@style/UserPageMenuButton"
-            app:layout_columnWeight="1"
-            app:layout_gravity="fill">
-            <ImageView
-                style="@style/UserPageMenuIcon"
-                android:src="@drawable/ic_settings"
-                app:tint="#424242" /> <!-- 색상 통일 -->
-            <TextView style="@style/UserPageMenuText" android:text="회원정보 수정" />
-        </LinearLayout>
-
-    </androidx.gridlayout.widget.GridLayout>
-
-    <!-- 하단 네비게이션 -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <!-- 내비게이션 바 -->
+    <include
         android:id="@+id/bottom_navigation_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:menu="@menu/menu_bottom_nav"
-        app:labelVisibilityMode="unlabeled"
-        app:itemIconSize="25dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        layout="@layout/navigation_bottom"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

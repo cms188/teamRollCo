@@ -2,31 +2,32 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/fragment_home"
-        android:title="홈"
-        android:icon="@drawable/ic_tab1"/>
+        android:icon="@drawable/ic_nav_home"
+        android:title="홈" />
     <item
         android:id="@+id/fragment_search"
-        android:title="검색"
-        android:icon="@drawable/ic_search"/>
+        android:icon="@drawable/ic_nav_search"
+        android:title="검색" />
     <item
-        android:id="@+id/fragment_favorite"
-        android:title="즐겨찾기"
-        android:icon="@drawable/ic_tab3"/>
+        android:id="@+id/fragment_addRecipe"
+        android:icon="@drawable/ic_nav_add"
+        android:title="레시피 쓰기" />
     <item
         android:id="@+id/fragment_another"
-        android:title="설정"
-        android:icon="@drawable/ic_tab4"/>
+        android:icon="@drawable/ic_nav_bookmark"
+        android:title="북마크" />
     <item
         android:id="@+id/fragment_settings"
-        android:title="설정"
-        android:icon="@drawable/ic_tab5"/>
+        android:icon="@drawable/ic_nav_author"
+        android:title="마이 페이지" />
 </menu>
 
-    <!-- BottomNavigationView 추가
+<!-- BottomNavigationView 추가
 <com.google.android.material.bottomnavigation.BottomNavigationView
 android:id="@+id/bottom_navigation_view"
 android:layout_width="match_parent"
 android:layout_height="wrap_content"
 android:background="?android:attr/windowBackground"
 app:menu="@menu/menu_bottom_nav"
-app:labelVisibilityMode="unlabeled" /> -->
+app:labelVisibilityMode="unlabeled" />
+-->
