@@ -148,7 +148,7 @@ class MainActivity : AppCompatActivity() {
 
             val currentUser = FirebaseAuth.getInstance().currentUser
             val intent = when (item.itemId) {
-                R.id.fragment_search -> Intent(this, SearchScreenActivity::class.java) //임시변경
+                R.id.fragment_search -> Intent(this, SearchResult::class.java) //임시변경
                 //R.id.fragment_search -> Intent(this, WeatherMainActivity::class.java) //weathermainactivity로 이동 임시변경
                 R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
                 R.id.fragment_favorite -> {

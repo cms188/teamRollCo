@@ -12,15 +12,15 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
+import com.example.recipe_pocket.R
 import com.example.recipe_pocket.data.Ingredient
 import com.example.recipe_pocket.data.Recipe
 import com.example.recipe_pocket.databinding.ActivityRecipeEditBinding
-import com.example.recipe_pocket.databinding.ItemIngredientBinding
-import com.example.recipe_pocket.databinding.ItemToolBinding
 import com.example.recipe_pocket.repository.RecipeLoader
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
@@ -30,7 +30,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.util.*
+import java.util.UUID
 
 class RecipeEditActivity : AppCompatActivity() {
 
@@ -39,13 +39,25 @@ class RecipeEditActivity : AppCompatActivity() {
     private val storage = Firebase.storage
     private var recipeId: String? = null
     private var originalRecipe: Recipe? = null
+    private var selectedCategories: MutableList<String> = mutableListOf()
 
+    // 이미지 URI와 런처 관리
     private var thumbnailUri: Uri? = null
     private lateinit var thumbnailLauncher: ActivityResultLauncher<Intent>
     private lateinit var stepImageLauncher: ActivityResultLauncher<Intent>
 
-    private lateinit var resultLauncher: ActivityResultLauncher<Intent>
+    private val categorySelectionLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.getStringArrayListExtra(CategorySelectionActivity.EXTRA_SELECTED_CATEGORIES)?.let { selected ->
+                    selectedCategories.clear()
+                    selectedCategories.addAll(selected)
+                    updateCategoryButtonText()
+                }
+            }
+        }
 
+    // ViewPager2 관련 변수
     private lateinit var stepAdapter: RecipeEditStepAdapter
     private var currentStepImagePosition: Int = -1
     private val newStepImageUris = mutableMapOf<Int, Uri>()
@@ -54,13 +66,6 @@ class RecipeEditActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityRecipeEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                setResult(Activity.RESULT_OK)
-                finish()
-            }
-        }
 
         recipeId = intent.getStringExtra("RECIPE_ID")
         if (recipeId == null) {
@@ -77,7 +82,7 @@ class RecipeEditActivity : AppCompatActivity() {
 
     private fun setupLaunchers() {
         thumbnailLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
+            if (result.resultCode == RESULT_OK) {
                 result.data?.data?.let {
                     thumbnailUri = it
                     binding.ivRepresentativePhoto.setImageURI(it)
@@ -86,7 +91,7 @@ class RecipeEditActivity : AppCompatActivity() {
         }
 
         stepImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
+            if (result.resultCode == RESULT_OK) {
                 result.data?.data?.let { uri ->
                     if (currentStepImagePosition != -1) {
                         newStepImageUris[currentStepImagePosition] = uri
@@ -113,7 +118,6 @@ class RecipeEditActivity : AppCompatActivity() {
         )
 
         binding.viewPagerSteps.adapter = stepAdapter
-
         binding.viewPagerSteps.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
@@ -142,10 +146,9 @@ class RecipeEditActivity : AppCompatActivity() {
     }
 
     private fun populateUi(recipe: Recipe) {
-        val categories = listOf("한식", "중식", "일식", "양식", "디저트", "음료", "기타")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, categories)
-        binding.categoryDropdown.setAdapter(adapter)
-        binding.categoryDropdown.setText(recipe.category?.firstOrNull() ?: "", false)
+        selectedCategories.clear()
+        recipe.categoryList?.let { selectedCategories.addAll(it) }
+        updateCategoryButtonText()
 
         if (!recipe.thumbnailUrl.isNullOrEmpty()) {
             Glide.with(this).load(recipe.thumbnailUrl).into(binding.ivRepresentativePhoto)
@@ -162,20 +165,32 @@ class RecipeEditActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateCategoryButtonText() {
+        if (selectedCategories.isEmpty()) {
+            binding.btnSelectCategory.text = "카테고리를 선택해주세요"
+            binding.btnSelectCategory.setTextColor(ContextCompat.getColor(this, R.color.text_gray))
+        } else {
+            binding.btnSelectCategory.text = selectedCategories.joinToString(", ")
+            binding.btnSelectCategory.setTextColor(ContextCompat.getColor(this, R.color.black))
+        }
+    }
+
     private fun updateArrowVisibility(position: Int) {
         val totalSteps = stepAdapter.itemCount
-        if (totalSteps <= 1) {
-            binding.ivPrevStep.visibility = View.INVISIBLE
-            binding.ivNextStep.visibility = View.INVISIBLE
-            return
-        }
-        binding.ivPrevStep.visibility = if (position > 0) View.VISIBLE else View.INVISIBLE
-        binding.ivNextStep.visibility = if (position < totalSteps - 1) View.VISIBLE else View.INVISIBLE
+        binding.ivPrevStep.visibility = if (totalSteps > 1 && position > 0) View.VISIBLE else View.INVISIBLE
+        binding.ivNextStep.visibility = if (totalSteps > 1 && position < totalSteps - 1) View.VISIBLE else View.INVISIBLE
     }
 
     private fun setupClickListeners() {
         binding.ivBack.setOnClickListener { finish() }
         binding.btnSave.setOnClickListener { saveChanges() }
+
+        binding.btnSelectCategory.setOnClickListener {
+            val intent = Intent(this, CategorySelectionActivity::class.java).apply {
+                putStringArrayListExtra(CategorySelectionActivity.EXTRA_SELECTED_CATEGORIES, ArrayList(selectedCategories))
+            }
+            categorySelectionLauncher.launch(intent)
+        }
 
         binding.ivRepresentativePhoto.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
@@ -187,14 +202,17 @@ class RecipeEditActivity : AppCompatActivity() {
             stepAdapter.addStep()
             binding.viewPagerSteps.currentItem = stepAdapter.itemCount - 1
         }
-
-        binding.ivPrevStep.setOnClickListener { binding.viewPagerSteps.currentItem -= 1 }
-        binding.ivNextStep.setOnClickListener { binding.viewPagerSteps.currentItem += 1 }
+        binding.ivPrevStep.setOnClickListener {
+            binding.viewPagerSteps.currentItem -= 1
+        }
+        binding.ivNextStep.setOnClickListener {
+            binding.viewPagerSteps.currentItem += 1
+        }
     }
 
     private fun addIngredientRow(ingredient: Ingredient?) {
-        val itemBinding = ItemIngredientBinding.inflate(layoutInflater, binding.ingredientsContainer, false)
-        val unitItems = resources.getStringArray(com.example.recipe_pocket.R.array.ingredient_units)
+        val itemBinding = com.example.recipe_pocket.databinding.ItemIngredientBinding.inflate(layoutInflater, binding.ingredientsContainer, false)
+        val unitItems = resources.getStringArray(R.array.ingredient_units)
         val unitAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, unitItems)
         itemBinding.unitAutocompleteTextview.setAdapter(unitAdapter)
 
@@ -203,7 +221,6 @@ class RecipeEditActivity : AppCompatActivity() {
             itemBinding.a2.setText(it.amount)
             itemBinding.unitAutocompleteTextview.setText(it.unit, false)
         }
-
         itemBinding.deleteMaterial.setOnClickListener {
             binding.ingredientsContainer.removeView(itemBinding.root)
         }
@@ -211,7 +228,7 @@ class RecipeEditActivity : AppCompatActivity() {
     }
 
     private fun addToolRow(tool: String?) {
-        val itemBinding = ItemToolBinding.inflate(layoutInflater, binding.toolsContainer, false)
+        val itemBinding = com.example.recipe_pocket.databinding.ItemToolBinding.inflate(layoutInflater, binding.toolsContainer, false)
         tool?.let { itemBinding.b1.setText(it) }
         itemBinding.buttonDelete.setOnClickListener {
             binding.toolsContainer.removeView(itemBinding.root)
@@ -243,17 +260,17 @@ class RecipeEditActivity : AppCompatActivity() {
                 val stepImageUrls = Tasks.whenAllSuccess<String?>(stepImageUploadTasks).await()
 
                 val ingredients = binding.ingredientsContainer.children.mapNotNull {
-                    val name = it.findViewById<EditText>(com.example.recipe_pocket.R.id.a1).text.toString()
+                    val name = it.findViewById<EditText>(R.id.a1).text.toString()
                     if (name.isBlank()) return@mapNotNull null
                     Ingredient(
                         name,
-                        it.findViewById<EditText>(com.example.recipe_pocket.R.id.a2).text.toString(),
-                        it.findViewById<AutoCompleteTextView>(com.example.recipe_pocket.R.id.unit_autocomplete_textview).text.toString()
+                        it.findViewById<EditText>(R.id.a2).text.toString(),
+                        it.findViewById<AutoCompleteTextView>(R.id.unit_autocomplete_textview).text.toString()
                     )
                 }.toList()
 
                 val tools = binding.toolsContainer.children.mapNotNull {
-                    val name = it.findViewById<EditText>(com.example.recipe_pocket.R.id.b1).text.toString()
+                    val name = it.findViewById<EditText>(R.id.b1).text.toString()
                     if (name.isBlank()) return@mapNotNull null
                     name
                 }.toList()
@@ -272,8 +289,7 @@ class RecipeEditActivity : AppCompatActivity() {
                 val updatedData = mapOf(
                     "title" to binding.etRecipeTitle.text.toString(),
                     "simpleDescription" to binding.etRecipeDescription.text.toString(),
-                    // ▼▼▼ [수정] 카테고리를 List 형태로 저장 ▼▼▼
-                    "category" to listOf(binding.categoryDropdown.text.toString()),
+                    "category" to selectedCategories,
                     "thumbnailUrl" to (thumbnailUrl ?: ""),
                     "ingredients" to ingredients.map { mapOf("name" to it.name, "amount" to it.amount, "unit" to it.unit) },
                     "tools" to tools,
@@ -284,8 +300,7 @@ class RecipeEditActivity : AppCompatActivity() {
                 db.collection("Recipes").document(recipeId!!).update(updatedData).await()
 
                 Toast.makeText(this@RecipeEditActivity, "레시피가 수정되었습니다.", Toast.LENGTH_SHORT).show()
-
-                setResult(Activity.RESULT_OK)
+                setResult(Activity.RESULT_OK, Intent())
                 finish()
 
             } catch (e: Exception) {
