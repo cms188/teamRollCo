@@ -29,7 +29,6 @@ class RecipeAdapter(
     private val defaultProfileImagePlaceholderResId: Int = R.drawable.bg_main_circle_gray
     private val defaultProfileImageErrorResId: Int = R.drawable.bg_no_img_gray
 
-    // 뷰 홀더 내부에서 북마크 아이콘을 업데이트하는 공통 함수
     private fun updateBookmarkIcon(button: ImageButton, isBookmarked: Boolean) {
         val context = button.context
         if (isBookmarked) {
@@ -71,10 +70,8 @@ class RecipeAdapter(
                 binding.authorProfileImage.setImageResource(defaultProfileImageErrorResId)
             }
 
-            // 북마크 아이콘 초기 상태 설정
             updateBookmarkIcon(binding.bookmarkButton, recipe.isBookmarked)
 
-            // 북마크 버튼 클릭 리스너
             binding.bookmarkButton.setOnClickListener {
                 val currentUser = Firebase.auth.currentUser
                 if (currentUser == null) {
@@ -105,7 +102,6 @@ class RecipeAdapter(
 
     inner class Card02ViewHolder(private val binding: CookCard02Binding) : BaseViewHolder(binding.root) {
         override fun bind(recipe: Recipe) {
-            // Card01ViewHolder의 bind 함수 내용과 거의 동일
             val context = binding.root.context
             binding.recipeNameText.text = recipe.title ?: "제목 없음"
             binding.cookingTimeText.text = recipe.cookingTime?.let { "${it}분" } ?: "시간 정보 없음"
@@ -162,11 +158,15 @@ class RecipeAdapter(
 
     inner class Card03ViewHolder(private val binding: CookCard03Binding) : BaseViewHolder(binding.root) {
         override fun bind(recipe: Recipe) {
-
             val context = binding.root.context
             binding.recipeNameText.text = recipe.title ?: "제목 없음"
             binding.cookingTimeText.text = recipe.cookingTime?.let { "${it}분" } ?: "시간 정보 없음"
             binding.difficultyText.text = recipe.difficulty ?: "정보 없음"
+
+            // 평점, 리뷰 수, 좋아요 수를 실제 데이터로 바인딩
+            binding.ratingText.text = String.format("%.1f", recipe.averageRating)
+            binding.reviewCountText.text = "(${recipe.reviewCount})"
+            binding.likeCountText.text = (recipe.likeCount ?: 0).toString()
 
             recipe.thumbnailUrl?.let { url ->
                 if (url.isNotEmpty()) {

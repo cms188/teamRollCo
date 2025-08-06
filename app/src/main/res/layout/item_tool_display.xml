@@ -27,7 +27,7 @@
         android:maxLines="1"
         android:text="······························································································································································"
         android:textColor="#CCCCCC"
-        android:textSize="20sp"
+        android:textSize="10sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/tool_name"

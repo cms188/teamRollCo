@@ -25,11 +25,21 @@ data class Recipe(
     val ingredients: List<Ingredient>? = null,
     val bookmarkedBy: List<String>? = null,
     val tags: List<String>? = null,
+    val likedBy: List<String>? = null,
+    var likeCount: Int? = 0,
+    var viewCount: Int? = 0,
+    val viewedBy: List<String>? = null,
 
     @get:Exclude @set:Exclude
     var author: User? = null,
     @get:Exclude @set:Exclude
-    var isBookmarked: Boolean = false
+    var isBookmarked: Boolean = false,
+    @get:Exclude @set:Exclude
+    var isLiked: Boolean = false,
+    @get:Exclude @set:Exclude
+    var reviewCount: Int = 0,
+    @get:Exclude @set:Exclude
+    var averageRating: Float = 0.0f
 ) {
     @get:Exclude
     val categoryList: List<String>?
@@ -43,8 +53,11 @@ data class Recipe(
         id = null, userId = null, title = null, thumbnailUrl = null, cookingTime = null,
         category = null, createdAt = null, difficulty = null, simpleDescription = null,
         steps = null, tools = null, updatedAt = null, userEmail = null,
-        servings = null, ingredients = null, bookmarkedBy = null, // 추가
-        author = null, isBookmarked = false // 추가
+        servings = null, ingredients = null, bookmarkedBy = null, tags = null,
+        likedBy = null, likeCount = 0,
+        viewCount = 0, viewedBy = null,
+        author = null, isBookmarked = false, isLiked = false,
+        reviewCount = 0, averageRating = 0.0f
     )
 }
 

@@ -144,71 +144,96 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- 메뉴 버튼 영역 -->
-    <androidx.gridlayout.widget.GridLayout
-        android:id="@+id/menu_grid"
+    <!-- 메뉴 버튼 영역 (LinearLayout으로 변경하여 정렬 문제 해결) -->
+    <LinearLayout
+        android:id="@+id/menu_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_marginTop="8dp"
-        app:columnCount="3"
-        app:rowCount="2"
         app:layout_constraintTop_toBottomOf="@+id/divider"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- 내 레시피 -->
+        <!-- 첫 번째 행 -->
         <LinearLayout
-            android:id="@+id/menu_my_recipes"
-            style="@style/UserPageMenuButton"
-            app:layout_columnWeight="1"
-            app:layout_gravity="fill">
-            <ImageView
-                style="@style/UserPageMenuIcon"
-                android:src="@drawable/ic_my_recipes"
-                app:tint="#424242" /> <!-- 색상 통일 -->
-            <TextView style="@style/UserPageMenuText" android:text="내 레시피" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- 내 레시피 -->
+            <LinearLayout
+                android:id="@+id/menu_my_recipes"
+                style="@style/UserPageMenuButton">
+                <ImageView
+                    style="@style/UserPageMenuIcon"
+                    android:src="@drawable/ic_my_recipes"
+                    app:tint="#424242" />
+                <TextView style="@style/UserPageMenuText" android:text="내 레시피" />
+            </LinearLayout>
+
+            <!-- 내 리뷰 -->
+            <LinearLayout
+                android:id="@+id/menu_my_reviews"
+                style="@style/UserPageMenuButton">
+                <ImageView
+                    style="@style/UserPageMenuIcon"
+                    android:src="@drawable/ic_review" />
+                <TextView style="@style/UserPageMenuText" android:text="내 리뷰" />
+            </LinearLayout>
+
+            <!-- 내 좋아요 -->
+            <LinearLayout
+                android:id="@+id/menu_my_likes"
+                style="@style/UserPageMenuButton">
+                <ImageView
+                    style="@style/UserPageMenuIcon"
+                    android:src="@drawable/ic_like_filled"
+                    app:tint="#424242" />
+                <TextView style="@style/UserPageMenuText" android:text="내 좋아요" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- 북마크 -->
+        <!-- 두 번째 행 -->
         <LinearLayout
-            android:id="@+id/menu_bookmarks"
-            style="@style/UserPageMenuButton"
-            app:layout_columnWeight="1"
-            app:layout_gravity="fill">
-            <ImageView
-                style="@style/UserPageMenuIcon"
-                android:src="@drawable/ic_bookmark_filled"
-                app:tint="#424242" /> <!-- 색상 통일 -->
-            <TextView style="@style/UserPageMenuText" android:text="북마크" />
-        </LinearLayout>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-        <!-- 칭호 -->
-        <LinearLayout
-            android:id="@+id/menu_titles"
-            style="@style/UserPageMenuButton"
-            app:layout_columnWeight="1"
-            app:layout_gravity="fill">
-            <ImageView
-                style="@style/UserPageMenuIcon"
-                android:src="@drawable/ic_title_badge"
-                app:tint="#424242" /> <!-- 색상 통일 -->
-            <TextView style="@style/UserPageMenuText" android:text="칭호" />
-        </LinearLayout>
+            <!-- 북마크 -->
+            <LinearLayout
+                android:id="@+id/menu_bookmarks"
+                style="@style/UserPageMenuButton">
+                <ImageView
+                    style="@style/UserPageMenuIcon"
+                    android:src="@drawable/ic_bookmark_filled"
+                    app:tint="#424242" />
+                <TextView style="@style/UserPageMenuText" android:text="북마크" />
+            </LinearLayout>
 
-        <!-- 회원정보 수정 -->
-        <LinearLayout
-            android:id="@+id/menu_edit_profile"
-            style="@style/UserPageMenuButton"
-            app:layout_columnWeight="1"
-            app:layout_gravity="fill">
-            <ImageView
-                style="@style/UserPageMenuIcon"
-                android:src="@drawable/ic_settings"
-                app:tint="#424242" /> <!-- 색상 통일 -->
-            <TextView style="@style/UserPageMenuText" android:text="회원정보 수정" />
-        </LinearLayout>
+            <!-- 칭호 -->
+            <LinearLayout
+                android:id="@+id/menu_titles"
+                style="@style/UserPageMenuButton">
+                <ImageView
+                    style="@style/UserPageMenuIcon"
+                    android:src="@drawable/ic_title_badge"
+                    app:tint="#424242" />
+                <TextView style="@style/UserPageMenuText" android:text="칭호" />
+            </LinearLayout>
 
-    </androidx.gridlayout.widget.GridLayout>
+            <!-- 회원정보 수정 -->
+            <LinearLayout
+                android:id="@+id/menu_edit_profile"
+                style="@style/UserPageMenuButton">
+                <ImageView
+                    style="@style/UserPageMenuIcon"
+                    android:src="@drawable/ic_settings"
+                    app:tint="#424242" />
+                <TextView style="@style/UserPageMenuText" android:text="회원정보 수정" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
 
     <!-- 하단 네비게이션 -->
     <com.google.android.material.bottomnavigation.BottomNavigationView

@@ -48,14 +48,15 @@
         <activity android:name=".ui.auth.RegisterActivity" />
         <activity android:name=".ui.recipe.search.SearchResult"/>
         <activity android:name=".ui.user.UserPageActivity"/>
+        <activity android:name=".ui.user.LikedRecipesActivity" />
         <activity android:name=".ui.auth.NicknameSetupActivity"/>
-        <activity
-            android:name=".ui.recipe.read.RecipeDetailActivity"
-            android:exported="false" />
         <activity android:name=".ui.recipe.read.RecipeReadActivity" />
+        <activity android:name=".ui.recipe.read.RecipeDetailActivity" />
         <activity android:name=".ui.recipe.write.CookWrite01Activity"/>
         <activity android:name=".ui.recipe.write.CookWrite02Activity"/>
         <activity android:name=".ui.recipe.write.CookWrite03Activity"/>
+        <activity android:name=".ui.review.MyReviewsActivity"/>
+        <activity android:name=".ui.review.ReviewWriteActivity"/>
         <activity
             android:name=".ui.user.bookmark.BookmarkActivity"
             android:exported="false" />
