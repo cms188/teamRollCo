@@ -13,7 +13,6 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="150dp"
         android:layout_height="150dp">
-
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -24,7 +23,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
-
             <ImageView
                 android:id="@+id/recipe_image_view"
                 android:layout_width="match_parent"
@@ -34,7 +32,6 @@
                 android:foreground="?attr/selectableItemBackground"
                 tools:srcCompat="@tools:sample/backgrounds/scenic" />
         </androidx.cardview.widget.CardView>
-
         <ImageButton
             android:id="@+id/bookmark_button"
             android:layout_width="40dp"
@@ -75,18 +72,51 @@
             android:textSize="16sp"
             android:textStyle="bold"/>
 
-        <!-- 평점 -->
-        <TextView
-            android:id="@+id/rating_text"
-            android:layout_width="wrap_content"
+        <!-- 평점, 리뷰 수, 좋아요 수를 담을 LinearLayout -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:layout_marginTop="4dp"
-            android:text="5.0"
-            android:textSize="14sp"
-            android:textColor="@android:color/black"
-            app:drawableStartCompat="@drawable/ic_star"
-            android:drawablePadding="5dp"
-            android:gravity="center_vertical"/>
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/rating_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="5.0"
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                app:drawableStartCompat="@drawable/ic_star"
+                android:drawablePadding="5dp"
+                android:gravity="center_vertical"/>
+
+            <TextView
+                android:id="@+id/review_count_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="(1)"
+                android:textSize="12sp"
+                android:textColor="@color/darker_gray"
+                android:layout_marginStart="4dp"/>
+
+            <ImageView
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginStart="12dp"
+                android:src="@drawable/ic_like_filled"
+                app:tint="#FF5252" />
+
+            <TextView
+                android:id="@+id/like_count_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                tools:text="12"
+                android:textSize="14sp"
+                android:textColor="@android:color/black"
+                android:gravity="center_vertical"/>
+        </LinearLayout>
 
         <!-- 조리 시간 & 난이도 -->
         <LinearLayout

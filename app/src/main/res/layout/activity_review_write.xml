@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity"
+    tools:context=".ui.review.ReviewWriteActivity"
     android:background="@color/cream">
 
     <include
@@ -30,9 +30,7 @@
                 android:layout_height="300dp"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/testimg1"
-                android:clipToOutline="true" />
-            <!--android:background="@drawable/bg_rounded_image"-->
+                tools:src="@drawable/testimg1" />
 
             <TextView
                 android:id="@+id/title"
@@ -40,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/notosans_bold"
                 android:gravity="center_horizontal"
-                android:text="요리 이름"
+                tools:text="요리 이름"
                 android:textSize="30sp"
                 android:textColor="@color/text_brown"
                 android:paddingTop="20dp"
@@ -51,21 +49,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
-                android:background="@android:color/transparent"
                 android:translationZ="2dp"
                 android:outlineSpotShadowColor="#FF9020"
                 android:outlineAmbientShadowColor="#FF9020"
                 app:cardElevation="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardUseCompatPadding="false">
-
+                app:cardCornerRadius="16dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="10dp"
                     android:background="@color/white">
-
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -76,8 +70,6 @@
                         android:textColor="@color/text_brown"
                         android:paddingBottom="12dp"
                         android:includeFontPadding="false" />
-
-                    <!-- 별점 슬라이더 -->
                     <androidx.appcompat.widget.AppCompatRatingBar
                         android:id="@+id/customRatingBar"
                         android:layout_width="wrap_content"
@@ -90,9 +82,7 @@
                         android:layout_gravity="center"
                         android:scaleX="1.1"
                         android:scaleY="1.1"/>
-
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
             <!-- 맛 -->
@@ -100,23 +90,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
-                android:background="@android:color/transparent"
                 android:translationZ="2dp"
                 android:outlineSpotShadowColor="#FF9020"
                 android:outlineAmbientShadowColor="#FF9020"
                 app:cardElevation="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardUseCompatPadding="false">
-
+                app:cardCornerRadius="16dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="10dp"
-                    android:background="@color/white"
-                    android:clipChildren="false"
-                    android:clipToPadding="false">
-
+                    android:background="@color/white">
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -126,13 +110,11 @@
                         android:textSize="18sp"
                         android:paddingBottom="12dp"
                         android:includeFontPadding="false" />
-
                     <RadioGroup
                         android:id="@+id/radio_flavor"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
-
                         <RadioButton
                             android:id="@+id/radio_flavor_good"
                             android:layout_width="0dp"
@@ -146,10 +128,7 @@
                             android:button="@null"
                             android:background="@drawable/bg_radio_button_selector"
                             android:gravity="center"
-                            android:textSize="14sp"
-                            android:outlineSpotShadowColor="@color/main_orange"
-                            android:outlineAmbientShadowColor="@color/main_orange"/>
-
+                            android:textSize="14sp"/>
                         <RadioButton
                             android:id="@+id/radio_flavor_normal"
                             android:layout_width="0dp"
@@ -163,16 +142,12 @@
                             android:button="@null"
                             android:background="@drawable/bg_radio_button_selector"
                             android:gravity="center"
-                            android:textSize="14sp"
-                            android:outlineSpotShadowColor="@color/main_orange"
-                            android:outlineAmbientShadowColor="@color/main_orange"/>
-
+                            android:textSize="14sp"/>
                         <RadioButton
                             android:id="@+id/radio_flavor_bad"
                             android:layout_width="0dp"
                             android:layout_height="50dp"
                             android:layout_weight="1"
-                            android:layout_marginEnd="0dp"
                             android:translationZ="3dp"
                             android:text="별로예요"
                             android:fontFamily="@font/notosans_regular"
@@ -180,15 +155,9 @@
                             android:button="@null"
                             android:background="@drawable/bg_radio_button_selector"
                             android:gravity="center"
-                            android:textSize="14sp"
-                            android:outlineSpotShadowColor="@color/main_orange"
-                            android:outlineAmbientShadowColor="@color/main_orange"/>
-
-
+                            android:textSize="14sp"/>
                     </RadioGroup>
-
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
             <!-- 난이도 -->
@@ -196,23 +165,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
-                android:background="@android:color/transparent"
                 android:translationZ="2dp"
                 android:outlineSpotShadowColor="#FF9020"
                 android:outlineAmbientShadowColor="#FF9020"
                 app:cardElevation="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardUseCompatPadding="false">
-
+                app:cardCornerRadius="16dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="10dp"
-                    android:background="@color/white"
-                    android:clipChildren="false"
-                    android:clipToPadding="false">
-
+                    android:background="@color/white">
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -222,13 +185,11 @@
                         android:textSize="18sp"
                         android:paddingBottom="12dp"
                         android:includeFontPadding="false" />
-
                     <RadioGroup
                         android:id="@+id/radio_difficulty"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
-
                         <RadioButton
                             android:id="@+id/radio_difficulty_easy"
                             android:layout_width="0dp"
@@ -242,10 +203,7 @@
                             android:button="@null"
                             android:background="@drawable/bg_radio_button_selector"
                             android:gravity="center"
-                            android:textSize="14sp"
-                            android:outlineSpotShadowColor="@color/main_orange"
-                            android:outlineAmbientShadowColor="@color/main_orange"/>
-
+                            android:textSize="14sp"/>
                         <RadioButton
                             android:id="@+id/radio_difficulty_normal"
                             android:layout_width="0dp"
@@ -259,16 +217,12 @@
                             android:button="@null"
                             android:background="@drawable/bg_radio_button_selector"
                             android:gravity="center"
-                            android:textSize="14sp"
-                            android:outlineSpotShadowColor="@color/main_orange"
-                            android:outlineAmbientShadowColor="@color/main_orange"/>
-
+                            android:textSize="14sp"/>
                         <RadioButton
                             android:id="@+id/radio_difficulty_hard"
                             android:layout_width="0dp"
                             android:layout_height="50dp"
                             android:layout_weight="1"
-                            android:layout_marginEnd="0dp"
                             android:translationZ="2dp"
                             android:text="어려워요"
                             android:fontFamily="@font/notosans_regular"
@@ -276,38 +230,27 @@
                             android:button="@null"
                             android:background="@drawable/bg_radio_button_selector"
                             android:gravity="center"
-                            android:textSize="14sp"
-                            android:outlineSpotShadowColor="@color/main_orange"
-                            android:outlineAmbientShadowColor="@color/main_orange"/>
-
+                            android:textSize="14sp"/>
                     </RadioGroup>
-
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
-            <!-- 평가 -->
+            <!-- 평가 및 사진 첨부 -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
-                android:background="@android:color/transparent"
                 android:translationZ="2dp"
                 android:outlineSpotShadowColor="#FF9020"
                 android:outlineAmbientShadowColor="#FF9020"
                 app:cardElevation="4dp"
-                app:cardCornerRadius="16dp"
-                app:cardUseCompatPadding="false">
-
+                app:cardCornerRadius="16dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="10dp"
-                    android:background="@color/white"
-                    android:clipChildren="false"
-                    android:clipToPadding="false">
-
+                    android:background="@color/white">
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -317,42 +260,71 @@
                         android:textSize="18sp"
                         android:paddingBottom="12dp"
                         android:includeFontPadding="false" />
-
                     <EditText
                         android:id="@+id/editText_feedback"
                         android:layout_width="match_parent"
                         android:layout_height="240dp"
                         android:hint="레시피에 후기를 남겨주세요."
-                        android:paddingTop="4dp"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
+                        android:padding="16dp"
                         android:textSize="16sp"
                         android:background="@drawable/bg_edittext"
                         android:fontFamily="@font/notosans_regular"
                         android:gravity="top|start"
                         android:inputType="textMultiLine" />
 
+                    <!-- 사진 첨부 영역 -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/notosans_medium"
+                        android:gravity="center_horizontal"
+                        android:text="사진 첨부 (선택)"
+                        android:textSize="18sp"
+                        android:layout_marginTop="24dp"
+                        android:paddingBottom="12dp"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="6dp"
+                        android:paddingBottom="6dp">
+                        <ImageButton
+                            android:id="@+id/btn_add_photo"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:src="@drawable/ic_add_photo"
+                            android:background="@drawable/bg_gray_rounded_light"
+                            android:scaleType="center"
+                            android:contentDescription="사진 추가"/>
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rv_review_images"
+                            android:layout_width="match_parent"
+                            android:layout_height="80dp"
+                            android:layout_marginStart="8dp"
+                            android:orientation="horizontal"
+                            tools:listitem="@layout/item_review_image"/>
+                    </LinearLayout>
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
-            <!-- 완료 버튼 -->
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_submit"
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
-                android:padding="0dp"
                 android:layout_margin="20dp"
                 android:text="완료"
                 android:textSize="20sp"
                 android:fontFamily="@font/notosans_bold"
-                android:gravity="center"
                 android:backgroundTint="@color/main_orange"
-                app:cornerRadius="20dp"
-                android:textColor="@android:color/white" />
-
-
+                app:cornerRadius="20dp" />
         </LinearLayout>
     </ScrollView>
-
 </LinearLayout>

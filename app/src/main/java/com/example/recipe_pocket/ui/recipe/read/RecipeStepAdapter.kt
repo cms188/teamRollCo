@@ -9,14 +9,16 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.recipe_pocket.ui.user.bookmark.BookmarkManager
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.data.Recipe
 import com.example.recipe_pocket.data.RecipeStep
 import com.example.recipe_pocket.ui.auth.LoginActivity
+import com.example.recipe_pocket.ui.review.ReviewWriteActivity
+import com.example.recipe_pocket.ui.user.bookmark.BookmarkManager
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -143,10 +145,24 @@ class RecipeStepAdapter(initialRecipe: Recipe?) :
                 .error(R.drawable.bg_no_img_gray)
                 .into(background)
 
+            val currentUser = Firebase.auth.currentUser
             updateBookmarkButtonUI(recipe.isBookmarked)
 
+            reviewButton.setOnClickListener {
+                if (currentUser != null && currentUser.uid == recipe.userId) {
+                    Toast.makeText(context, "자신의 레시피엔 후기를 남길 수 없습니다.", Toast.LENGTH_SHORT).show()
+                } else if (currentUser == null) {
+                    Toast.makeText(context, "로그인이 필요한 기능입니다.", Toast.LENGTH_SHORT).show()
+                    context.startActivity(Intent(context, LoginActivity::class.java))
+                } else {
+                    val intent = Intent(context, ReviewWriteActivity::class.java).apply {
+                        putExtra("RECIPE_ID", recipe.id)
+                    }
+                    (context as? AppCompatActivity)?.startActivity(intent)
+                }
+            }
+
             bookmarkButton.setOnClickListener {
-                val currentUser = Firebase.auth.currentUser
                 if (currentUser == null) {
                     Toast.makeText(context, "로그인이 필요한 기능입니다.", Toast.LENGTH_SHORT).show()
                     context.startActivity(Intent(context, LoginActivity::class.java))
@@ -168,9 +184,6 @@ class RecipeStepAdapter(initialRecipe: Recipe?) :
             doneButton.setOnClickListener {
                 (context as? RecipeReadActivity)?.finish()
             }
-            reviewButton.setOnClickListener {
-                Toast.makeText(context, "후기 남기기 기능은 준비 중입니다.", Toast.LENGTH_SHORT).show()
-            }
         }
 
         private fun updateBookmarkButtonUI(isBookmarked: Boolean) {
@@ -180,7 +193,6 @@ class RecipeStepAdapter(initialRecipe: Recipe?) :
                 val filledIcon = ContextCompat.getDrawable(context, R.drawable.ic_bookmark_filled)
                 bookmarkButton.setCompoundDrawablesWithIntrinsicBounds(filledIcon, null, null, null)
                 bookmarkButton.compoundDrawables[0]?.setTint(ContextCompat.getColor(context, R.color.orange))
-
             } else {
                 bookmarkButton.text = "북마크에 추가"
                 val outlineIcon = ContextCompat.getDrawable(context, R.drawable.ic_bookmark_outline_figma)

@@ -40,7 +40,6 @@ class CookWrite01Activity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // ▼▼▼ cook_write_01.xml로 바인딩 클래스 이름 변경 ▼▼▼
         binding = CookWrite01Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -159,7 +158,7 @@ class CookWrite01Activity : AppCompatActivity() {
 
         val recipeData = RecipeData(
             thumbnailUrl = thumbnailUri?.toString(),
-            category = binding.categoryDropdown.text.toString().ifEmpty { "기타" },
+            category = listOf(binding.categoryDropdown.text.toString().ifEmpty { "기타" }),
             title = binding.etRecipeTitle.text.toString(),
             description = binding.etRecipeDescription.text.toString(),
             difficulty = when (binding.rgDifficulty.checkedRadioButtonId) {

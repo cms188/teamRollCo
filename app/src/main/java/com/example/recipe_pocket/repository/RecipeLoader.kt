@@ -1,5 +1,6 @@
 package com.example.recipe_pocket.repository
 
+import android.util.Log
 import com.example.recipe_pocket.data.Recipe
 import com.example.recipe_pocket.data.User
 import com.google.firebase.auth.ktx.auth
@@ -22,12 +23,25 @@ object RecipeLoader {
         val recipe = document.toObject(Recipe::class.java) ?: return null
         recipe.id = document.id
 
-        // 현재 로그인한 사용자의 북마크 상태 설정
         auth.currentUser?.uid?.let { currentUserId ->
             recipe.isBookmarked = recipe.bookmarkedBy?.contains(currentUserId) == true
+            recipe.isLiked = recipe.likedBy?.contains(currentUserId) == true
         }
 
-        // 작성자 정보 로드
+        try {
+            val reviewsSnapshot = db.collection("Recipes").document(recipe.id!!).collection("Reviews").get().await()
+            val reviews = reviewsSnapshot.toObjects(com.example.recipe_pocket.data.Review::class.java)
+
+            recipe.reviewCount = reviews.size
+            if (reviews.isNotEmpty()) {
+                recipe.averageRating = reviews.map { it.rating }.average().toFloat()
+            }
+        } catch (e: Exception) {
+            System.err.println("리뷰 정보 로드 실패 (recipeId: ${recipe.id}): ${e.message}")
+            recipe.reviewCount = 0
+            recipe.averageRating = 0.0f
+        }
+
         recipe.userId?.let { authorId ->
             if (authorId.isNotEmpty()) {
                 try {
@@ -43,24 +57,42 @@ object RecipeLoader {
         return recipe
     }
 
-    suspend fun loadSingleRecipeWithAuthor(recipeId: String): Result<Recipe?> {
+    suspend fun loadUsers(userIds: List<String>): Result<Map<String, User>> {
+        if (userIds.isEmpty()) {
+            return Result.success(emptyMap())
+        }
         return try {
-            // Firestore에서 해당 ID의 레시피 문서를 가져옴
-            val documentSnapshot = db.collection("Recipes").document(recipeId).get().await()
-
-            if (documentSnapshot.exists()) {
-                // 문서가 존재하면, 작성자 정보를 포함하여 Recipe 객체로 변환
-                val recipe = enrichRecipeWithAuthor(documentSnapshot)
-                Result.success(recipe)
-            } else {
-                // 문서가 존재하지 않으면 null을 반환
-                Result.success(null)
+            val usersMap = mutableMapOf<String, User>()
+            userIds.chunked(30).forEach { chunk ->
+                val snapshot = db.collection("Users").whereIn(com.google.firebase.firestore.FieldPath.documentId(), chunk).get().await()
+                for (doc in snapshot.documents) {
+                    doc.toObject(User::class.java)?.let { user ->
+                        usersMap[doc.id] = user
+                    }
+                }
             }
+            Result.success(usersMap)
         } catch (e: Exception) {
-            // 작업 중 예외 발생 시 Result.failure 반환
             Result.failure(e)
         }
     }
+
+
+    suspend fun loadSingleRecipeWithAuthor(recipeId: String): Result<Recipe?> {
+        return try {
+            val documentSnapshot = db.collection("Recipes").document(recipeId).get().await()
+
+            if (documentSnapshot.exists()) {
+                val recipe = enrichRecipeWithAuthor(documentSnapshot)
+                Result.success(recipe)
+            } else {
+                Result.success(null)
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 
     suspend fun loadMultipleRandomRecipesWithAuthor(count: Int): Result<List<Recipe>> {
         return try {
@@ -124,6 +156,28 @@ object RecipeLoader {
         }
     }
 
+    // 사용자가 좋아요한 레시피 목록을 불러오는 함수
+    suspend fun loadLikedRecipes(): Result<List<Recipe>> {
+        val currentUserId = auth.currentUser?.uid ?: return Result.success(emptyList())
+
+        return try {
+            val querySnapshot = db.collection("Recipes")
+                .whereArrayContains("likedBy", currentUserId)
+                .get()
+                .await()
+
+            val recipes = coroutineScope {
+                querySnapshot.documents.map { doc ->
+                    async { enrichRecipeWithAuthor(doc) }
+                }.awaitAll().filterNotNull()
+            }
+            Result.success(recipes)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
     suspend fun loadRecipesByUserId(userId: String): Result<List<Recipe>> {
         return try {
             val querySnapshot = db.collection("Recipes")
@@ -135,6 +189,21 @@ object RecipeLoader {
                 querySnapshot.documents.map { doc ->
                     async { enrichRecipeWithAuthor(doc) }
                 }.awaitAll().filterNotNull()
+            }
+            Result.success(recipes)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun loadAllRecipes(): Result<List<Recipe>> {
+        return try {
+            val recipeQueryResult = db.collection("Recipes").get().await()
+            if (recipeQueryResult.isEmpty) {
+                return Result.success(emptyList())
+            }
+            val recipes = recipeQueryResult.documents.mapNotNull { doc ->
+                doc.toObject(Recipe::class.java)?.apply { id = doc.id }
             }
             Result.success(recipes)
         } catch (e: Exception) {

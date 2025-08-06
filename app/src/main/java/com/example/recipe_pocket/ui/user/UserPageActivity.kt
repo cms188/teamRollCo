@@ -125,6 +125,13 @@ class UserPageActivity : AppCompatActivity() {
         binding.menuMyRecipes.setOnClickListener {
             startActivity(Intent(this, MyRecipesActivity::class.java))
         }
+        binding.menuMyReviews.setOnClickListener {
+            startActivity(Intent(this, com.example.recipe_pocket.ui.review.MyReviewsActivity::class.java))
+        }
+        // '내 좋아요' 메뉴 클릭 리스너
+        binding.menuMyLikes.setOnClickListener {
+            startActivity(Intent(this, LikedRecipesActivity::class.java))
+        }
         binding.menuBookmarks.setOnClickListener {
             startActivity(Intent(this, BookmarkActivity::class.java))
         }
@@ -133,10 +140,6 @@ class UserPageActivity : AppCompatActivity() {
         }
         binding.menuEditProfile.setOnClickListener {
             startActivity(Intent(this, EditProfileActivity::class.java))
-        }
-
-        binding.menuTitles.setOnClickListener {
-            startActivity(Intent(this, TitleListActivity::class.java)) // 주석 해제
         }
     }
 
