@@ -4,18 +4,33 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.cardview.widget.CardView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import com.bumptech.glide.Glide
 import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
-import com.example.recipe_pocket.R
-import com.example.recipe_pocket.databinding.ActivityUserpageBinding
 import com.example.recipe_pocket.ui.auth.EditProfileActivity
 import com.example.recipe_pocket.ui.auth.LoginActivity
 import com.example.recipe_pocket.ui.main.MainActivity
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
 import com.example.recipe_pocket.ui.recipe.write.CookWrite01Activity
+import com.example.recipe_pocket.R
+import com.example.recipe_pocket.ui.user.FollowListActivity
+import com.example.recipe_pocket.ui.user.LikedRecipesActivity
+import com.example.recipe_pocket.ui.user.MyRecipesActivity
+import com.example.recipe_pocket.ui.user.TitleListActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -23,13 +38,34 @@ import com.google.firebase.storage.ktx.storage
 
 class UserPageActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityUserpageBinding
     private val auth = Firebase.auth
     private val firestore = Firebase.firestore
     private val storage = Firebase.storage
 
+    // Views
+    private lateinit var profileImageView: ImageView
+    private lateinit var nicknameTextView: TextView
+    private lateinit var badgeTextView: TextView
+    private lateinit var editInfoTextView: TextView
+    private lateinit var badgeCardView: CardView
+    private lateinit var myRecipesLayout: LinearLayout
+    private lateinit var followersLayout: LinearLayout
+    private lateinit var followingLayout: LinearLayout
+    private lateinit var bookmarkLayout: LinearLayout
+    private lateinit var likeLayout: LinearLayout
+    private lateinit var reviewManageLayout: LinearLayout
+    private lateinit var recentRecipeLayout: LinearLayout
+    private lateinit var bottomNavigationView: BottomNavigationView
+
+    // TextViews for counts
+    private lateinit var recipeCountTextView: TextView
+    private lateinit var followerCountTextView: TextView
+    private lateinit var followingCountTextView: TextView
+
     // 이미지 픽커 결과 처리를 위한 런처
-    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
         if (result.resultCode == RESULT_OK) {
             result.data?.data?.let { uri ->
                 uploadProfilePicture(uri)
@@ -39,17 +75,75 @@ class UserPageActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityUserpageBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_userpage)
 
+        // 뷰 초기화
+        initializeViews()
+
+        // 툴바 설정
+        setupToolbar()
+
+        // 클릭 리스너 설정
         setupClickListeners()
+
+        // 하단 네비게이션 설정
         setupBottomNavigation()
     }
 
     override fun onResume() {
         super.onResume()
         loadUserData()
-        binding.bottomNavigationView.menu.findItem(R.id.fragment_settings).isChecked = true
+        bottomNavigationView.menu.findItem(R.id.fragment_settings).isChecked = true
+    }
+
+    private fun initializeViews() {
+        // 프로필 섹션
+        profileImageView = findViewById(R.id.imageView_profile)
+        nicknameTextView = findViewById(R.id.textView_authorName)
+        badgeTextView = findViewById(R.id.textView_badge)
+        editInfoTextView = findViewById(R.id.textView_editInfo)
+        badgeCardView = findViewById(R.id.cardView_badge)
+
+        // 통계 섹션
+        myRecipesLayout = findViewById(R.id.layout_myRecipes)
+        followersLayout = findViewById(R.id.layout_followers)
+        followingLayout = findViewById(R.id.layout_following)
+        recipeCountTextView = findViewById(R.id.textView_myRecipesCount)
+        followerCountTextView = findViewById(R.id.textView_followersCount)
+        followingCountTextView = findViewById(R.id.textView_followingCount)
+
+        // 활동 섹션
+        bookmarkLayout = findViewById(R.id.layout_bookmark)
+        likeLayout = findViewById(R.id.layout_like)
+        reviewManageLayout = findViewById(R.id.layout_reviewManage)
+        recentRecipeLayout = findViewById(R.id.layout_recentRecipe)
+
+        // 하단 네비게이션
+        bottomNavigationView = findViewById(R.id.bottom_navigation_view)
+    }
+
+    private fun setupToolbar() {
+        // 툴바 표시 텍스트 설정
+        val toolbarTitle = findViewById<TextView>(R.id.toolbar_title)
+        toolbarTitle.text = "MY"
+
+        // 툴바 버튼 숨김
+        val toolbarBtn = findViewById<ImageButton>(R.id.back_button)
+        toolbarBtn.visibility = View.GONE
+
+        // 툴바 상태바 높이만큼 보정
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.updatePadding(top = statusBarHeight)
+            view.updateLayoutParams { height = statusBarHeight + dpToPx(56) }
+            WindowInsetsCompat.CONSUMED
+        }
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
     }
 
     /**
@@ -66,80 +160,100 @@ class UserPageActivity : AppCompatActivity() {
         firestore.collection("Users").document(currentUser.uid).get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
+                    // 닉네임 설정
                     val nickname = document.getString("nickname") ?: "닉네임 없음"
-                    binding.tvNickname.text = nickname
+                    nicknameTextView.text = nickname
 
+                    // 칭호 설정
                     val title = document.getString("title")
                     if (!title.isNullOrEmpty()) {
-                        binding.tvTitleBadge.visibility = View.VISIBLE
-                        binding.tvTitleBadge.text = title
+                        badgeTextView.visibility = View.VISIBLE
+                        badgeTextView.text = title
+                        badgeCardView.visibility = View.VISIBLE
                     } else {
-                        binding.tvTitleBadge.visibility = View.GONE
+                        badgeTextView.visibility = View.GONE
+                        badgeCardView.visibility = View.GONE
                     }
 
+                    // 프로필 이미지 설정
                     val imageUrl = document.getString("profileImageUrl")
                     if (!imageUrl.isNullOrEmpty()) {
-                        Glide.with(this).load(imageUrl)
+                        Glide.with(this)
+                            .load(imageUrl)
                             .placeholder(R.drawable.ic_profile_placeholder)
                             .error(R.drawable.ic_profile_placeholder)
-                            .into(binding.ivProfilePicture)
+                            .circleCrop()
+                            .into(profileImageView)
                     } else {
-                        binding.ivProfilePicture.setImageResource(R.drawable.ic_profile_placeholder)
+                        profileImageView.setImageResource(R.drawable.ic_profile_placeholder)
                     }
 
-                    // ### 이 부분이 빠져있었습니다! ###
-                    // 게시물, 팔로워, 팔로잉 수 UI 업데이트
-                    binding.tvRecipeCountClickable.text = "게시물\n${document.getLong("recipeCount") ?: 0}"
-                    binding.tvFollowerCountClickable.text = "팔로워\n${document.getLong("followerCount") ?: 0}"
-                    binding.tvFollowingCountClickable.text = "팔로잉\n${document.getLong("followingCount") ?: 0}"
+                    // 게시물, 팔로워, 팔로잉 수 업데이트
+                    recipeCountTextView.text = "${document.getLong("recipeCount") ?: 0}"
+                    followerCountTextView.text = "${document.getLong("followerCount") ?: 0}"
+                    followingCountTextView.text = "${document.getLong("followingCount") ?: 0}"
 
                 } else {
-                    // 사용자 문서가 없는 경우의 처리
+                    Toast.makeText(this, "사용자 정보를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
-            .addOnFailureListener {
-                // 데이터 로드 실패 시 처리
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "데이터 로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun setupClickListeners() {
-        binding.ivBackButton.setOnClickListener { finish() }
-
-        // 프로필 사진 클릭 리스너
-        binding.ivProfilePicture.setOnClickListener {
+        // 프로필 사진 클릭 - 갤러리 열기
+        profileImageView.setOnClickListener {
             openGallery()
         }
 
-        // 게시물, 팔로워, 팔로잉 텍스트 클릭 리스너
-        binding.tvRecipeCountClickable.setOnClickListener {
+        // 정보 수정 클릭
+        editInfoTextView.setOnClickListener {
+            startActivity(Intent(this, EditProfileActivity::class.java))
+        }
+
+        // 칭호 클릭
+        badgeCardView.setOnClickListener {
+            startActivity(Intent(this, TitleListActivity::class.java))
+        }
+
+        // 내 레시피 클릭
+        myRecipesLayout.setOnClickListener {
             startActivity(Intent(this, MyRecipesActivity::class.java))
         }
-        binding.tvFollowerCountClickable.setOnClickListener {
+
+        // 팔로워 클릭
+        followersLayout.setOnClickListener {
             openFollowList("followers")
         }
-        binding.tvFollowingCountClickable.setOnClickListener {
+
+        // 팔로잉 클릭
+        followingLayout.setOnClickListener {
             openFollowList("following")
         }
 
-        // 그리드 메뉴 클릭 리스너
-        binding.menuMyRecipes.setOnClickListener {
-            startActivity(Intent(this, MyRecipesActivity::class.java))
-        }
-        binding.menuMyReviews.setOnClickListener {
-            startActivity(Intent(this, com.example.recipe_pocket.ui.review.MyReviewsActivity::class.java))
-        }
-        // '내 좋아요' 메뉴 클릭 리스너
-        binding.menuMyLikes.setOnClickListener {
-            startActivity(Intent(this, LikedRecipesActivity::class.java))
-        }
-        binding.menuBookmarks.setOnClickListener {
+        // -----------------------
+
+        // 북마크 클릭
+        bookmarkLayout.setOnClickListener {
             startActivity(Intent(this, BookmarkActivity::class.java))
         }
-        binding.menuTitles.setOnClickListener {
-            startActivity(Intent(this, TitleListActivity::class.java))
+
+        // 좋아요 클릭
+        likeLayout.setOnClickListener {
+            startActivity(Intent(this, LikedRecipesActivity::class.java))
         }
-        binding.menuEditProfile.setOnClickListener {
-            startActivity(Intent(this, EditProfileActivity::class.java))
+
+        // 리뷰 관리 클릭
+        reviewManageLayout.setOnClickListener {
+            startActivity(Intent(this, com.example.recipe_pocket.ui.review.MyReviewsActivity::class.java))
+        }
+
+        // 최근 본 레시피 클릭
+        recentRecipeLayout.setOnClickListener {
+            // TODO: 최근 본 레시피 액티비티로 이동
+            Toast.makeText(this, "최근 본 레시피 기능은 준비 중입니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -158,7 +272,9 @@ class UserPageActivity : AppCompatActivity() {
     private fun uploadProfilePicture(imageUri: Uri) {
         val currentUser = auth.currentUser ?: return
         val storageRef = storage.reference.child("profile_pictures/${currentUser.uid}")
+
         Toast.makeText(this, "프로필 사진을 업로드 중입니다...", Toast.LENGTH_SHORT).show()
+
         storageRef.putFile(imageUri)
             .addOnSuccessListener {
                 storageRef.downloadUrl.addOnSuccessListener { uri ->
@@ -175,12 +291,18 @@ class UserPageActivity : AppCompatActivity() {
      */
     private fun updateProfileUrlInFirestore(url: String) {
         val currentUser = auth.currentUser ?: return
+
         firestore.collection("Users").document(currentUser.uid)
             .update("profileImageUrl", url)
             .addOnSuccessListener {
                 Toast.makeText(this, "프로필 사진이 변경되었습니다.", Toast.LENGTH_SHORT).show()
                 // 화면에 즉시 반영
-                Glide.with(this).load(url).into(binding.ivProfilePicture)
+                Glide.with(this)
+                    .load(url)
+                    .placeholder(R.drawable.ic_profile_placeholder)
+                    .error(R.drawable.ic_profile_placeholder)
+                    .circleCrop()
+                    .into(profileImageView)
             }
             .addOnFailureListener {
                 Toast.makeText(this, "프로필 사진 정보 저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
@@ -203,9 +325,11 @@ class UserPageActivity : AppCompatActivity() {
      * 하단 네비게이션 메뉴의 동작을 설정하는 함수
      */
     private fun setupBottomNavigation() {
-        binding.bottomNavigationView.setOnItemReselectedListener { /* 아무것도 하지 않음 */ }
+        bottomNavigationView.setOnItemReselectedListener {
+            // 이미 선택된 아이템을 다시 선택했을 때는 아무것도 하지 않음
+        }
 
-        binding.bottomNavigationView.setOnItemSelectedListener { item ->
+        bottomNavigationView.setOnItemSelectedListener { item ->
             if (item.itemId == R.id.fragment_settings) {
                 return@setOnItemSelectedListener true
             }
@@ -215,7 +339,7 @@ class UserPageActivity : AppCompatActivity() {
                 R.id.fragment_search -> Intent(this, SearchResult::class.java)
                 R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
                 R.id.fragment_favorite -> {
-                    if(auth.currentUser != null) {
+                    if (auth.currentUser != null) {
                         startActivity(Intent(this, CookWrite01Activity::class.java))
                     } else {
                         startActivity(Intent(this, LoginActivity::class.java))

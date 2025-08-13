@@ -19,7 +19,7 @@
             android:layout_height="0dp"
             app:cardBackgroundColor="@android:color/transparent"
             app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            app:cardElevation="2dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -49,6 +49,7 @@
             android:contentDescription="@string/bookmark_button"
             android:clickable="true"
             android:focusable="true"
+            android:elevation="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -73,6 +74,7 @@
             android:textColor="@android:color/black"
             android:maxLines="1"
             android:ellipsize="end"
+            android:singleLine="true"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -91,15 +93,46 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent">
 
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_star"/>
+
             <TextView
                 android:id="@+id/rating_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/default_rating"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 android:textColor="@android:color/black"
-                app:drawableStartCompat="@drawable/ic_star"
-                android:drawablePadding="6dp"
+                android:layout_marginStart="2dp"
+                android:gravity="center_vertical"/>
+
+            <TextView
+                android:id="@+id/review_count_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="(1)"
+                android:textSize="14sp"
+                android:textColor="@color/darker_gray"
+                android:layout_marginStart="2dp" />
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_like_filled"
+                app:tint="#FF5252" />
+
+            <TextView
+                android:id="@+id/like_count_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                tools:text="12"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
                 android:gravity="center_vertical"/>
 
         </LinearLayout>
@@ -128,11 +161,12 @@
 
             <ImageView
                 android:id="@+id/author_profile_image"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:background="@drawable/bg_main_circle_gray"
                 android:clipToOutline="true"
                 android:contentDescription="@string/profile_image"
+                android:scaleType="centerCrop"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -161,11 +195,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:textColor="@android:color/darker_gray"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/author_title_text"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="@string/profile_name" />
+                tools:text="조윤재" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -175,11 +209,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/darker_gray"
-            android:textSize="16sp"
+            android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="@string/cooking_time" />
+            tools:text="10분" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>
