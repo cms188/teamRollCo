@@ -3,7 +3,7 @@
     <!-- 선택된 상태 -->
     <item android:state_checked="true">
         <shape android:shape="rectangle">
-            <solid android:color="@color/main_orange" />
+            <solid android:color="@color/primary" />
             <corners android:radius="16dp" />
         </shape>
     </item>
@@ -11,7 +11,7 @@
     <!-- 기본 상태 -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/white_card" />
+            <solid android:color="@color/background_soft_cream" />
             <corners android:radius="16dp" />
         </shape>
     </item>
