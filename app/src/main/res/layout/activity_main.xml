@@ -310,25 +310,25 @@
                         android:textAppearance="@style/title1_1"
                         android:textColor="@android:color/darker_gray"/>
 
-                        <LinearLayout
-                            android:id="@+id/hot_cook_container"
-                            android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:id="@+id/hot_cook_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="16dp"
+                        android:scrollbars="none"
+                        android:clipToPadding="false"
+                        android:paddingStart="16dp">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/hot_cook_recyclerview"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginTop="16dp"
-                            android:scrollbars="none"
+                            android:paddingTop="24dp"
                             android:clipToPadding="false"
-                            android:paddingStart="16dp">
+                            tools:listitem="@layout/cook_card_01"/>
 
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/hot_cook_recyclerview"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:paddingTop="24dp"
-                                android:clipToPadding="false"
-                                tools:listitem="@layout/cook_card_01"/>
-
-                        </LinearLayout>
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/title2"
@@ -353,24 +353,24 @@
                         android:textAppearance="@style/title1_1"
                         android:textColor="@android:color/darker_gray"/>
 
-                <LinearLayout
-                    android:id="@+id/pick_cook_container"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="16dp"
-                    android:scrollbars="none"
-                    android:clipToPadding="false"
-                    android:paddingStart="16dp">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/pick_cook_recyclerview"
-                        android:layout_width="match_parent"
+                    <LinearLayout
+                        android:id="@+id/pick_cook_container"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingTop="24dp"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="16dp"
+                        android:scrollbars="none"
                         android:clipToPadding="false"
-                        tools:listitem="@layout/cook_card_02"/>
-                </LinearLayout>
+                        android:paddingStart="16dp">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/pick_cook_recyclerview"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="24dp"
+                            android:clipToPadding="false"
+                            tools:listitem="@layout/cook_card_02"/>
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/title3"
