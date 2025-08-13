@@ -1,28 +1,28 @@
 package com.example.recipe_pocket.ui.main
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
-import com.example.recipe_pocket.ui.recipe.write.CookWrite01Activity
-import com.example.recipe_pocket.ui.auth.LoginActivity
+import com.example.recipe_pocket.CategoryPageActivity
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.RecipeAdapter
-import com.example.recipe_pocket.repository.RecipeLoader
-import com.example.recipe_pocket.ui.recipe.search.SearchResult
-import com.example.recipe_pocket.ui.user.UserPageActivity
 import com.example.recipe_pocket.data.CookTipItem
 import com.example.recipe_pocket.databinding.ActivityMainBinding
-import com.example.recipe_pocket.ui.recipe.search.SearchScreenActivity
+import com.example.recipe_pocket.repository.RecipeLoader
+import com.example.recipe_pocket.ui.auth.LoginActivity
+import com.example.recipe_pocket.ui.recipe.search.SearchResult
+import com.example.recipe_pocket.ui.recipe.write.CookWrite01Activity
+import com.example.recipe_pocket.ui.user.UserPageActivity
+import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.example.recipe_pocket.weather.WeatherMainActivity
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, SearchResult::class.java))
         }
         binding.categoryButton1.setOnClickListener {
-            startActivity(Intent(this, SearchResult::class.java))
+            startActivity(Intent(this, CategoryPageActivity::class.java))
         }
     }
 
@@ -148,8 +148,8 @@ class MainActivity : AppCompatActivity() {
 
             val currentUser = FirebaseAuth.getInstance().currentUser
             val intent = when (item.itemId) {
-                R.id.fragment_search -> Intent(this, SearchResult::class.java) //임시변경
-                //R.id.fragment_search -> Intent(this, WeatherMainActivity::class.java) //weathermainactivity로 이동 임시변경
+                //R.id.fragment_search -> Intent(this, SearchResult::class.java) //임시변경
+                R.id.fragment_search -> Intent(this, WeatherMainActivity::class.java) //weathermainactivity로 이동 임시변경
                 R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
                 R.id.fragment_favorite -> {
                     if (currentUser != null) Intent(this, CookWrite01Activity::class.java)
