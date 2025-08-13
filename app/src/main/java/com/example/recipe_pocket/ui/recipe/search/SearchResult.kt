@@ -30,8 +30,10 @@ import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import java.util.*
 
-class SearchResult : AppCompatActivity() {
+// OnFilterAppliedListener 인터페이스 구현 추가
+class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppliedListener {
 
     private lateinit var binding: SearchResultBinding
     private lateinit var recipeAdapter: RecipeAdapter
@@ -40,6 +42,9 @@ class SearchResult : AppCompatActivity() {
     private enum class SortOrder { LATEST, VIEWS, LIKES, BOOKMARKS }
     private var currentSortOrder = SortOrder.LATEST
     private var recipeListCache = listOf<Recipe>()
+
+    // 현재 필터 상태를 저장할 변수 추가
+    private var currentFilter = SearchFilter.default()
 
     private var isSuggestionViewVisible = false
 
@@ -52,7 +57,8 @@ class SearchResult : AppCompatActivity() {
         setupBackButton()
         setupRecyclerView()
         setupSearch()
-        setupSortButton()
+        // 함수 이름 변경
+        setupFilterAndSortButtons()
         setupBottomNavigation()
         handleOnBackPressed()
 
@@ -63,6 +69,13 @@ class SearchResult : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         binding.bottomNavigationView.menu.findItem(R.id.fragment_search).isChecked = true
+    }
+
+    // OnFilterAppliedListener 인터페이스의 메소드 구현
+    override fun onFilterApplied(filter: SearchFilter) {
+        currentFilter = filter
+        updateFilterButtonUI()
+        applyFiltersAndSort()
     }
 
     private fun setupWindowInsets() {
@@ -130,6 +143,7 @@ class SearchResult : AppCompatActivity() {
 
         loadRecentSearches()
         loadRecommendedSearches()
+        loadPopularSearches() // 인기 검색어 로드 함수 호출
     }
 
     private fun hideSuggestionView() {
@@ -184,18 +198,60 @@ class SearchResult : AppCompatActivity() {
         }
     }
 
+    // 인기 검색어 로드 함수 추가
+    private fun loadPopularSearches() {
+        lifecycleScope.launch {
+            binding.chipgroupPopular.removeAllViews()
+            val result = SearchStatisticsManager.getPopularSearches()
+            result.onSuccess { popularTerms ->
+                if (popularTerms.isNotEmpty()) {
+                    popularTerms.forEach { term ->
+                        val chip = Chip(this@SearchResult).apply {
+                            text = term
+                            setChipBackgroundColorResource(R.color.search_color)
+                            setTextColor(ContextCompat.getColor(this@SearchResult, R.color.black))
+                            chipCornerRadius = 40f
+                            setOnClickListener {
+                                binding.etSearchBar.setText(term)
+                                performSearch()
+                            }
+                        }
+                        binding.chipgroupPopular.addView(chip)
+                    }
+                } else {
+                    // 인기 검색어가 없을 경우 처리 (예: 메시지 표시 또는 숨김)
+                    // 필요하다면 여기에 TextView를 추가하여 "인기 검색어가 없습니다" 메시지를 표시할 수 있습니다.
+                }
+            }.onFailure {
+                // 오류 처리
+                it.printStackTrace()
+            }
+        }
+    }
+
     private fun performSearch() {
         val query = binding.etSearchBar.text.toString().trim()
         if (query.isNotEmpty()) {
             SearchHistoryManager.addSearchTerm(this, query)
+            // 검색 시 통계 업데이트
+            lifecycleScope.launch {
+                SearchStatisticsManager.updateSearchTerm(query)
+            }
         }
         currentQuery = query
         hideSuggestionView()
         loadData(currentQuery)
     }
 
-    private fun setupSortButton() {
+    // 필터/정렬 버튼 설정 함수로 통합
+    private fun setupFilterAndSortButtons() {
         binding.tvSortButton.text = "최신순"
+
+        binding.tvFilterButton.setOnClickListener {
+            val filterFragment = FilterBottomSheetFragment.newInstance(currentFilter)
+            filterFragment.show(supportFragmentManager, filterFragment.tag)
+        }
+
         binding.tvSortButton.setOnClickListener { view ->
             val popupMenu = PopupMenu(this, view)
             popupMenu.menuInflater.inflate(R.menu.sort_options, popupMenu.menu)
@@ -207,7 +263,7 @@ class SearchResult : AppCompatActivity() {
                     R.id.sort_bookmarks -> currentSortOrder = SortOrder.BOOKMARKS
                 }
                 binding.tvSortButton.text = menuItem.title
-                sortAndDisplayRecipes()
+                applyFiltersAndSort() // 정렬 후에도 필터+정렬 적용
                 true
             }
             popupMenu.show()
@@ -229,35 +285,12 @@ class SearchResult : AppCompatActivity() {
 
             recipeResult.fold(
                 onSuccess = { recipes ->
-                    if (recipes.isEmpty()) {
-                        binding.progressBar.visibility = View.GONE
-                        val message = if (query.isNullOrBlank()) "표시할 레시피가 없습니다." else "'${query}'에 대한 검색 결과가 없습니다."
-                        binding.tvNoResults.text = message
-                        binding.tvNoResults.visibility = View.VISIBLE
-                        recipeAdapter.updateRecipes(emptyList())
-                        return@launch
-                    }
+                    // Firestore에서 가져온 원본 리스트를 캐시에 저장
+                    recipeListCache = recipes
 
-                    val userIds = recipes.mapNotNull { it.userId }.distinct()
-                    RecipeLoader.loadUsers(userIds).fold(
-                        onSuccess = { usersMap ->
-                            recipes.forEach { recipe ->
-                                recipe.author = usersMap[recipe.userId]
-                                FirebaseAuth.getInstance().currentUser?.uid?.let { currentUserId ->
-                                    recipe.isBookmarked = recipe.bookmarkedBy?.contains(currentUserId) == true
-                                    recipe.isLiked = recipe.likedBy?.contains(currentUserId) == true
-                                }
-                            }
-                            recipeListCache = recipes
-                            binding.progressBar.visibility = View.GONE
-                            sortAndDisplayRecipes()
-                        },
-                        onFailure = {
-                            binding.progressBar.visibility = View.GONE
-                            binding.tvNoResults.text = "작성자 정보를 불러오는 중 오류 발생"
-                            binding.tvNoResults.visibility = View.VISIBLE
-                        }
-                    )
+                    binding.progressBar.visibility = View.GONE
+                    // 필터와 정렬을 적용하여 화면에 표시
+                    applyFiltersAndSort()
                 },
                 onFailure = {
                     binding.progressBar.visibility = View.GONE
@@ -268,21 +301,105 @@ class SearchResult : AppCompatActivity() {
         }
     }
 
-    private fun sortAndDisplayRecipes() {
+    // 필터링과 정렬을 모두 처리하는 함수로 변경
+    private fun applyFiltersAndSort() {
+        // 1. 필터링 적용
+        val filteredList = filterRecipes(recipeListCache, currentFilter)
+
+        // 2. 정렬 적용
         val sortedList = when (currentSortOrder) {
-            SortOrder.LATEST -> recipeListCache.sortedByDescending { it.createdAt?.toDate() }
-            SortOrder.VIEWS -> recipeListCache.sortedByDescending { it.viewCount ?: 0 }
-            SortOrder.LIKES -> recipeListCache.sortedByDescending { it.likeCount ?: 0 }
-            SortOrder.BOOKMARKS -> recipeListCache.sortedByDescending { it.bookmarkedBy?.size ?: 0 }
+            SortOrder.LATEST -> filteredList.sortedByDescending { it.createdAt?.toDate() }
+            SortOrder.VIEWS -> filteredList.sortedByDescending { it.viewCount ?: 0 }
+            SortOrder.LIKES -> filteredList.sortedByDescending { it.likeCount ?: 0 }
+            SortOrder.BOOKMARKS -> filteredList.sortedByDescending { it.bookmarkedBy?.size ?: 0 }
         }
 
+        // 3. UI 업데이트
         if (sortedList.isNotEmpty()) {
             binding.recyclerViewSearchResults.visibility = View.VISIBLE
             binding.tvNoResults.visibility = View.GONE
             recipeAdapter.updateRecipes(sortedList)
         } else {
+            val message = if (currentQuery.isNullOrBlank()) "조건에 맞는 레시피가 없습니다." else "'${currentQuery}'에 대한 검색 결과가 없습니다."
+            binding.tvNoResults.text = message
             binding.tvNoResults.visibility = View.VISIBLE
             binding.recyclerViewSearchResults.visibility = View.GONE
+        }
+    }
+
+    // 필터링 로직을 수행하는 별도 함수
+    private fun filterRecipes(recipes: List<Recipe>, filter: SearchFilter): List<Recipe> {
+        if (filter.isDefault()) return recipes // 기본 필터면 필터링 안함
+
+        return recipes.filter { recipe ->
+            // 작성 기간 필터
+            val creationDateCheck = when (filter.creationPeriod) {
+                CreationPeriod.ALL -> true
+                else -> {
+                    val recipeDate = recipe.createdAt?.toDate()
+                    if (recipeDate == null) false else {
+                        val startOfPeriod = Calendar.getInstance().apply {
+                            when (filter.creationPeriod) {
+                                CreationPeriod.TODAY -> {
+                                    set(Calendar.HOUR_OF_DAY, 0)
+                                    set(Calendar.MINUTE, 0)
+                                    set(Calendar.SECOND, 0)
+                                    set(Calendar.MILLISECOND, 0)
+                                }
+                                CreationPeriod.WEEK -> {
+                                    firstDayOfWeek = Calendar.MONDAY
+                                    set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+                                    set(Calendar.HOUR_OF_DAY, 0)
+                                    set(Calendar.MINUTE, 0)
+                                }
+                                CreationPeriod.MONTH -> {
+                                    set(Calendar.DAY_OF_MONTH, 1)
+                                    set(Calendar.HOUR_OF_DAY, 0)
+                                    set(Calendar.MINUTE, 0)
+                                }
+                                CreationPeriod.YEAR -> {
+                                    set(Calendar.DAY_OF_YEAR, 1)
+                                    set(Calendar.HOUR_OF_DAY, 0)
+                                    set(Calendar.MINUTE, 0)
+                                }
+                                else -> {}
+                            }
+                        }.time
+                        recipeDate.after(startOfPeriod)
+                    }
+                }
+            }
+
+            // 카테고리 필터
+            val categoryCheck = if (filter.categories.isEmpty()) true else {
+                recipe.categoryList?.any { filter.categories.contains(it) } ?: false
+            }
+
+            // 난이도 필터
+            val difficultyCheck = if (filter.difficulty.isEmpty()) true else {
+                filter.difficulty.contains(recipe.difficulty)
+            }
+
+            // 조리 시간 필터
+            val timeCheck = when (filter.cookingTime) {
+                CookingTime.ALL -> true
+                CookingTime.UNDER_10 -> (recipe.cookingTime ?: Int.MAX_VALUE) <= 10
+                CookingTime.UNDER_20 -> (recipe.cookingTime ?: Int.MAX_VALUE) <= 20
+                CookingTime.UNDER_30 -> (recipe.cookingTime ?: Int.MAX_VALUE) <= 30
+            }
+
+            creationDateCheck && categoryCheck && difficultyCheck && timeCheck
+        }
+    }
+
+    // 필터 버튼 UI 업데이트 함수
+    private fun updateFilterButtonUI() {
+        if (currentFilter.isDefault()) {
+            binding.tvFilterButton.setTextColor(ContextCompat.getColor(this, R.color.darker_gray))
+            binding.tvFilterButton.setBackgroundResource(R.drawable.bg_filter_button_normal)
+        } else {
+            binding.tvFilterButton.setTextColor(ContextCompat.getColor(this, R.color.orange))
+            binding.tvFilterButton.setBackgroundResource(R.drawable.bg_filter_button_active)
         }
     }
 
