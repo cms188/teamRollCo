@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_modal_bottom">
+
+    <!-- 상단 헤더 -->
+    <LinearLayout
+        android:id="@+id/header_layout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentTop="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <TextView
+            android:id="@+id/btn_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="초기화"
+            android:textColor="@color/orange"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="필터"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btn_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_close"
+            android:contentDescription="닫기" />
+    </LinearLayout>
+
+    <!-- 하단 적용하기 버튼 -->
+    <Button
+        android:id="@+id/btn_apply"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:text="적용하기"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:backgroundTint="@color/orange"
+        app:cornerRadius="12dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_below="@id/header_layout"
+        android:layout_above="@id/btn_apply">
+
+        <!-- 작성 기간 -->
+        <TextView style="@style/FilterTitle" android:text="작성 기간" />
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipgroup_period"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="오늘" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="이번 주" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="이번 달" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="올해" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="전체" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- 카테고리 -->
+        <TextView style="@style/FilterTitle" android:text="카테고리" />
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipgroup_category_options"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="한식" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="중식" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="일식" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="양식" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="분식" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="디저트" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="음료" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="기타" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_category_all"
+                style="@style/CustomFilterChip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="전체" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- 난이도 -->
+        <TextView style="@style/FilterTitle" android:text="난이도" />
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipgroup_difficulty_options"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="쉬움" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="보통" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="어려움" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_difficulty_all"
+                style="@style/CustomFilterChip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="전체" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- 조리 시간 -->
+        <TextView style="@style/FilterTitle" android:text="조리 시간" />
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipgroup_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10분 이하" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="20분 이하" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="30분 이하" />
+            <com.google.android.material.chip.Chip style="@style/CustomFilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="전체" />
+        </com.google.android.material.chip.ChipGroup>
+
+    </LinearLayout>
+
+</RelativeLayout>

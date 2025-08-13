@@ -202,9 +202,13 @@ object RecipeLoader {
             if (recipeQueryResult.isEmpty) {
                 return Result.success(emptyList())
             }
-            val recipes = recipeQueryResult.documents.mapNotNull { doc ->
-                doc.toObject(Recipe::class.java)?.apply { id = doc.id }
+
+            val recipes = coroutineScope {
+                recipeQueryResult.documents.map { doc ->
+                    async { enrichRecipeWithAuthor(doc) }
+                }.awaitAll().filterNotNull()
             }
+
             Result.success(recipes)
         } catch (e: Exception) {
             Result.failure(e)
