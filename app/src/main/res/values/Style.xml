@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="title">
-        <item name="android:textSize">28dp</item>
+        <item name="android:textSize">28sp</item>
         <item name="android:letterSpacing">-0.02</item>
         <item name="android:textStyle">bold</item>
     </style>
     <style name="title1">
-        <item name="android:textSize">25dp</item>
+        <item name="android:textSize">25sp</item>
         <item name="android:letterSpacing">-0.02</item>
         <item name="android:textStyle">bold</item>
     </style>
     <style name="title1_1">
-        <item name="android:textSize">15dp</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:letterSpacing">-0.02</item>
         <item name="android:textStyle">bold</item>
     </style>
@@ -155,5 +155,11 @@
         <item name="android:minHeight">38dp</item>
         <item name="android:layout_marginEnd">8dp</item>
         <item name="android:layout_marginBottom">8dp</item>
+    </style>
+
+    <!-- 원형 이미지 -->
+    <style name="CircleImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
     </style>
 </resources>
