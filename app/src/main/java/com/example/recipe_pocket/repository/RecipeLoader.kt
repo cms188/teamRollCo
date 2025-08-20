@@ -178,6 +178,55 @@ object RecipeLoader {
     }
 
 
+    suspend fun loadRecipesByCategory(category: String): Result<List<Recipe>> {
+        return try {
+            val querySnapshot = db.collection("Recipes")
+                .whereArrayContains("category", category)
+                .get()
+                .await()
+
+            // category 필드가 String인 경우도 처리
+            val stringCategorySnapshot = db.collection("Recipes")
+                .whereEqualTo("category", category)
+                .get()
+                .await()
+
+            // 두 쿼리 결과를 합침 (중복 제거)
+            val allDocuments = (querySnapshot.documents + stringCategorySnapshot.documents)
+                .distinctBy { it.id }
+
+            val recipes = coroutineScope {
+                allDocuments.map { doc ->
+                    async { enrichRecipeWithAuthor(doc) }
+                }.awaitAll().filterNotNull()
+            }
+
+            Result.success(recipes)
+        } catch (e: Exception) {
+            Result.failure(Exception("카테고리별 레시피 로드 중 오류 발생: ${e.message}", e))
+        }
+    }
+
+    // 모든 레시피를 가져오는 함수
+    suspend fun loadAllRecipes(): Result<List<Recipe>> {
+        return try {
+            val querySnapshot = db.collection("Recipes")
+                .get()
+                .await()
+
+            val recipes = coroutineScope {
+                querySnapshot.documents.map { doc ->
+                    async { enrichRecipeWithAuthor(doc) }
+                }.awaitAll().filterNotNull()
+            }
+
+            Result.success(recipes)
+        } catch (e: Exception) {
+            Result.failure(Exception("전체 레시피 로드 중 오류 발생: ${e.message}", e))
+        }
+    }
+
+    // 사용자 ID로 레시피를 가져오는 함수
     suspend fun loadRecipesByUserId(userId: String): Result<List<Recipe>> {
         return try {
             val querySnapshot = db.collection("Recipes")
@@ -190,28 +239,10 @@ object RecipeLoader {
                     async { enrichRecipeWithAuthor(doc) }
                 }.awaitAll().filterNotNull()
             }
-            Result.success(recipes)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    suspend fun loadAllRecipes(): Result<List<Recipe>> {
-        return try {
-            val recipeQueryResult = db.collection("Recipes").get().await()
-            if (recipeQueryResult.isEmpty) {
-                return Result.success(emptyList())
-            }
-
-            val recipes = coroutineScope {
-                recipeQueryResult.documents.map { doc ->
-                    async { enrichRecipeWithAuthor(doc) }
-                }.awaitAll().filterNotNull()
-            }
 
             Result.success(recipes)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception("사용자 레시피 로드 중 오류 발생: ${e.message}", e))
         }
     }
 }

@@ -145,17 +145,32 @@
                     android:textSize="16sp" />
 
                 <TextView
-                    android:id="@+id/tag_baking"
+                    android:id="@+id/tag_snack"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:background="@color/white"
+                    android:background="@drawable/bg_category_tag_normal"
                     android:gravity="center"
                     android:paddingStart="12dp"
                     android:paddingTop="6dp"
                     android:paddingEnd="12dp"
                     android:paddingBottom="6dp"
-                    android:text="베이킹"
+                    android:text="분식"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tag_dessert"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_category_tag_normal"
+                    android:gravity="center"
+                    android:paddingStart="12dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="6dp"
+                    android:text="디저트"
                     android:textColor="@color/black"
                     android:textSize="16sp" />
 
@@ -171,6 +186,21 @@
                     android:paddingEnd="12dp"
                     android:paddingBottom="6dp"
                     android:text="음료"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tag_Other"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@color/white"
+                    android:gravity="center"
+                    android:paddingStart="12dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="6dp"
+                    android:text="기타"
                     android:textColor="@color/black"
                     android:textSize="16sp" />
             </LinearLayout>

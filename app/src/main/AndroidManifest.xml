@@ -80,8 +80,8 @@
         <activity android:name=".weather.LocationActivity" android:exported="false"/>
         <activity android:name=".weather.AirQualityActivity" android:exported="false"/>
         <activity android:name=".weather.WeatherActivity" android:exported="false" />
-
         <activity android:name=".CategoryPageActivity" />
+        <activity android:name=".ui.recipe.write.CategorySelectionActivity"/>
 
         <service
             android:name=".service.VoiceRecognitionService"
