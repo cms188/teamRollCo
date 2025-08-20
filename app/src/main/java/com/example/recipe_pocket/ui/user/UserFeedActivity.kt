@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.RecipeAdapter
+import com.example.recipe_pocket.repository.NotificationHandler
 import com.example.recipe_pocket.repository.RecipeLoader
 import com.example.recipe_pocket.databinding.ActivityUserFeedBinding
 import com.google.firebase.auth.ktx.auth
@@ -161,7 +162,19 @@ class UserFeedActivity : AppCompatActivity() {
                 transaction.update(targetUserDocRef, "followerCount", FieldValue.increment(1))
             }
         }.addOnSuccessListener {
+            val wasFollowing = isFollowing
             isFollowing = !isFollowing
+
+            // 새로 팔로우 했을 때만 알림 생성
+            if (!wasFollowing) {
+                lifecycleScope.launch {
+                    NotificationHandler.createOrUpdateFollowNotification(
+                        recipientId = targetUserId!!,
+                        senderId = currentUser.uid
+                    )
+                }
+            }
+
             updateFollowButton()
             loadUserInfo() // 팔로워 수 즉시 갱신
         }

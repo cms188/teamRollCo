@@ -1,10 +1,13 @@
 package com.example.recipe_pocket.ui.main
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -19,12 +22,16 @@ import com.example.recipe_pocket.data.CookTipItem
 import com.example.recipe_pocket.databinding.ActivityMainBinding
 import com.example.recipe_pocket.repository.RecipeLoader
 import com.example.recipe_pocket.ui.auth.LoginActivity
+import com.example.recipe_pocket.ui.notification.NotificationActivity
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
 import com.example.recipe_pocket.ui.recipe.write.CookWrite01Activity
 import com.example.recipe_pocket.ui.user.UserPageActivity
 import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.example.recipe_pocket.weather.WeatherMainActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -33,6 +40,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var hotCookRecipeAdapter: RecipeAdapter
     private lateinit var pickCookRecipeAdapter: RecipeAdapter
     private lateinit var nCookRecipeAdapter: RecipeAdapter
+
+    private var notificationListener: ListenerRegistration? = null
+    private var newNotificationCount = 0 // 새로운 알림 개수를 저장할 변수
+
+    // NotificationActivity로부터 결과를 받기 위한 ActivityResultLauncher
+    private val notificationResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        // NotificationActivity가 종료되고 돌아왔을 때 항상 리스너를 재설정하여 상태를 강제 갱신합니다.
+        Log.d("NotificationDebug", "MainActivity: NotificationActivity로부터 결과 받음 (ResultCode: ${result.resultCode}). 리스너를 갱신합니다.")
+        setupNotificationListener()
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +69,12 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         loadAllRecipes()
         binding.bottomNavigationView.menu.findItem(R.id.fragment_home).isChecked = true
+        setupNotificationListener()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        notificationListener?.remove()
     }
 
     private fun setupWindowInsets() {
@@ -69,6 +95,44 @@ class MainActivity : AppCompatActivity() {
         }
         binding.categoryButton1.setOnClickListener {
             startActivity(Intent(this, CategoryPageActivity::class.java))
+        }
+        binding.topNotificationButton.setOnClickListener {
+            val intent = Intent(this, NotificationActivity::class.java)
+            // 인텐트에 현재 새로운 알림 개수 정보를 추가하여 전달
+            intent.putExtra("new_notification_count", newNotificationCount)
+            notificationResultLauncher.launch(intent)
+        }
+    }
+
+    private fun setupNotificationListener() {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            binding.notificationDot.visibility = View.GONE
+            return
+        }
+
+        notificationListener?.remove()
+        Log.d("NotificationDebug", "MainActivity: 알림 리스너 설정 시작.")
+
+        val query = Firebase.firestore.collection("Notifications")
+            .whereEqualTo("userId", currentUser.uid)
+            .whereEqualTo("isRead", false)
+
+        notificationListener = query.addSnapshotListener { snapshots, e ->
+            if (e != null) {
+                Log.w("NotificationDebug", "MainActivity: 알림 리스너 오류.", e)
+                return@addSnapshotListener
+            }
+
+            if (snapshots != null && !snapshots.isEmpty) {
+                newNotificationCount = snapshots.size() // 새로운 알림 개수 업데이트
+                binding.notificationDot.visibility = View.VISIBLE
+                Log.d("NotificationDebug", "MainActivity: 새로운 알림 ${newNotificationCount}개 발견. 빨간 점 표시.")
+            } else {
+                newNotificationCount = 0
+                binding.notificationDot.visibility = View.GONE
+                Log.d("NotificationDebug", "MainActivity: 새로운 알림 없음. 빨간 점 숨김.")
+            }
         }
     }
 

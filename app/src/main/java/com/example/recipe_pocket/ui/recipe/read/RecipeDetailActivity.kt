@@ -23,10 +23,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.recipe_pocket.R
+import com.example.recipe_pocket.data.NotificationType
 import com.example.recipe_pocket.data.Recipe
 import com.example.recipe_pocket.data.Review
 import com.example.recipe_pocket.databinding.ActivityRecipeDetailBinding
 import com.example.recipe_pocket.databinding.ContentRecipeSummaryBinding
+import com.example.recipe_pocket.repository.NotificationHandler
 import com.example.recipe_pocket.repository.RecipeLoader
 import com.example.recipe_pocket.ui.review.ReviewAdapter
 import com.example.recipe_pocket.ui.recipe.write.RecipeEditActivity
@@ -73,6 +75,7 @@ class RecipeDetailActivity : AppCompatActivity() {
         const val MIN_PEEK_HEIGHT_DP = 400
         const val TRANSPARENCY_START_THRESHOLD = 0.7f
         const val ANIMATION_DURATION = 200L
+        const val TAG = "RecipeDetailActivity_DEBUG" // 로그 태그 추가
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -323,6 +326,7 @@ class RecipeDetailActivity : AppCompatActivity() {
         val recipe = currentRecipe ?: return
         val currentUser = auth.currentUser ?: return
         val recipeRef = firestore.collection("Recipes").document(recipe.id!!)
+
         firestore.runTransaction { transaction ->
             val snapshot = transaction.get(recipeRef)
             val currentLikes = snapshot.get("likedBy") as? List<String> ?: emptyList()
@@ -341,6 +345,31 @@ class RecipeDetailActivity : AppCompatActivity() {
             recipe.likeCount = newLikeCount
             updateLikeButton(newIsLiked)
             binding.textViewLikeCount.text = newLikeCount.toString()
+
+            // 좋아요를 눌렀을 때만 알림 생성
+            if (newIsLiked) {
+                val recipientId = recipe.userId
+                val senderId = currentUser.uid
+
+                // 로그를 추가하여 변수 값을 확인
+                Log.d(TAG, "알림 생성 시도: recipientId=$recipientId, senderId=$senderId")
+
+                if (recipientId != null) {
+                    lifecycleScope.launch {
+                        NotificationHandler.createOrUpdateLikeReviewNotification(
+                            recipientId = recipientId,
+                            senderId = senderId,
+                            recipe = recipe,
+                            type = NotificationType.LIKE
+                        )
+                    }
+                } else {
+                    Log.w(TAG, "recipientId가 null이어서 알림을 생성할 수 없습니다.")
+                }
+            }
+        }.addOnFailureListener { e ->
+            Log.e(TAG, "좋아요 처리 실패", e)
+            Toast.makeText(this, "좋아요 처리에 실패했습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.recipe_pocket.databinding.ActivityFollowListBinding
+import com.example.recipe_pocket.repository.NotificationHandler
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
@@ -150,6 +152,7 @@ class FollowListActivity : AppCompatActivity() {
             // 로그인이 되어있지 않으면 아무것도 하지 않음
             return
         }
+        if (currentUser.uid == user.id) return // 자기 자신은 팔로우/언팔로우 불가
 
         // Firestore 문서 참조 경로 설정
         val myFollowingRef = db.collection("Users").document(currentUser.uid).collection("following").document(user.id)
@@ -171,6 +174,16 @@ class FollowListActivity : AppCompatActivity() {
                 transaction.update(targetUserDocRef, "followerCount", FieldValue.increment(1))
             }
         }.addOnSuccessListener {
+            // 새로 팔로우 했을 때만 알림 생성
+            if (!user.isFollowing) {
+                lifecycleScope.launch {
+                    NotificationHandler.createOrUpdateFollowNotification(
+                        recipientId = user.id,
+                        senderId = currentUser.uid
+                    )
+                }
+            }
+
             // 트랜잭션 성공 시 UI 업데이트
             user.isFollowing = !user.isFollowing
             userAdapter.notifyItemChanged(position)

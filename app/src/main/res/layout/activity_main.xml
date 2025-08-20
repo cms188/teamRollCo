@@ -438,7 +438,6 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>
 
-        <!-- 새로운 메뉴 버튼 -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation_view"
             android:layout_width="wrap_content"
@@ -447,78 +446,44 @@
             app:menu="@menu/menu_bottom_nav"
             app:labelVisibilityMode="unlabeled"
             app:itemIconSize="25dp"/>
-
-        <!-- 새로운 메뉴버튼 생성에 따른 주석 처리 -->
-        <!--<LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="15dp"
-            android:background="@android:color/white">
-
-            <ImageButton
-                android:id="@+id/nav_item_1"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:src="@android:drawable/ic_menu_call"
-                app:tint="#FF404040"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Home"/>
-            <ImageButton
-                android:id="@+id/nav_item_2"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:src="@android:drawable/ic_menu_compass"
-                app:tint="#FF404040"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Discover"/>
-            <ImageButton
-                android:id="@+id/nav_item_3"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:src="@android:drawable/ic_input_add"
-                app:tint="#FF404040"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Add"/>
-            <ImageButton
-                android:id="@+id/nav_item_4"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:src="@android:drawable/ic_menu_save"
-                app:tint="#FF404040"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Saved"/>
-            <ImageButton
-                android:id="@+id/nav_item_5"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:src="@android:drawable/ic_menu_preferences"
-                app:tint="#FF404040"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Profile"/>
-        </LinearLayout >-->
     </LinearLayout>
 
-    <!-- 오른쪽 상단 고정 버튼들 -->
-    <ImageButton
-        android:id="@+id/top_notification_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+    <!-- 오른쪽 상단 고정 버튼들 (알림 버튼 FrameLayout으로 수정) -->
+    <FrameLayout
+        android:id="@+id/notification_button_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="top|end"
         android:layout_marginTop="40dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/bg_main_circle_white"
-        android:src="@drawable/ic_notification"
-        android:contentDescription="알림"
-        android:padding="8dp"
-        android:scaleType="fitCenter"
-        app:tint="@android:color/black"
-        android:elevation="4dp"/>
+        android:layout_marginEnd="16dp">
+
+        <ImageButton
+            android:id="@+id/top_notification_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_main_circle_white"
+            android:src="@drawable/ic_notification"
+            android:contentDescription="알림"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            app:tint="@android:color/black"
+            android:elevation="4dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless"/>
+
+        <View
+            android:id="@+id/notification_dot"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="top|end"
+            android:layout_marginEnd="4dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_notification_dot"
+            android:elevation="5dp"
+            android:visibility="gone"
+            tools:visibility="visible"/>
+    </FrameLayout>
 
     <ImageButton
         android:id="@+id/top_search_button"

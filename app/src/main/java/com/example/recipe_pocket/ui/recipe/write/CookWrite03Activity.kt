@@ -25,6 +25,7 @@ import com.example.recipe_pocket.ai.AITagGenerator
 import com.example.recipe_pocket.data.RecipeData
 import com.example.recipe_pocket.databinding.CookWrite03Binding
 import com.example.recipe_pocket.databinding.ItemStepIndicatorBinding
+import com.example.recipe_pocket.repository.NotificationHandler
 import com.example.recipe_pocket.ui.main.MainActivity
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
@@ -304,6 +305,13 @@ class CookWrite03Activity : AppCompatActivity() {
                     userRef.update("unlockedTitles", FieldValue.arrayUnion(newTitle))
                         .addOnSuccessListener {
                             Toast.makeText(applicationContext, "'$newTitle' 칭호를 획득했습니다!", Toast.LENGTH_LONG).show()
+
+                            // 칭호 획득 알림 생성
+                            lifecycleScope.launch {
+                                auth.currentUser?.uid?.let { userId ->
+                                    NotificationHandler.createTitleNotification(userId, newTitle)
+                                }
+                            }
                         }
                 }
             }

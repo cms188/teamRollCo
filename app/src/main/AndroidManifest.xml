@@ -83,6 +83,22 @@
         <activity android:name=".CategoryPageActivity" />
         <activity android:name=".ui.recipe.write.CategorySelectionActivity"/>
 
+        <activity
+            android:name=".ui.review.ReviewWriteActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.user.LikedRecipesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.review.MyReviewsActivity"
+            android:exported="false" />
+        <activity android:name=".ui.recipe.write.CategorySelectionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.notification.NotificationActivity"
+            android:exported="false" />
+
         <service
             android:name=".service.VoiceRecognitionService"
             android:enabled="true"

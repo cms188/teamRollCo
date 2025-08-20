@@ -8,13 +8,15 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.recipe_pocket.R
+import com.example.recipe_pocket.data.NotificationType
 import com.example.recipe_pocket.data.Recipe
 import com.example.recipe_pocket.data.Review
 import com.example.recipe_pocket.databinding.ActivityReviewWriteBinding
-// ▼▼▼ [추가] RecipeDetailActivity를 import 합니다. ▼▼▼
+import com.example.recipe_pocket.repository.NotificationHandler
 import com.example.recipe_pocket.ui.recipe.read.RecipeDetailActivity
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Timestamp
@@ -22,6 +24,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.launch
 import java.util.*
 
 class ReviewWriteActivity : AppCompatActivity() {
@@ -266,7 +269,6 @@ class ReviewWriteActivity : AppCompatActivity() {
             }
     }
 
-    // ▼▼▼ [수정] 함수 이름과 내용을 RecipeDetailActivity로 직접 이동하도록 변경 ▼▼▼
     private fun goToDetailActivity() {
         val intent = Intent(this, RecipeDetailActivity::class.java).apply {
             putExtra("RECIPE_ID", recipeId)
@@ -285,6 +287,21 @@ class ReviewWriteActivity : AppCompatActivity() {
             null
         }.addOnSuccessListener {
             Toast.makeText(this, "리뷰가 성공적으로 등록되었습니다.", Toast.LENGTH_SHORT).show()
+
+            // 리뷰 저장 성공 후 알림 생성
+            lifecycleScope.launch {
+                recipe?.userId?.let { recipientId ->
+                    auth.currentUser?.uid?.let { senderId ->
+                        NotificationHandler.createOrUpdateLikeReviewNotification(
+                            recipientId = recipientId,
+                            senderId = senderId,
+                            recipe = recipe!!,
+                            type = NotificationType.REVIEW
+                        )
+                    }
+                }
+            }
+
             goToDetailActivity()
         }.addOnFailureListener { e ->
             binding.btnSubmit.isEnabled = true
