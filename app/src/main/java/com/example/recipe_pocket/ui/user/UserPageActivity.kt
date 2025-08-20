@@ -26,6 +26,7 @@ import com.example.recipe_pocket.ui.main.MainActivity
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
 import com.example.recipe_pocket.ui.recipe.write.CookWrite01Activity
 import com.example.recipe_pocket.R
+import com.example.recipe_pocket.ui.review.MyReviewsActivity
 import com.example.recipe_pocket.ui.user.FollowListActivity
 import com.example.recipe_pocket.ui.user.LikedRecipesActivity
 import com.example.recipe_pocket.ui.user.MyRecipesActivity
@@ -247,7 +248,7 @@ class UserPageActivity : AppCompatActivity() {
 
         // 리뷰 관리 클릭
         reviewManageLayout.setOnClickListener {
-            startActivity(Intent(this, com.example.recipe_pocket.ui.review.MyReviewsActivity::class.java))
+            startActivity(Intent(this, MyReviewsActivity::class.java))
         }
 
         // 최근 본 레시피 클릭
