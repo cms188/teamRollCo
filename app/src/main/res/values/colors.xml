@@ -56,4 +56,8 @@
     <color name="primary_divider">#E0E0E0</color>
     <color name="soft_divider">#E0D5D1</color>
 
+    <color name="error">#F44336</color>
+    <color name="warning">#FF9800</color>
+    <color name="success">#4CAF50</color>
+
 </resources>

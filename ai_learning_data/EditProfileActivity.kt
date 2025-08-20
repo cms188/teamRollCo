@@ -1,210 +1,127 @@
 package com.example.recipe_pocket
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.widget.Button
-import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.EmailAuthProvider
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.firestore.FirebaseFirestore
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
+import com.google.android.material.imageview.ShapeableImageView
 
 class EditProfileActivity : AppCompatActivity() {
 
-    private lateinit var auth: FirebaseAuth
-    private lateinit var firestore: FirebaseFirestore
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContentView(R.layout.activity_edit_profile)
 
-        auth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
+        // 툴바 표시 텍스트 설정
+        val toolbarTitle = findViewById<TextView>(R.id.toolbar_title)
+        toolbarTitle.text = "프로필"
 
-        // UI 요소 연결 및 리스너 설정
-        val backButton: ImageView = findViewById(R.id.iv_back_button)
-        val changeNicknameButton: Button = findViewById(R.id.btnChangeNickname)
-        val changePasswordButton: Button = findViewById(R.id.btnChangePassword)
-        val logoutButton: Button = findViewById(R.id.btnLogout)
-        val deleteAccountButton: Button = findViewById(R.id.btnDeleteAccount)
+        // 툴바 상태바 높이만큼 보정
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.updatePadding(top = statusBarHeight)
+            view.updateLayoutParams { height = statusBarHeight + dpToPx(56) }
+            WindowInsetsCompat.CONSUMED
+        }
 
-        backButton.setOnClickListener { finish() } // 뒤로가기 버튼
-        changeNicknameButton.setOnClickListener { handleChangeNickname() }
-        changePasswordButton.setOnClickListener { handleChangePassword() }
-        logoutButton.setOnClickListener { logoutUser() }
-        deleteAccountButton.setOnClickListener { showDeleteAccountConfirmation() }
+        val imageView_currentProfile = findViewById<ShapeableImageView>(R.id.imageView_currentProfile)  // 프로필 이미지
+        val btnChangeProfileImage = findViewById<LinearLayout>(R.id.btnChangeProfileImage)
+        val btnChangeNickname = findViewById<LinearLayout>(R.id.btnChangeNickname)
+        val btnChangePassword = findViewById<LinearLayout>(R.id.btnChangePassword)
+        val btnLogout = findViewById<LinearLayout>(R.id.btnLogout)
+        val btnDeleteAccount = findViewById<LinearLayout>(R.id.btnDeleteAccount)
+
+        // 클릭 이벤트 리스너 설정
+        setupClickListeners(
+            imageView_currentProfile,
+            btnChangeProfileImage,
+            btnChangeNickname,
+            btnChangePassword,
+            btnLogout,
+            btnDeleteAccount
+        )
     }
 
-    // 닉네임 변경 화면으로 이동
-    private fun handleChangeNickname() {
-        val intent = Intent(this, NicknameSetupActivity::class.java)
-        // 닉네임 변경 모드로 실행
-        intent.putExtra(NicknameSetupActivity.EXTRA_MODE, NicknameSetupActivity.MODE_UPDATE)
-        startActivity(intent)
-    }
+    private fun setupClickListeners(
+        imageView_currentProfile: ShapeableImageView,
+        btnChangeProfileImage: LinearLayout,
+        btnChangeNickname: LinearLayout,
+        btnChangePassword: LinearLayout,
+        btnLogout: LinearLayout,
+        btnDeleteAccount: LinearLayout
+    ) {
+        // 프로필 이미지 클릭 (이미지 직접 클릭)
+        imageView_currentProfile.setOnClickListener {
+            onProfileImageClicked()
+        }
 
-    // 비밀번호 변경 로직
-    private fun handleChangePassword() {
-        val currentUser = auth.currentUser ?: return
+        // 프로필 이미지 변경 클릭 (아이콘)
+        btnChangeProfileImage.setOnClickListener {
+            onProfileImageClicked()
+        }
 
-        // 사용자의 로그인 제공자 확인
-        val providerId = currentUser.providerData.find { it.providerId == EmailAuthProvider.PROVIDER_ID }
+        // 닉네임 변경 클릭
+        btnChangeNickname.setOnClickListener {
+            onChangeNicknameClicked()
+        }
 
-        if (providerId != null) {
-            // 이메일/비밀번호 사용자일 경우
-            showPasswordResetDialog()
-        } else {
-            // 소셜 로그인 사용자일 경우
-            val googleProvider = currentUser.providerData.find { it.providerId == GoogleAuthProvider.PROVIDER_ID }
-            if (googleProvider != null) {
-                Toast.makeText(this, "Google 계정 사용자는 Google에서 비밀번호를 변경해야 합니다.", Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(this, "이 계정은 비밀번호를 변경할 수 없습니다.", Toast.LENGTH_LONG).show()
-            }
+        // 비밀번호 변경 클릭
+        btnChangePassword.setOnClickListener {
+            onChangePasswordClicked()
+        }
+
+        // 로그아웃 클릭
+        btnLogout.setOnClickListener {
+            onLogoutClicked()
+        }
+
+        // 회원탈퇴 클릭
+        btnDeleteAccount.setOnClickListener {
+            onDeleteAccountClicked()
         }
     }
 
-    // 비밀번호 재설정 이메일 발송 확인 다이얼로그
-    private fun showPasswordResetDialog() {
-        val userEmail = auth.currentUser?.email
-        if (userEmail == null) {
-            Toast.makeText(this, "이메일 정보를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
-            return
-        }
+    // 프로필 이미지 변경
+    private fun onProfileImageClicked() {
+        // TODO: 프로필 이미지 변경
+        Toast.makeText(this, "프로필 이미지 변경", Toast.LENGTH_SHORT).show()
+    }
 
-        AlertDialog.Builder(this)
-            .setTitle("비밀번호 변경")
-            .setMessage("$userEmail 주소로 비밀번호 재설정 링크를 보내시겠습니까?")
-            .setPositiveButton("보내기") { _, _ ->
-                auth.sendPasswordResetEmail(userEmail)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Toast.makeText(this, "이메일을 발송했습니다. 메일함을 확인해주세요.", Toast.LENGTH_LONG).show()
-                        } else {
-                            Toast.makeText(this, "이메일 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()
-                            Log.e("PasswordReset", "발송 실패", task.exception)
-                        }
-                    }
-            }
-            .setNegativeButton("취소", null)
-            .show()
+    // 닉네임 변경
+    private fun onChangeNicknameClicked() {
+        // TODO: 닉네임 변경 화면으로 이동
+        Toast.makeText(this, "닉네임 변경", Toast.LENGTH_SHORT).show()
+    }
+
+    // 비밀번호 변경
+    private fun onChangePasswordClicked() {
+        // TODO: 비밀번호 변경 화면으로 이동
+        Toast.makeText(this, "비밀번호 변경", Toast.LENGTH_SHORT).show()
     }
 
     // 로그아웃
-    private fun logoutUser() {
-        auth.signOut()
-        Toast.makeText(this, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show()
-        // 모든 액티비티 스택을 지우고 로그인 화면으로 이동
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
+    private fun onLogoutClicked() {
+        // TODO: 로그아웃 확인 다이얼로그 표시 후 로그아웃
+        Toast.makeText(this, "로그아웃", Toast.LENGTH_SHORT).show()
     }
 
-    // 회원 탈퇴 확인 다이얼로그
-    private fun showDeleteAccountConfirmation() {
-        AlertDialog.Builder(this)
-            .setTitle("회원 탈퇴")
-            .setMessage("정말로 탈퇴하시겠습니까? 작성한 게시글을 포함한 계정과 관련된 모든 데이터가 영구적으로 삭제되며, 복구할 수 없습니다.")
-            .setPositiveButton("탈퇴하기") { _, _ ->
-                deleteUserAccount()
-            }
-            .setNegativeButton("취소", null)
-            .show()
+    // 회원탈퇴
+    private fun onDeleteAccountClicked() {
+        // TODO: 회원탈퇴 확인 다이얼로그 표시 후 탈퇴
+        Toast.makeText(this, "회원탈퇴", Toast.LENGTH_SHORT).show()
     }
 
-    // 회원 탈퇴 전체 프로세스
-    private fun deleteUserAccount() {
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
-            Toast.makeText(this, "로그인 정보가 없습니다.", Toast.LENGTH_SHORT).show()
-            return
-        }
-        val userUid = currentUser.uid
 
-        // 1. 사용자가 작성한 모든 레시피 삭제
-        deleteUserRecipes(userUid) { recipeDeletionSuccess ->
-            if (recipeDeletionSuccess) {
-                // 2. Firestore에서 사용자 프로필 문서 삭제
-                deleteUserProfile(userUid) { profileDeletionSuccess ->
-                    if (profileDeletionSuccess) {
-                        // 3. Firebase Authentication에서 사용자 계정 삭제
-                        deleteFirebaseAuthUser(currentUser)
-                    } else {
-                        Toast.makeText(this, "사용자 정보 삭제에 실패했습니다.", Toast.LENGTH_LONG).show()
-                    }
-                }
-            } else {
-                Toast.makeText(this, "게시물 삭제에 실패했습니다.", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
-    /**
-     * 1단계: 사용자가 작성한 모든 레시피를 삭제 (Firestore)
-     */
-    private fun deleteUserRecipes(uid: String, onComplete: (Boolean) -> Unit) {
-        firestore.collection("Recipes").whereEqualTo("userId", uid).get()
-            .addOnSuccessListener { querySnapshot ->
-                val batch = firestore.batch()
-                for (document in querySnapshot.documents) {
-                    batch.delete(document.reference)
-                }
-
-                batch.commit()
-                    .addOnSuccessListener {
-                        Log.d("DeleteAccount", "사용자의 모든 레시피 삭제 성공")
-                        onComplete(true)
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("DeleteAccount", "레시피 일괄 삭제 실패", e)
-                        onComplete(false)
-                    }
-            }
-            .addOnFailureListener { e ->
-                Log.e("DeleteAccount", "사용자의 레시피 조회 실패", e)
-                onComplete(false)
-            }
-    }
-
-    /**
-     * 2단계: 사용자 프로필 문서를 삭제 (Firestore)
-     */
-    private fun deleteUserProfile(uid: String, onComplete: (Boolean) -> Unit) {
-        firestore.collection("Users").document(uid).delete()
-            .addOnSuccessListener {
-                Log.d("DeleteAccount", "Firestore 사용자 프로필 문서 삭제 성공")
-                onComplete(true)
-            }
-            .addOnFailureListener { e ->
-                Log.e("DeleteAccount", "Firestore 사용자 프로필 문서 삭제 실패", e)
-                onComplete(false)
-            }
-    }
-
-    /**
-     * 3단계: 사용자 계정을 삭제 (Firebase Auth)
-     */
-    private fun deleteFirebaseAuthUser(user: com.google.firebase.auth.FirebaseUser) {
-        user.delete()
-            .addOnSuccessListener {
-                Log.d("DeleteAccount", "Firebase Auth 계정 삭제 성공")
-                Toast.makeText(this, "회원 탈퇴가 완료되었습니다.", Toast.LENGTH_SHORT).show()
-                // 모든 스택을 지우고 로그인 화면으로 이동
-                val intent = Intent(this, LoginActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                finish()
-            }
-            .addOnFailureListener { e ->
-                Log.e("DeleteAccount", "Firebase Auth 계정 삭제 실패", e)
-                Toast.makeText(this, "계정 삭제에 실패했습니다. 다시 로그인 후 시도해주세요.", Toast.LENGTH_LONG).show()
-                // 이 경우, 사용자를 로그아웃시키고 다시 로그인하도록 유도
-                logoutUser()
-            }
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
     }
 }
