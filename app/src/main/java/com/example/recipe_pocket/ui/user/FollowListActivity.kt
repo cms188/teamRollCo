@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.recipe_pocket.databinding.ActivityFollowListBinding
-import com.example.recipe_pocket.repository.NotificationHandler
+import com.example.recipe_pocket.repository.NotificationHandler // import 확인
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
@@ -174,15 +174,23 @@ class FollowListActivity : AppCompatActivity() {
                 transaction.update(targetUserDocRef, "followerCount", FieldValue.increment(1))
             }
         }.addOnSuccessListener {
-            // 새로 팔로우 했을 때만 알림 생성
-            if (!user.isFollowing) {
-                lifecycleScope.launch {
-                    NotificationHandler.createOrUpdateFollowNotification(
+            // ▼▼▼ 수정된 알림 생성/삭제 로직 ▼▼▼
+            lifecycleScope.launch {
+                if (!user.isFollowing) {
+                    // 새로 팔로우 했을 때 'add' 함수 호출
+                    NotificationHandler.addFollowNotification(
+                        recipientId = user.id,
+                        senderId = currentUser.uid
+                    )
+                } else {
+                    // 언팔로우 했을 때 'remove' 함수 호출
+                    NotificationHandler.removeFollowNotification(
                         recipientId = user.id,
                         senderId = currentUser.uid
                     )
                 }
             }
+            // ▲▲▲ 수정된 알림 생성/삭제 로직 ▲▲▲
 
             // 트랜잭션 성공 시 UI 업데이트
             user.isFollowing = !user.isFollowing

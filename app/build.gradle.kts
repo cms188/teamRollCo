@@ -103,6 +103,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth:23.2.0")
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation ("com.google.firebase:firebase-auth-ktx:22.3.0")
+    implementation("com.google.firebase:firebase-messaging-ktx")
     implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
     implementation("com.google.firebase:firebase-storage")
     implementation("de.hdodenhof:circleimageview:3.1.0")

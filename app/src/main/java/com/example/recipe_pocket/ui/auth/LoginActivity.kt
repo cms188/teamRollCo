@@ -26,6 +26,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.example.recipe_pocket.databinding.ActivityLoginBinding
 import com.example.recipe_pocket.ui.main.MainActivity
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.messaging.FirebaseMessaging
 
 
 class LoginActivity : AppCompatActivity() {
@@ -182,6 +184,7 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Log.d(TAG, "signInWithEmail:success")
+                    updateFcmToken() // ★★★ FCM 토큰 저장 로직 호출 ★★★
                     Toast.makeText(this, "로그인 성공", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this, MainActivity::class.java)
                     // 로그인 성공 후에는 보통 이전 액티비티 스택을 모두 지우고 새 태스크로 시작합니다.
@@ -237,6 +240,7 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Log.d("GOOGLE_LOGIN", "✅ signInWithCredential:success")
+                    updateFcmToken() // ★★★ FCM 토큰 저장 로직 호출 ★★★
                     val user = auth.currentUser
 
                     if (user != null) {
@@ -293,5 +297,23 @@ class LoginActivity : AppCompatActivity() {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
         finish()
+    }
+
+    // FCM 토큰을 가져와 Firestore에 저장하는 함수
+    private fun updateFcmToken() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w(TAG, "FCM 토큰 가져오기 실패", task.exception)
+                return@addOnCompleteListener
+            }
+            val token = task.result
+            Log.d(TAG, "현재 FCM 토큰: $token")
+            val currentUser = auth.currentUser
+            if (currentUser != null) {
+                val userDocRef = FirebaseFirestore.getInstance().collection("Users").document(currentUser.uid)
+                // fcmTokens 필드에 현재 토큰을 배열 형태로 추가 (중복 방지)
+                userDocRef.update("fcmTokens", FieldValue.arrayUnion(token))
+            }
+        }
     }
 }

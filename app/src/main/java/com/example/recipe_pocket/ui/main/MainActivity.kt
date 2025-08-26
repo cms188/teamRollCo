@@ -1,7 +1,10 @@
 package com.example.recipe_pocket.ui.main
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -9,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -44,6 +48,18 @@ class MainActivity : AppCompatActivity() {
     private var notificationListener: ListenerRegistration? = null
     private var newNotificationCount = 0 // 새로운 알림 개수를 저장할 변수
 
+    // ★★★ 알림 권한 요청을 위한 ActivityResultLauncher 선언 ★★★
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                // 권한이 허용되었을 때의 동작 (예: 토스트 메시지)
+                Toast.makeText(this, "알림 권한이 허용되었습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                // 권한이 거부되었을 때의 동작
+                Toast.makeText(this, "알림 권한이 거부되어 푸시 알림을 받을 수 없습니다.", Toast.LENGTH_LONG).show()
+            }
+        }
+
     // NotificationActivity로부터 결과를 받기 위한 ActivityResultLauncher
     private val notificationResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -63,6 +79,9 @@ class MainActivity : AppCompatActivity() {
         setupClickListeners()
         setupRecyclerView()
         setupBottomNavigation()
+
+        // ★★★ 알림 권한 요청 함수 호출 ★★★
+        askNotificationPermission()
     }
 
     override fun onResume() {
@@ -75,6 +94,27 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         notificationListener?.remove()
+    }
+
+    // ★★★ 알림 권한을 요청하는 함수 추가 ★★★
+    private fun askNotificationPermission() {
+        // 이 코드는 Android 13 (API 레벨 33) 이상에서만 실행됩니다.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                // 이미 권한이 부여됨
+                Log.d("NotificationPermission", "알림 권한이 이미 부여되어 있습니다.")
+            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                // 사용자가 이전에 권한을 거부한 경우, 왜 권한이 필요한지 설명 (선택 사항)
+                // 예: 다이얼로그를 띄워 설명 후 다시 요청
+                // 여기서는 바로 다시 요청합니다.
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                // 처음으로 권한을 요청
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
     }
 
     private fun setupWindowInsets() {
