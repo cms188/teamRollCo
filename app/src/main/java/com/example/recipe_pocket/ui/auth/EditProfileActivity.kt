@@ -1,24 +1,52 @@
 package com.example.recipe_pocket.ui.auth
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import com.bumptech.glide.Glide
+import com.example.recipe_pocket.ChangePasswordActivity
 import com.example.recipe_pocket.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
+    private lateinit var storage: FirebaseStorage
+
+    private lateinit var profileImageView: ImageView
+    private lateinit var changeProfileImageButton: FloatingActionButton
+    private lateinit var currentNicknameTextView: TextView
+
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            result.data?.data?.let { uri ->
+                uploadProfilePicture(uri)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,19 +54,117 @@ class EditProfileActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
+        storage = FirebaseStorage.getInstance()
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = insets.top
+                leftMargin = insets.left
+                bottomMargin = insets.bottom
+                rightMargin = insets.right
+            }
+            WindowInsetsCompat.CONSUMED
+        }
 
         // UI 요소 연결 및 리스너 설정
-        val backButton: ImageView = findViewById(R.id.iv_back_button)
-        val changeNicknameButton: Button = findViewById(R.id.btnChangeNickname)
-        val changePasswordButton: Button = findViewById(R.id.btnChangePassword)
-        val logoutButton: Button = findViewById(R.id.btnLogout)
-        val deleteAccountButton: Button = findViewById(R.id.btnDeleteAccount)
+        val backButton: ImageButton = findViewById(R.id.back_button)
+        val changeNicknameButton: LinearLayout = findViewById(R.id.btnChangeNickname)
+        val changePasswordButton: LinearLayout = findViewById(R.id.btnChangePassword)
+        val logoutButton: LinearLayout = findViewById(R.id.btnLogout)
+        val deleteAccountButton: LinearLayout = findViewById(R.id.btnDeleteAccount)
+        //프로필 이미지
+        profileImageView  = findViewById(R.id.imageView_currentProfile)
+        changeProfileImageButton = findViewById(R.id.btnChangeProfileImage)
+        currentNicknameTextView = findViewById(R.id.tvCurrentNickname)
+
+        loadUserProfile()
 
         backButton.setOnClickListener { finish() } // 뒤로가기 버튼
         changeNicknameButton.setOnClickListener { handleChangeNickname() }
         changePasswordButton.setOnClickListener { handleChangePassword() }
         logoutButton.setOnClickListener { logoutUser() }
         deleteAccountButton.setOnClickListener { showDeleteAccountConfirmation() }
+        changeProfileImageButton.setOnClickListener { openGallery() }
+    }
+
+    private fun loadUserProfile() {
+        val currentUser = auth.currentUser ?: return
+
+        firestore.collection("Users").document(currentUser.uid).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    var nickname = document.getString("nickname")
+                    if (!nickname.isNullOrEmpty()) {
+                        currentNicknameTextView.text = nickname
+                    } else {
+                        currentNicknameTextView.text = "닉네임 없음"
+                    }
+                    val imageUrl = document.getString("profileImageUrl")
+                    if (!imageUrl.isNullOrEmpty()) {
+                        Glide.with(this)
+                            .load(imageUrl)
+                            .placeholder(R.drawable.bg_author_profile)
+                            .error(R.drawable.bg_author_profile)
+                            .circleCrop()
+                            .into(profileImageView)
+                    } else {
+                        profileImageView.setImageResource(R.drawable.bg_author_profile)
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("EditProfile", "프로필 이미지 로드 실패", e)
+                currentNicknameTextView.text = "닉네임 없음"
+                profileImageView.setImageResource(R.drawable.bg_author_profile)
+            }
+    }
+    override fun onResume() {
+        super.onResume()
+        loadUserProfile()
+    }
+
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        pickImageLauncher.launch(intent)
+    }
+
+    private fun uploadProfilePicture(imageUri: Uri) {
+        val currentUser = auth.currentUser ?: return
+        val storageRef = storage.reference.child("profile_pictures/${currentUser.uid}")
+
+        Toast.makeText(this, "프로필 사진을 업로드 중입니다...", Toast.LENGTH_SHORT).show()
+
+        storageRef.putFile(imageUri)
+            .addOnSuccessListener {
+                storageRef.downloadUrl.addOnSuccessListener { uri ->
+                    updateProfileUrlInFirestore(uri.toString())
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "업로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun updateProfileUrlInFirestore(url: String) {
+        val currentUser = auth.currentUser ?: return
+
+        firestore.collection("Users").document(currentUser.uid)
+            .update("profileImageUrl", url)
+            .addOnSuccessListener {
+                Toast.makeText(this, "프로필 사진이 변경되었습니다.", Toast.LENGTH_SHORT).show()
+                // 화면에 즉시 반영
+                Glide.with(this)
+                    .load(url)
+                    .placeholder(R.drawable.bg_author_profile)
+                    .error(R.drawable.bg_author_profile)
+                    .circleCrop()
+                    .into(profileImageView)
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "프로필 사진 정보 저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            }
     }
 
     // 닉네임 변경 화면으로 이동
@@ -58,7 +184,10 @@ class EditProfileActivity : AppCompatActivity() {
 
         if (providerId != null) {
             // 이메일/비밀번호 사용자일 경우
-            showPasswordResetDialog()
+            //showPasswordResetDialog()
+            val intent = Intent(this, ChangePasswordActivity::class.java)
+            startActivity(intent)
+
         } else {
             // 소셜 로그인 사용자일 경우
             val googleProvider = currentUser.providerData.find { it.providerId == GoogleAuthProvider.PROVIDER_ID }
@@ -71,7 +200,7 @@ class EditProfileActivity : AppCompatActivity() {
     }
 
     // 비밀번호 재설정 이메일 발송 확인 다이얼로그
-    private fun showPasswordResetDialog() {
+    /*private fun showPasswordResetDialog() {
         val userEmail = auth.currentUser?.email
         if (userEmail == null) {
             Toast.makeText(this, "이메일 정보를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
@@ -94,7 +223,7 @@ class EditProfileActivity : AppCompatActivity() {
             }
             .setNegativeButton("취소", null)
             .show()
-    }
+    }*/
 
     // 로그아웃
     private fun logoutUser() {
@@ -146,9 +275,6 @@ class EditProfileActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * 1단계: 사용자가 작성한 모든 레시피를 삭제 (Firestore)
-     */
     private fun deleteUserRecipes(uid: String, onComplete: (Boolean) -> Unit) {
         firestore.collection("Recipes").whereEqualTo("userId", uid).get()
             .addOnSuccessListener { querySnapshot ->
@@ -173,9 +299,6 @@ class EditProfileActivity : AppCompatActivity() {
             }
     }
 
-    /**
-     * 2단계: 사용자 프로필 문서를 삭제 (Firestore)
-     */
     private fun deleteUserProfile(uid: String, onComplete: (Boolean) -> Unit) {
         firestore.collection("Users").document(uid).delete()
             .addOnSuccessListener {
@@ -188,9 +311,6 @@ class EditProfileActivity : AppCompatActivity() {
             }
     }
 
-    /**
-     * 3단계: 사용자 계정을 삭제 (Firebase Auth)
-     */
     private fun deleteFirebaseAuthUser(user: FirebaseUser) {
         user.delete()
             .addOnSuccessListener {

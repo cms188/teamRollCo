@@ -17,8 +17,16 @@ import androidx.core.view.updatePadding
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import android.app.AlertDialog
+import android.util.Log
+import android.widget.ImageButton
 
 class ChangePasswordActivity : AppCompatActivity() {
+
+    private lateinit var auth: FirebaseAuth
 
     private lateinit var currentPasswordSection: LinearLayout
     private lateinit var passwordChangeSection: LinearLayout
@@ -36,11 +44,15 @@ class ChangePasswordActivity : AppCompatActivity() {
     private lateinit var btnVerifyCurrentPassword: MaterialButton
     private lateinit var btnChangePassword: MaterialButton
     private lateinit var btnFindPassword: TextView
+    private lateinit var btnback: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_change_password)
+
+        // Firebase Auth 초기화
+        auth = FirebaseAuth.getInstance()
 
         // 툴바 표시 텍스트
         val toolbarTitle = findViewById<TextView>(R.id.toolbar_title)
@@ -57,10 +69,8 @@ class ChangePasswordActivity : AppCompatActivity() {
 
         // 뷰 초기화
         initViews()
-
         // 클릭 이벤트 설정
         setupClickListeners()
-
         // 텍스트 변경 리스너 설정
         setupTextWatchers()
     }
@@ -82,6 +92,7 @@ class ChangePasswordActivity : AppCompatActivity() {
         btnVerifyCurrentPassword = findViewById(R.id.btnVerifyCurrentPassword)
         btnChangePassword = findViewById(R.id.btnChangePassword)
         btnFindPassword = findViewById(R.id.btnFindPassword)
+        btnback = findViewById(R.id.back_button)
     }
 
     private fun setupClickListeners() {
@@ -98,6 +109,11 @@ class ChangePasswordActivity : AppCompatActivity() {
         // 비밀번호 찾기 버튼 클릭
         btnFindPassword.setOnClickListener {
             onFindPassword()
+        }
+
+        // 뒤로가기 버튼 클릭
+        btnback.setOnClickListener {
+            finish()
         }
     }
 
@@ -122,7 +138,7 @@ class ChangePasswordActivity : AppCompatActivity() {
         })
     }
 
-    // 현재 비밀번호 확인
+    // 현재 비밀번호 확인 - Firebase 재인증
     private fun onVerifyCurrentPassword() {
         val currentPassword = currentPasswordEditText.text.toString()
 
@@ -131,10 +147,42 @@ class ChangePasswordActivity : AppCompatActivity() {
             return
         }
 
-        // TODO: 실제 비밀번호 확인
-        // 임시로 성공한 것으로 처리
-        currentPasswordInputLayout.error = null
-        showPasswordChangeSection()
+        val user = auth.currentUser
+        if (user == null || user.email == null) {
+            Toast.makeText(this, "사용자 정보를 찾을 수 없습니다", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // 프로그레스 표시
+        btnVerifyCurrentPassword.isEnabled = false
+        btnVerifyCurrentPassword.text = "확인 중..."
+
+        // Firebase 재인증
+        val credential = EmailAuthProvider.getCredential(user.email!!, currentPassword)
+
+        user.reauthenticate(credential)
+            .addOnSuccessListener {
+                // 재인증 성공
+                btnVerifyCurrentPassword.isEnabled = true
+                btnVerifyCurrentPassword.text = "비밀번호 확인"
+                currentPasswordInputLayout.error = null
+                showPasswordChangeSection()
+            }
+            .addOnFailureListener { e ->
+                // 재인증 실패
+                btnVerifyCurrentPassword.isEnabled = true
+                btnVerifyCurrentPassword.text = "비밀번호 확인"
+
+                when (e) {
+                    is FirebaseAuthInvalidCredentialsException -> {
+                        currentPasswordInputLayout.error = "비밀번호가 일치하지 않습니다"
+                    }
+                    else -> {
+                        currentPasswordInputLayout.error = "인증 실패: ${e.message}"
+                    }
+                }
+                Log.e("ChangePassword", "재인증 실패", e)
+            }
     }
 
     // 새 비밀번호 섹션 표시
@@ -143,6 +191,14 @@ class ChangePasswordActivity : AppCompatActivity() {
         passwordStrengthIndicator.visibility = View.VISIBLE
         btnChangePassword.visibility = View.VISIBLE
         currentPasswordSection.visibility = View.GONE
+
+        // 스크롤뷰를 아래로 이동
+        findViewById<View>(R.id.passwordChangeSection)?.post {
+            findViewById<View>(R.id.passwordChangeSection)?.parent?.requestChildFocus(
+                findViewById(R.id.passwordChangeSection),
+                findViewById(R.id.passwordChangeSection)
+            )
+        }
     }
 
     // 비밀번호 강도 체크
@@ -151,13 +207,13 @@ class ChangePasswordActivity : AppCompatActivity() {
         updatePasswordStrengthUI(strength)
     }
 
-    // 비밀번호 강도 계산 (간단한 예시)
+    // 비밀번호 강도 계산
     private fun calculatePasswordStrength(password: String): Int {
         var strength = 0
 
-        if (password.length >= 6) strength++
+        if (password.length >= 8) strength++
         if (password.any { it.isDigit() }) strength++
-        if (password.any { it.isLetter() }) strength++
+        if (password.any { it.isUpperCase() }) strength++
         if (password.any { !it.isLetterOrDigit() }) strength++
 
         return when {
@@ -217,10 +273,11 @@ class ChangePasswordActivity : AppCompatActivity() {
         }
     }
 
-    // 비밀번호 변경
+    // 비밀번호 변경 - Firebase
     private fun onChangePassword() {
         val newPassword = newPasswordEditText.text.toString()
         val confirmPassword = confirmPasswordEditText.text.toString()
+        val currentPassword = currentPasswordEditText.text.toString()
 
         // 입력 검증
         if (newPassword.isEmpty()) {
@@ -243,17 +300,62 @@ class ChangePasswordActivity : AppCompatActivity() {
             return
         }
 
-        // TODO: 실제 비밀번호 변경
-        Toast.makeText(this, "비밀번호가 변경되었습니다", Toast.LENGTH_SHORT).show()
-        finish() // 액티비티 종료
+        // 현재 비밀번호와 새 비밀번호가 같은지 확인
+        if (currentPassword == newPassword) {
+            newPasswordInputLayout.error = "현재 비밀번호와 다른 비밀번호를 입력해주세요"
+            return
+        }
+
+        val user = auth.currentUser
+        if (user == null) {
+            Toast.makeText(this, "사용자 정보를 찾을 수 없습니다", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // 프로그레스 표시
+        btnChangePassword.isEnabled = false
+        btnChangePassword.text = "변경 중..."
+
+        // Firebase 비밀번호 업데이트
+        user.updatePassword(newPassword)
+            .addOnSuccessListener {
+                Toast.makeText(this, "비밀번호가 성공적으로 변경되었습니다", Toast.LENGTH_LONG).show()
+                finish()
+            }
+            .addOnFailureListener { e ->
+                btnChangePassword.isEnabled = true
+                btnChangePassword.text = "비밀번호 변경"
+
+                Toast.makeText(this, "비밀번호 변경 실패: ${e.message}", Toast.LENGTH_LONG).show()
+                Log.e("ChangePassword", "비밀번호 변경 실패", e)
+            }
     }
 
-    // 비밀번호 찾기
+    // 비밀번호 찾기 - 재설정 이메일 발송
     private fun onFindPassword() {
-        // TODO: 비밀번호 찾기 화면으로 이동
-        Toast.makeText(this, "비밀번호 찾기", Toast.LENGTH_SHORT).show()
-    }
+        val userEmail = auth.currentUser?.email
+        if (userEmail == null) {
+            Toast.makeText(this, "이메일 정보를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
+        AlertDialog.Builder(this)
+            .setTitle("비밀번호 변경")
+            .setMessage("$userEmail 주소로 비밀번호 재설정 링크를 보내시겠습니까?")
+            .setPositiveButton("보내기") { _, _ ->
+                auth.sendPasswordResetEmail(userEmail)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(this, "이메일을 발송했습니다. 메일함을 확인해주세요.", Toast.LENGTH_LONG).show()
+                        } else {
+                            Toast.makeText(this, "이메일 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                            Log.e("PasswordReset", "발송 실패", task.exception)
+                        }
+                    }
+            }
+            .setNegativeButton("취소", null)
+            .show()
+    }
 
     private fun dpToPx(dp: Int): Int {
         return (dp * resources.displayMetrics.density).toInt()

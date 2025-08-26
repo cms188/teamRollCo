@@ -2,14 +2,23 @@ package com.example.recipe_pocket.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.ui.main.MainActivity
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -36,6 +45,14 @@ class NicknameSetupActivity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
 
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.updatePadding(top = statusBarHeight)
+            view.updateLayoutParams { height = statusBarHeight + dpToPx(56) }
+            WindowInsetsCompat.CONSUMED
+        }
+
         // Intent로부터 실행 모드를 받아오고 전달된 값이 없으면 기본값(MODE_SETUP) 사용
         currentMode = intent.getStringExtra(EXTRA_MODE) ?: MODE_SETUP
 
@@ -47,19 +64,34 @@ class NicknameSetupActivity : AppCompatActivity() {
         }
 
         // UI 요소들 연결
-        val nicknameTitle = findViewById<TextView>(R.id.nicknameTitle)
+        val nicknameTitle = findViewById<TextInputLayout>(R.id.nicknameInputLayout)
         val nicknameInput = findViewById<EditText>(R.id.nicknameEditText)
-        val saveButton = findViewById<Button>(R.id.saveNicknameButton)
+        val saveButton = findViewById<Button>(R.id.btnChangeNickname)
 
         // 모드에 따라 UI 텍스트 변경
         if (currentMode == MODE_UPDATE) {
-            nicknameTitle.text = "변경할 닉네임을 입력하세요"
+            nicknameTitle.hint = "변경할 닉네임을 입력하세요"
             saveButton.text = "저장하기"
         } else { // MODE_SETUP
-            nicknameTitle.text = "사용할 닉네임을 입력해주세요"
+            nicknameTitle.hint = "사용할 닉네임을 입력해주세요"
             saveButton.text = "가입하기"
         }
 
+        // 텍스트 변경 감지하여 버튼 표시/숨기기
+        nicknameInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                val text = s?.toString()?.trim() ?: ""
+                if (text.isNotEmpty()) {
+                    saveButton.visibility = View.VISIBLE
+                } else {
+                    saveButton.visibility = View.GONE
+                }
+            }
+        })
 
         saveButton.setOnClickListener {
             val nickname = nicknameInput.text.toString().trim()
@@ -132,5 +164,9 @@ class NicknameSetupActivity : AppCompatActivity() {
                 callback(false)
                 Log.e("NicknameCheck", "닉네임 중복 체크 오류", e)
             }
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
     }
 }
