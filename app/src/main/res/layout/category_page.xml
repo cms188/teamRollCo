@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="@color/white"
+    android:background="@color/search_color"
     tools:ignore="ExtraText">
 
     <!-- 상단바 시작( 뒤로가기 버튼, 카테고리, 정렬 ) -->
@@ -224,36 +224,16 @@
 
             <TextView
                 android:id="@+id/tv_filter_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/SearchFilterButton"
                 android:text="필터"
-                android:textSize="13sp"
-                android:textColor="#424242"
-                android:paddingVertical="2dp"
-                android:paddingHorizontal="12dp"
-                android:drawableStart="@drawable/ic_filter"
-                android:drawablePadding="4dp"
-                android:gravity="center_vertical"
-                android:background="@drawable/bg_gray_rounded"
-                android:clickable="true"
-                android:focusable="true" />
+                android:drawableStart="@drawable/ic_filter" />
 
             <TextView
                 android:id="@+id/tv_sort_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="인기순"
-                android:textSize="13sp"
-                android:textColor="#424242"
-                android:paddingVertical="2dp"
-                android:paddingHorizontal="12dp"
+                style="@style/SearchFilterButton"
                 android:layout_marginStart="8dp"
-                android:drawableEnd="@drawable/ic_arrow_down"
-                android:drawablePadding="4dp"
-                android:gravity="center_vertical"
-                android:background="@drawable/bg_gray_rounded"
-                android:clickable="true"
-                android:focusable="true" />
+                android:text="최신순"
+                android:drawableEnd="@drawable/ic_arrow_down" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

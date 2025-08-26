@@ -56,7 +56,7 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
         binding = CategoryPageBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupWindowInsets()
+        //setupWindowInsets()
         setupBackButton()
         setupRecyclerView()
         setupCategoryTags()
