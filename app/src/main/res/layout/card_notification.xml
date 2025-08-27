@@ -89,6 +89,8 @@
                                 android:lineSpacingExtra="1dp"
                                 android:maxLines="1"
                                 android:text="알림 제목"
+                                android:fontFamily="@font/notosans_regular"
+                                android:includeFontPadding="false"
                                 android:textColor="@color/text_primary"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
@@ -107,6 +109,8 @@
                                     android:paddingHorizontal="8dp"
                                     android:paddingVertical="3dp"
                                     android:text="방금 전"
+                                    android:fontFamily="@font/notosans_regular"
+                                    android:includeFontPadding="false"
                                     android:textColor="@color/text_hint"
                                     android:textSize="11sp" />
 
@@ -141,6 +145,8 @@
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="3dp"
                                 android:text="카테고리"
+                                android:fontFamily="@font/notosans_regular"
+                                android:includeFontPadding="false"
                                 android:textColor="@color/primary"
                                 android:textSize="9sp"
                                 android:textStyle="bold" />
@@ -155,9 +161,11 @@
                             android:ellipsize="end"
                             android:lineSpacingExtra="2dp"
                             android:maxLines="3"
+                            android:fontFamily="@font/notosans_regular"
+                            android:includeFontPadding="false"
                             android:text="알림 내용입니다.알림 내용입니다.알림 내용입니다.알림 내용입니다."
                             android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
+                            android:textSize="12sp" />
 
                         <!-- 이미지 -->
                         <androidx.cardview.widget.CardView
