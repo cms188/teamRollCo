@@ -14,7 +14,9 @@
         android:foreground="?android:attr/selectableItemBackground"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="16dp"
-        app:cardElevation="6dp">
+        app:cardElevation="1dp"
+        android:outlineAmbientShadowColor="@color/text_primary"
+        android:outlineSpotShadowColor="@color/text_primary">
 
         <FrameLayout
             android:id="@+id/frameLayout_card"
