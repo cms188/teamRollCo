@@ -54,6 +54,10 @@ android {
 
         val airKoreaServiceKey = localProperties.getProperty("AIR_API_KEY") ?: ""
         buildConfigField("String", "AIR_API_KEY", "\"$airKoreaServiceKey\"")
+
+        val kakaoKey = localProperties.getProperty("KAKAO_NATIVE_APP_KEY") ?: ""
+        buildConfigField("String", "KAKAO_NATIVE_APP_KEY", "\"$kakaoKey\"")
+        manifestPlaceholders["KAKAO_SCHEME"] = "kakao$kakaoKey"
     }
 
 

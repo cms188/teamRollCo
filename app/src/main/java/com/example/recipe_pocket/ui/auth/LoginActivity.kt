@@ -33,7 +33,7 @@ import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
-
+import com.kakao.sdk.common.util.Utility
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -47,6 +47,7 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_login)
+        Log.d("KAKAO", "android_key_hash = ${Utility.getKeyHash(this)}")
         //https://developer.android.com/develop/ui/views/layout/edge-to-edge?hl=ko#kotlin
         //동작 모드 또는 버튼 모드에서 시각적 겹침을 방지
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_login_linear_layout)) { v, windowInsets ->

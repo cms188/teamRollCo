@@ -110,7 +110,7 @@
 
                 <!-- 리다이렉트 URI: "kakao${NATIVE_APP_KEY}://oauth" -->
                 <data android:host="oauth"
-                    android:scheme="kakao$'a0458d62f902a6ce45ed3707a4f5c9d4'" />
+                    android:scheme="${KAKAO_SCHEME}" />
             </intent-filter>
         </activity>
 
@@ -138,4 +138,7 @@
             android:resource="@color/orange" />
 
     </application>
+    <queries>
+        <package android:name="com.kakao.talk" />
+    </queries>
 </manifest>

@@ -18,6 +18,7 @@ import com.example.recipe_pocket.ui.auth.LoginActivity
 import com.example.recipe_pocket.ui.recipe.read.RecipeDetailActivity
 import com.example.recipe_pocket.ui.user.bookmark.BookmarkManager
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.BuildConfig
 import com.google.firebase.ktx.Firebase
 
 class RecipeAdapter(
