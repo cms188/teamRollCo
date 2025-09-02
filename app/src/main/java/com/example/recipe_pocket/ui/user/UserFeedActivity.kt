@@ -165,10 +165,17 @@ class UserFeedActivity : AppCompatActivity() {
             val wasFollowing = isFollowing
             isFollowing = !isFollowing
 
-            // 새로 팔로우 했을 때만 알림 생성
-            if (!wasFollowing) {
-                lifecycleScope.launch {
-                    NotificationHandler.createOrUpdateFollowNotification(
+            // 알림 생성/삭제 로직
+            lifecycleScope.launch {
+                if (isFollowing) {
+                    // 새로 팔로우 했을 때 'add' 함수 호출
+                    NotificationHandler.addFollowNotification(
+                        recipientId = targetUserId!!,
+                        senderId = currentUser.uid
+                    )
+                } else {
+                    // 언팔로우 했을 때 'remove' 함수 호출
+                    NotificationHandler.removeFollowNotification(
                         recipientId = targetUserId!!,
                         senderId = currentUser.uid
                     )

@@ -288,11 +288,11 @@ class ReviewWriteActivity : AppCompatActivity() {
         }.addOnSuccessListener {
             Toast.makeText(this, "리뷰가 성공적으로 등록되었습니다.", Toast.LENGTH_SHORT).show()
 
-            // 리뷰 저장 성공 후 알림 생성
             lifecycleScope.launch {
                 recipe?.userId?.let { recipientId ->
                     auth.currentUser?.uid?.let { senderId ->
-                        NotificationHandler.createOrUpdateLikeReviewNotification(
+                        // addLikeReviewNotification 함수 호출
+                        NotificationHandler.addLikeReviewNotification(
                             recipientId = recipientId,
                             senderId = senderId,
                             recipe = recipe!!,

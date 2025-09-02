@@ -330,15 +330,21 @@ class RecipeDetailActivity : AppCompatActivity() {
         firestore.runTransaction { transaction ->
             val snapshot = transaction.get(recipeRef)
             val currentLikes = snapshot.get("likedBy") as? List<String> ?: emptyList()
-            if (currentLikes.contains(currentUser.uid)) {
+            val isCurrentlyLiked = currentLikes.contains(currentUser.uid)
+
+            if (isCurrentlyLiked) {
+                // 좋아요 취소
                 transaction.update(recipeRef, "likedBy", FieldValue.arrayRemove(currentUser.uid))
                 transaction.update(recipeRef, "likeCount", FieldValue.increment(-1))
             } else {
+                // 좋아요
                 transaction.update(recipeRef, "likedBy", FieldValue.arrayUnion(currentUser.uid))
                 transaction.update(recipeRef, "likeCount", FieldValue.increment(1))
             }
-        }.addOnSuccessListener {
-            val newIsLiked = !recipe.isLiked
+            // 트랜잭션 결과로 새로운 좋아요 상태를 반환
+            !isCurrentlyLiked
+        }.addOnSuccessListener { newIsLiked ->
+            // 트랜잭션의 반환값(새로운 좋아요 상태)을 사용
             val oldLikeCount = recipe.likeCount ?: 0
             val newLikeCount = if (newIsLiked) oldLikeCount + 1 else oldLikeCount - 1
             recipe.isLiked = newIsLiked
@@ -346,26 +352,32 @@ class RecipeDetailActivity : AppCompatActivity() {
             updateLikeButton(newIsLiked)
             binding.textViewLikeCount.text = newLikeCount.toString()
 
-            // 좋아요를 눌렀을 때만 알림 생성
-            if (newIsLiked) {
-                val recipientId = recipe.userId
-                val senderId = currentUser.uid
+            // 알림 핸들러 호출 로직 수정
+            val recipientId = recipe.userId
+            val senderId = currentUser.uid
 
-                // 로그를 추가하여 변수 값을 확인
-                Log.d(TAG, "알림 생성 시도: recipientId=$recipientId, senderId=$senderId")
-
-                if (recipientId != null) {
-                    lifecycleScope.launch {
-                        NotificationHandler.createOrUpdateLikeReviewNotification(
+            if (recipientId != null) {
+                lifecycleScope.launch {
+                    if (newIsLiked) {
+                        // 좋아요를 눌렀을 때만 '추가' 함수 호출
+                        NotificationHandler.addLikeReviewNotification(
                             recipientId = recipientId,
                             senderId = senderId,
                             recipe = recipe,
                             type = NotificationType.LIKE
                         )
+                    } else {
+                        // 좋아요를 취소했을 때 '삭제' 함수 호출
+                        NotificationHandler.removeLikeReviewNotification(
+                            recipientId = recipientId,
+                            senderId = senderId,
+                            recipeId = recipe.id!!,
+                            type = NotificationType.LIKE
+                        )
                     }
-                } else {
-                    Log.w(TAG, "recipientId가 null이어서 알림을 생성할 수 없습니다.")
                 }
+            } else {
+                Log.w(TAG, "recipientId가 null이어서 알림을 생성/삭제할 수 없습니다.")
             }
         }.addOnFailureListener { e ->
             Log.e(TAG, "좋아요 처리 실패", e)
