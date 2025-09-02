@@ -33,6 +33,7 @@ import com.example.recipe_pocket.repository.RecipeLoader
 import com.example.recipe_pocket.ui.review.ReviewAdapter
 import com.example.recipe_pocket.ui.recipe.write.RecipeEditActivity
 import com.example.recipe_pocket.ui.review.ReviewWriteActivity
+import com.example.recipe_pocket.ui.user.RecentlyViewedManager
 import com.example.recipe_pocket.ui.user.UserFeedActivity
 import com.example.recipe_pocket.ui.user.bookmark.BookmarkManager
 import com.google.android.gms.tasks.Task
@@ -167,9 +168,9 @@ class RecipeDetailActivity : AppCompatActivity() {
 
     private fun incrementViewCount(recipe: Recipe) {
         val currentUser = auth.currentUser ?: return // 비로그인 사용자는 조회수 증가 안 함
-
         // 사용자가 이 레시피를 조회한 적이 있는지 확인
         val hasViewed = recipe.viewedBy?.contains(currentUser.uid) == true
+        saveToRecentlyViewed(recipe)
 
         if (!hasViewed) {
             val recipeRef = firestore.collection("Recipes").document(recipe.id!!)
@@ -186,6 +187,16 @@ class RecipeDetailActivity : AppCompatActivity() {
                 Log.w("ViewCount", "조회수 증가 실패", e)
             }
         }
+    }
+
+    private fun saveToRecentlyViewed(recipe: Recipe) {
+        // 최근 본 레시피에 저장
+        RecentlyViewedManager.addRecentlyViewed(
+            context = this,
+            recipeId = recipe.id ?: return,
+            title = recipe.title ?: "제목 없음",
+            thumbnailUrl = recipe.thumbnailUrl
+        )
     }
 
     private fun displayHeaderInfo(recipe: Recipe) {

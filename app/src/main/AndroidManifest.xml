@@ -97,6 +97,7 @@
             android:name=".ui.notification.NotificationActivity"
             android:exported="false" />
         <activity android:name=".ChangePasswordActivity"/>
+        <activity android:name=".ui.user.RecentlyViewedRecipesActivity"/>
 
         <service
             android:name=".service.VoiceRecognitionService"
