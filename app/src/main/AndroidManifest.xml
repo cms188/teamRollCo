@@ -24,6 +24,7 @@
     </queries>
 
     <application
+        android:name=".MyApplication"
         android:hardwareAccelerated="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -98,6 +99,20 @@
             android:exported="false" />
         <activity android:name=".ChangePasswordActivity"/>
         <activity android:name=".ui.user.RecentlyViewedRecipesActivity"/>
+
+        <activity
+            android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- 리다이렉트 URI: "kakao${NATIVE_APP_KEY}://oauth" -->
+                <data android:host="oauth"
+                    android:scheme="kakao$'a0458d62f902a6ce45ed3707a4f5c9d4'" />
+            </intent-filter>
+        </activity>
 
         <service
             android:name=".service.VoiceRecognitionService"

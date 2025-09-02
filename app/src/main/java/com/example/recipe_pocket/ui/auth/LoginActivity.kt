@@ -26,8 +26,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.example.recipe_pocket.databinding.ActivityLoginBinding
 import com.example.recipe_pocket.ui.main.MainActivity
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.messaging.FirebaseMessaging
+import com.kakao.sdk.auth.model.OAuthToken
+import com.kakao.sdk.common.model.ClientError
+import com.kakao.sdk.common.model.ClientErrorCause
+import com.kakao.sdk.user.UserApiClient
 
 
 class LoginActivity : AppCompatActivity() {
@@ -77,6 +82,10 @@ class LoginActivity : AppCompatActivity() {
         registerButton.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
+        }
+
+        findViewById<ImageView>(R.id.iv_kakao_login_linear).setOnClickListener {
+            kakaoLogin()
         }
 
         backButton.setOnClickListener {
@@ -315,5 +324,111 @@ class LoginActivity : AppCompatActivity() {
                 userDocRef.update("fcmTokens", FieldValue.arrayUnion(token))
             }
         }
+    }
+    ///////////////////////////////////////////////////////////////////////////////////////
+    /*---------------------------카카오톡--------------------------*/
+
+    private fun kakaoLogin() {
+        // 카카오톡 설치 여부 확인
+        if (UserApiClient.instance.isKakaoTalkLoginAvailable(this)) {
+            // 카카오톡으로 로그인
+            loginWithKakaoTalk()
+        } else {
+            // 카카오 계정으로 로그인
+            loginWithKakaoAccount()
+        }
+    }
+
+    private fun loginWithKakaoTalk() {
+        UserApiClient.instance.loginWithKakaoTalk(this) { token, error ->
+            if (error != null) {
+                // 사용자가 취소
+                if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
+                    return@loginWithKakaoTalk
+                }
+                // 카카오톡 로그인 실패 시 카카오 계정으로 로그인
+                loginWithKakaoAccount()
+            } else if (token != null) {
+                // 로그인 성공
+                firebaseAuthWithKakao(token)
+            }
+        }
+    }
+
+    private fun loginWithKakaoAccount() {
+        UserApiClient.instance.loginWithKakaoAccount(this) { token, error ->
+            if (error != null) {
+                Toast.makeText(this, "카카오 로그인 실패", Toast.LENGTH_SHORT).show()
+            } else if (token != null) {
+                // 로그인 성공
+                firebaseAuthWithKakao(token)
+            }
+        }
+    }
+
+    private fun firebaseAuthWithKakao(token: OAuthToken) {
+        // 카카오 사용자 정보 가져오기
+        UserApiClient.instance.me { user, error ->
+            if (error != null) {
+                Toast.makeText(this, "사용자 정보 요청 실패", Toast.LENGTH_SHORT).show()
+            } else if (user != null) {
+                val kakaoEmail = user.kakaoAccount?.email
+                val kakaoId = user.id.toString()
+
+                if (kakaoEmail != null) {
+                    // 카카오 ID를 비밀번호로 사용 (보안상 실제 서비스에서는 다른 방법 권장)
+                    val password = "kakao_$kakaoId"
+
+                    // 기존 사용자인지 확인 후 로그인 시도
+                    auth.signInWithEmailAndPassword(kakaoEmail, password)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                // 로그인 성공
+                                Toast.makeText(this, "카카오 로그인 성공", Toast.LENGTH_SHORT).show()
+                                startActivity(Intent(this, MainActivity::class.java))
+                                finish()
+                            } else {
+                                // 신규 사용자 - 회원가입 진행
+                                createKakaoFirebaseUser(
+                                    kakaoEmail,
+                                    password,
+                                    kakaoId,
+                                    user.kakaoAccount?.profile?.nickname
+                                )
+                            }
+                        }
+                } else {
+                    Toast.makeText(this, "카카오 계정 이메일 동의가 필요합니다", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun createKakaoFirebaseUser(email: String, password: String, kakaoId: String, nickname: String?) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // Firestore에 사용자 정보 저장
+                    val userData = hashMapOf(
+                        "email" to email,
+                        "nickname" to (nickname ?: "카카오유저"),
+                        "kakaoId" to kakaoId,
+                        "loginType" to "kakao",
+                        "createdAt" to FieldValue.serverTimestamp()
+                    )
+
+                    FirebaseFirestore.getInstance()
+                        .collection("Users")
+                        .document(auth.currentUser!!.uid)
+                        .set(userData)
+                        .addOnSuccessListener {
+                            Toast.makeText(this, "카카오 회원가입 성공", Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(this, MainActivity::class.java))
+                            finish()
+                        }
+                } else {
+                    Toast.makeText(this, "회원가입 실패: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
     }
 }

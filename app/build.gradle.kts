@@ -125,7 +125,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
-    //gif 사용
+    // gif 사용
     implementation ("com.github.bumptech.glide:glide:4.16.0")
+
+    // 카카오톡 sdk
+    implementation ("com.kakao.sdk:v2-user:2.20.1")
 }
 
