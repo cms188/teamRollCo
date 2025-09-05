@@ -1,44 +1,60 @@
 package com.example.recipe_pocket.ui.main
 
- import android.view.LayoutInflater
- import android.view.View
- import android.view.ViewGroup
- import android.widget.ImageView
- import android.widget.TextView
- import androidx.recyclerview.widget.RecyclerView
- import com.example.recipe_pocket.R
- import com.example.recipe_pocket.data.CookTipItem
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.example.recipe_pocket.R
+import com.example.recipe_pocket.data.CookingTip
+import com.example.recipe_pocket.databinding.CookTip01Binding
 
- class CookTipAdapter(private val items: List<CookTipItem>) :
-     RecyclerView.Adapter<CookTipAdapter.CookTipViewHolder>() {
+class CookTipAdapter(
+    private var items: List<CookingTip>,
+    private val onItemClick: (CookingTip) -> Unit
+) : RecyclerView.Adapter<CookTipAdapter.CookTipViewHolder>() {
 
-     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CookTipViewHolder {
-         // cook_tip_01.xml을 인플레이트합니다.
-         val view = LayoutInflater.from(parent.context)
-             .inflate(R.layout.cook_tip_01, parent, false)
-         return CookTipViewHolder(view)
-     }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CookTipViewHolder {
+        val binding = CookTip01Binding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return CookTipViewHolder(binding)
+    }
 
-     override fun onBindViewHolder(holder: CookTipViewHolder, position: Int) {
-         val item = items[position]
-         holder.bind(item)
-     }
+    override fun onBindViewHolder(holder: CookTipViewHolder, position: Int) {
+        val item = items[position]
+        holder.bind(item)
+    }
 
-     override fun getItemCount(): Int = items.size
+    override fun getItemCount(): Int = items.size
 
-     inner class CookTipViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-         // cook_tip_01.xml 내부의 View들을 findViewById로 찾습니다.
-         private val mainTextView: TextView = itemView.findViewById(R.id.main_content_text)
-         private val subTextView: TextView = itemView.findViewById(R.id.sub_content_text)
-         private val imageView: ImageView = itemView.findViewById(R.id.recipe_image_view)
+    fun updateData(newItems: List<CookingTip>) {
+        this.items = newItems
+        notifyDataSetChanged()
+    }
 
-         fun bind(cookTip: CookTipItem) {
-             mainTextView.text = cookTip.mainText
-             subTextView.text = cookTip.subText
-             imageView.setImageResource(cookTip.imageResId)
-             // 만약 cook_tip_01.xml의 ImageView에 설정된 background (@drawable/rounded_gray_background)를
-             // 이미지가 로드된 후 제거하고 싶다면 아래 주석을 해제하세요.
-             // imageView.background = null
-         }
-     }
- }
+    inner class CookTipViewHolder(private val binding: CookTip01Binding) : RecyclerView.ViewHolder(binding.root) {
+        private val mainTextView: TextView = binding.mainContentText
+        private val subTextView: TextView = binding.subContentText
+        private val imageView: ImageView = binding.recipeImageView
+
+        fun bind(cookTip: CookingTip) {
+            mainTextView.text = cookTip.title
+
+            val firstImageUrl = cookTip.content?.firstOrNull { !it.imageUrl.isNullOrEmpty() }?.imageUrl
+            if (firstImageUrl != null) {
+                Glide.with(itemView.context)
+                    .load(firstImageUrl)
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .error(R.drawable.bg_no_img_gray)
+                    .into(imageView)
+            } else {
+                imageView.setImageResource(R.drawable.bg_no_img_gray)
+            }
+
+            itemView.setOnClickListener {
+                onItemClick(cookTip)
+            }
+        }
+    }
+}

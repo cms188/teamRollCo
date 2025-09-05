@@ -372,22 +372,41 @@
                             tools:listitem="@layout/cook_card_02"/>
                     </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/title3"
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:layout_marginTop="20dp"
-                        android:gravity="top"
-                        android:lineSpacingExtra="-2sp"
-                        android:text="@string/title3"
-                        android:textAppearance="@style/title1"
-                        android:textColor="@android:color/black" />
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginTop="20dp">
+
+                        <TextView
+                            android:id="@+id/title3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/title3"
+                            android:textAppearance="@style/title1"
+                            android:textColor="@android:color/black"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"/>
+
+                        <ImageButton
+                            android:id="@+id/iv_see_all_tips"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_arrow_back"
+                            android:rotation="180"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"/>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
                     <androidx.viewpager2.widget.ViewPager2
                         android:id="@+id/cook_tips_view_pager"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="140dp"
                         android:layout_marginTop="16dp"
                         tools:layout="@layout/cook_tip_01"
                         android:clipToPadding="false"

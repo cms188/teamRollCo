@@ -44,7 +44,6 @@ class NotificationAdapter(
         fun bind(notification: Notification) {
             val context = binding.root.context
 
-            // '새로운 알림'일 경우 배경색 설정
             if (isNew) {
                 binding.root.setCardBackgroundColor(ContextCompat.getColor(context, R.color.light_orange_bg))
             } else {
@@ -92,7 +91,30 @@ class NotificationAdapter(
                         "레시피 마스터" -> "게시글을 50회 작성하여 칭호를 획득했습니다."
                         else -> "새로운 칭호를 획득했습니다."
                     }
-                    binding.ivNotificationImage.visibility = View.GONE // 칭호 알림은 이미지 없음
+                    binding.ivNotificationImage.visibility = View.GONE
+                }
+                NotificationType.TIP_LIKE -> {
+                    title = notification.tipTitle ?: "내 요리 팁"
+                    content = if (count > 1) {
+                        "${notification.senderName}님 외 ${count - 1}명이 회원님의 요리 팁을 추천했습니다."
+                    } else {
+                        "${notification.senderName}님이 회원님의 요리 팁을 추천했습니다."
+                    }
+                    loadRecipeImage(notification.tipFirstImageUrl)
+                }
+                NotificationType.TIP_COMMENT -> {
+                    title = notification.tipTitle ?: "내 요리 팁"
+                    content = if (count > 1) {
+                        "${notification.senderName}님 외 ${count - 1}명이 댓글을 남겼습니다."
+                    } else {
+                        "${notification.senderName}님이 댓글을 남겼습니다."
+                    }
+                    loadRecipeImage(notification.tipFirstImageUrl)
+                }
+                NotificationType.TIP_REPLY -> { // 답글 알림 처리
+                    title = "내 댓글에 답글이 달렸습니다."
+                    content = "${notification.senderName}: \"${notification.commentContent}\""
+                    loadRecipeImage(notification.tipFirstImageUrl)
                 }
                 null -> {}
             }
@@ -128,7 +150,6 @@ class NotificationAdapter(
 
         private fun formatTimestamp(date: Date?): String {
             if (date == null) return ""
-            // 한국 시간대로 포맷팅
             val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.KOREA).apply {
                 timeZone = TimeZone.getTimeZone("Asia/Seoul")
             }

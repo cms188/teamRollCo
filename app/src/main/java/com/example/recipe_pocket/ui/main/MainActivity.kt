@@ -1,7 +1,6 @@
 package com.example.recipe_pocket.ui.main
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -22,13 +21,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.recipe_pocket.CategoryPageActivity
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.RecipeAdapter
-import com.example.recipe_pocket.data.CookTipItem
 import com.example.recipe_pocket.databinding.ActivityMainBinding
+import com.example.recipe_pocket.repository.CookingTipLoader
 import com.example.recipe_pocket.repository.RecipeLoader
 import com.example.recipe_pocket.ui.auth.LoginActivity
 import com.example.recipe_pocket.ui.notification.NotificationActivity
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
-import com.example.recipe_pocket.ui.recipe.write.CookWrite01Activity
+import com.example.recipe_pocket.ui.tip.CookTipDetailActivity
+import com.example.recipe_pocket.ui.tip.CookTipListActivity
 import com.example.recipe_pocket.ui.user.UserPageActivity
 import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.example.recipe_pocket.weather.WeatherMainActivity
@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var hotCookRecipeAdapter: RecipeAdapter
     private lateinit var pickCookRecipeAdapter: RecipeAdapter
     private lateinit var nCookRecipeAdapter: RecipeAdapter
+    private lateinit var cookTipAdapter: CookTipAdapter
 
     private var notificationListener: ListenerRegistration? = null
     private var newNotificationCount = 0 // 새로운 알림 개수를 저장할 변수
@@ -79,6 +80,7 @@ class MainActivity : AppCompatActivity() {
         setupClickListeners()
         setupRecyclerView()
         setupBottomNavigation()
+        setupNotificationListener()
 
         // ★★★ 알림 권한 요청 함수 호출 ★★★
         askNotificationPermission()
@@ -86,7 +88,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        loadAllRecipes()
+        loadAllData()
         binding.bottomNavigationView.menu.findItem(R.id.fragment_home).isChecked = true
         setupNotificationListener()
     }
@@ -142,15 +144,13 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("new_notification_count", newNotificationCount)
             notificationResultLauncher.launch(intent)
         }
+        binding.ivSeeAllTips.setOnClickListener {
+            startActivity(Intent(this, CookTipListActivity::class.java))
+        }
     }
 
     private fun setupNotificationListener() {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser == null) {
-            binding.notificationDot.visibility = View.GONE
-            return
-        }
-
+        val currentUser = FirebaseAuth.getInstance().currentUser ?: return
         notificationListener?.remove()
         Log.d("NotificationDebug", "MainActivity: 알림 리스너 설정 시작.")
 
@@ -176,12 +176,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadAllRecipes() {
+    private fun loadAllData() {
         lifecycleScope.launch {
             // Hot Cook 로딩
             RecipeLoader.loadMultipleRandomRecipesWithAuthor(count = 5).fold(
                 onSuccess = { recipes ->
-                    binding.hotCookRecyclerview.visibility = if (recipes.isNotEmpty()) View.VISIBLE else View.GONE
                     hotCookRecipeAdapter.updateRecipes(recipes)
                 },
                 onFailure = {
@@ -192,7 +191,6 @@ class MainActivity : AppCompatActivity() {
             // Pick Cook 로딩
             RecipeLoader.loadMultipleRandomRecipesWithAuthor(count = 5).fold(
                 onSuccess = { recipes ->
-                    binding.pickCookRecyclerview.visibility = if (recipes.isNotEmpty()) View.VISIBLE else View.GONE
                     pickCookRecipeAdapter.updateRecipes(recipes)
                 },
                 onFailure = {
@@ -203,12 +201,17 @@ class MainActivity : AppCompatActivity() {
             // N Cook 로딩
             RecipeLoader.loadMultipleRandomRecipesWithAuthor(count = 5).fold(
                 onSuccess = { recipes ->
-                    binding.nCookRecyclerview.visibility = if (recipes.isNotEmpty()) View.VISIBLE else View.GONE
                     nCookRecipeAdapter.updateRecipes(recipes)
                 },
                 onFailure = {
                     Toast.makeText(this@MainActivity, "신규 레시피 로드 실패", Toast.LENGTH_SHORT).show()
                 }
+            )
+
+            // 요리 팁 로딩 추가
+            CookingTipLoader.loadRandomTips(5).fold(
+                onSuccess = { tips -> cookTipAdapter.updateData(tips) },
+                onFailure = { Toast.makeText(this@MainActivity, "요리 팁 로드 실패", Toast.LENGTH_SHORT).show() }
             )
         }
     }
@@ -232,13 +235,14 @@ class MainActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@MainActivity, RecyclerView.HORIZONTAL, false)
         }
 
-        // ViewPager2 어댑터 설정
-        val cookTipItems = listOf(
-            CookTipItem("오늘의 추천 요리팁!", "재료 손질부터 플레이팅까지", R.drawable.bg_no_img_gray),
-            CookTipItem("간단한 밑반찬 만들기", "냉장고를 든든하게 채워요", R.drawable.bg_no_img_gray),
-            CookTipItem("특별한 날 홈파티 메뉴", "쉽고 근사하게 준비하기", R.drawable.bg_no_img_gray)
-        )
-        binding.cookTipsViewPager.adapter = CookTipAdapter(cookTipItems)
+        // ViewPager2 어댑터 설정 (클릭 리스너 구현)
+        cookTipAdapter = CookTipAdapter(emptyList()) { tip ->
+            val intent = Intent(this, CookTipDetailActivity::class.java).apply {
+                putExtra(CookTipDetailActivity.EXTRA_TIP_ID, tip.id)
+            }
+            startActivity(intent)
+        }
+        binding.cookTipsViewPager.adapter = cookTipAdapter
         binding.cookTipsViewPager.offscreenPageLimit = 1
     }
 
@@ -251,14 +255,21 @@ class MainActivity : AppCompatActivity() {
             }
 
             val currentUser = FirebaseAuth.getInstance().currentUser
-            val intent = when (item.itemId) {
-                //R.id.fragment_search -> Intent(this, SearchResult::class.java) //임시변경
-                R.id.fragment_search -> Intent(this, WeatherMainActivity::class.java) //weathermainactivity로 이동 임시변경
-                R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
-                R.id.fragment_favorite -> {
-                    if (currentUser != null) Intent(this, CookWrite01Activity::class.java)
-                    else Intent(this, LoginActivity::class.java)
+            if (item.itemId == R.id.fragment_favorite) {
+                if (currentUser != null) {
+                    // 로그인 상태: 작성 선택 다이얼로그 표시
+                    WriteChoiceDialogFragment().show(supportFragmentManager, WriteChoiceDialogFragment.TAG)
+                } else {
+                    // 비로그인 상태: 로그인 화면으로 이동
+                    startActivity(Intent(this, LoginActivity::class.java))
                 }
+                // 이벤트 처리를 여기서 완료했음을 알림
+                return@setOnItemSelectedListener false // reselection 방지를 위해 false 반환
+            }
+
+            val intent = when (item.itemId) {
+                R.id.fragment_search -> Intent(this, WeatherMainActivity::class.java)
+                R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
                 R.id.fragment_settings -> {
                     if (currentUser != null) Intent(this, UserPageActivity::class.java)
                     else Intent(this, LoginActivity::class.java)

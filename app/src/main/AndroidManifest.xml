@@ -92,6 +92,16 @@
             android:exported="false" />
         <activity android:name=".ui.recipe.write.CategorySelectionActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.tip.CookTipWriteActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.tip.CookTipListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.tip.CookTipDetailActivity"
+            android:exported="false" />
 
         <activity
             android:name=".ui.notification.NotificationActivity"
