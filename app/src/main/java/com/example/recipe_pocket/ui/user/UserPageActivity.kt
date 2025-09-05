@@ -36,6 +36,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import utils.ToolbarUtils
 
 class UserPageActivity : AppCompatActivity() {
 
@@ -83,7 +84,7 @@ class UserPageActivity : AppCompatActivity() {
         initializeViews()
 
         // 툴바 설정
-        setupToolbar()
+        ToolbarUtils.setupTransparentToolbar(this, "MY")
 
         // 클릭 리스너 설정
         setupClickListeners()
@@ -102,9 +103,9 @@ class UserPageActivity : AppCompatActivity() {
         // 프로필 섹션
         profileImageView = findViewById(R.id.imageView_profile)
         nicknameTextView = findViewById(R.id.textView_authorName)
-        badgeTextView = findViewById(R.id.textView_badge)
+        badgeTextView = findViewById(R.id.textView_badge_title)
         editInfoTextView = findViewById(R.id.textView_editInfo)
-        badgeCardView = findViewById(R.id.cardView_badge)
+        badgeCardView = findViewById(R.id.layout_badge)
 
         // 통계 섹션
         myRecipesLayout = findViewById(R.id.layout_myRecipes)
@@ -122,25 +123,6 @@ class UserPageActivity : AppCompatActivity() {
 
         // 하단 네비게이션
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
-    }
-
-    private fun setupToolbar() {
-        // 툴바 표시 텍스트 설정
-        val toolbarTitle = findViewById<TextView>(R.id.toolbar_title)
-        toolbarTitle.text = "MY"
-
-        // 툴바 버튼 숨김
-        val toolbarBtn = findViewById<ImageButton>(R.id.back_button)
-        toolbarBtn.visibility = View.GONE
-
-        // 툴바 상태바 높이만큼 보정
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = statusBarHeight)
-            view.updateLayoutParams { height = statusBarHeight + dpToPx(56) }
-            WindowInsetsCompat.CONSUMED
-        }
     }
 
     private fun dpToPx(dp: Int): Int {
@@ -347,6 +329,7 @@ class UserPageActivity : AppCompatActivity() {
                     }
                     return@setOnItemSelectedListener true
                 }
+
                 else -> null
             }
 

@@ -3,8 +3,9 @@ package com.example.recipe_pocket.ui.auth
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.ImageView
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import utils.ToolbarUtils
 
 class EditProfileActivity : AppCompatActivity() {
 
@@ -27,14 +29,19 @@ class EditProfileActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
 
-        // UI 요소 연결 및 리스너 설정
-        val backButton: ImageView = findViewById(R.id.iv_back_button)
-        val changeNicknameButton: Button = findViewById(R.id.btnChangeNickname)
-        val changePasswordButton: Button = findViewById(R.id.btnChangePassword)
-        val logoutButton: Button = findViewById(R.id.btnLogout)
-        val deleteAccountButton: Button = findViewById(R.id.btnDeleteAccount)
+        // 툴바 설정
+        ToolbarUtils.setupTransparentToolbar(this, "프로필 편집")
 
-        backButton.setOnClickListener { finish() } // 뒤로가기 버튼
+        // UI 요소 연결 및 리스너 설정
+        val changeNicknameButton: LinearLayout = findViewById(R.id.btnChangeNickname)
+        val changePasswordButton: LinearLayout = findViewById(R.id.btnChangePassword)
+        val logoutButton: LinearLayout = findViewById(R.id.btnLogout)
+        val deleteAccountButton: LinearLayout = findViewById(R.id.btnDeleteAccount)
+        val profileImageFrame: FrameLayout = findViewById(R.id.ChangeProfileImageFrame)
+        val tvCurrentNickname: TextView = findViewById(R.id.tvCurrentNickname)
+
+        // 프로필 이미지 클릭 리스너
+        // profileImageFrame.setOnClickListener { handleChangeProfileImage() }
         changeNicknameButton.setOnClickListener { handleChangeNickname() }
         changePasswordButton.setOnClickListener { handleChangePassword() }
         logoutButton.setOnClickListener { logoutUser() }
@@ -54,16 +61,19 @@ class EditProfileActivity : AppCompatActivity() {
         val currentUser = auth.currentUser ?: return
 
         // 사용자의 로그인 제공자 확인
-        val providerId = currentUser.providerData.find { it.providerId == EmailAuthProvider.PROVIDER_ID }
+        val providerId =
+            currentUser.providerData.find { it.providerId == EmailAuthProvider.PROVIDER_ID }
 
         if (providerId != null) {
             // 이메일/비밀번호 사용자일 경우
             showPasswordResetDialog()
         } else {
             // 소셜 로그인 사용자일 경우
-            val googleProvider = currentUser.providerData.find { it.providerId == GoogleAuthProvider.PROVIDER_ID }
+            val googleProvider =
+                currentUser.providerData.find { it.providerId == GoogleAuthProvider.PROVIDER_ID }
             if (googleProvider != null) {
-                Toast.makeText(this, "Google 계정 사용자는 Google에서 비밀번호를 변경해야 합니다.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Google 계정 사용자는 Google에서 비밀번호를 변경해야 합니다.", Toast.LENGTH_LONG)
+                    .show()
             } else {
                 Toast.makeText(this, "이 계정은 비밀번호를 변경할 수 없습니다.", Toast.LENGTH_LONG).show()
             }
@@ -85,7 +95,8 @@ class EditProfileActivity : AppCompatActivity() {
                 auth.sendPasswordResetEmail(userEmail)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            Toast.makeText(this, "이메일을 발송했습니다. 메일함을 확인해주세요.", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this, "이메일을 발송했습니다. 메일함을 확인해주세요.", Toast.LENGTH_LONG)
+                                .show()
                         } else {
                             Toast.makeText(this, "이메일 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()
                             Log.e("PasswordReset", "발송 실패", task.exception)

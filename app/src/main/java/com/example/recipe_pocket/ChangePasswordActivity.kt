@@ -17,6 +17,7 @@ import androidx.core.view.updatePadding
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import utils.ToolbarUtils
 
 class ChangePasswordActivity : AppCompatActivity() {
 
@@ -42,18 +43,7 @@ class ChangePasswordActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_change_password)
 
-        // 툴바 표시 텍스트
-        val toolbarTitle = findViewById<TextView>(R.id.toolbar_title)
-        toolbarTitle.text = "비밀번호 변경"
-
-        // 툴바 상태바 높이만큼 보정
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
-            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = statusBarHeight)
-            view.updateLayoutParams { height = statusBarHeight + dpToPx(56) }
-            WindowInsetsCompat.CONSUMED
-        }
+        ToolbarUtils.setupTransparentToolbar(this, "비밀번호 변경")
 
         // 뷰 초기화
         initViews()

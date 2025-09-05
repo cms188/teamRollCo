@@ -18,6 +18,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import utils.ToolbarUtils
 
 class NotificationActivity : AppCompatActivity() {
 
@@ -34,7 +35,7 @@ class NotificationActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         Log.d("NotificationDebug", "NotificationActivity: onCreate")
-        setupToolbar()
+        ToolbarUtils.setupTransparentToolbar(this, "")
         setupRecyclerViews()
     }
 
@@ -57,13 +58,6 @@ class NotificationActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d("NotificationDebug", "NotificationActivity: onDestroy")
-    }
-
-    private fun setupToolbar() {
-        binding.ivBackButton.setOnClickListener {
-            setResult(Activity.RESULT_OK)
-            finish()
-        }
     }
 
     override fun onBackPressed() {
