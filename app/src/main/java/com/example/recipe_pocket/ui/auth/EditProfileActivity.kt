@@ -179,6 +179,43 @@ class EditProfileActivity : AppCompatActivity() {
     private fun handleChangePassword() {
         val currentUser = auth.currentUser ?: return
 
+        firestore.collection("Users").document(currentUser.uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val loginType = document.getString("loginType")
+
+                    // loginType이 google 또는 kakao인 경우 차단
+                    if (loginType == "google" || loginType == "kakao") {
+                        when (loginType) {
+                            "google" -> {
+                                Toast.makeText(this, "Google 계정으로 소셜 로그인한 사용자는 \n 비밀번호를 변경할 수 없습니다.", Toast.LENGTH_LONG).show()
+                            }
+                            "kakao" -> {
+                                Toast.makeText(this, "카카오 계정으로 소셜 로그인한 사용자는 \n 비밀번호를 변경할 수 없습니다.", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    } else {
+                        ChangePassword_Ord()
+                    }
+                } else {
+                    ChangePassword_Ord()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("EditProfile", "loginType 확인 실패", e)
+                Toast.makeText(
+                    this,
+                    "알 수 없는 오류가 발생했습니다.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+    }
+
+    //비밀번호 변경 로직 (기존꺼)
+    private fun ChangePassword_Ord() {
+        val currentUser = auth.currentUser ?: return
+
         // 사용자의 로그인 제공자 확인
         val providerId = currentUser.providerData.find { it.providerId == EmailAuthProvider.PROVIDER_ID }
 

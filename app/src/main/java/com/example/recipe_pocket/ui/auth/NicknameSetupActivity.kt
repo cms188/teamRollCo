@@ -44,6 +44,7 @@ class NicknameSetupActivity : AppCompatActivity() {
 
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
+        val loginType = intent.getStringExtra("loginType") ?: "email"
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
@@ -92,7 +93,6 @@ class NicknameSetupActivity : AppCompatActivity() {
                 }
             }
         })
-
         saveButton.setOnClickListener {
             val nickname = nicknameInput.text.toString().trim()
             val userUid = currentUser.uid
@@ -106,7 +106,7 @@ class NicknameSetupActivity : AppCompatActivity() {
                         if (currentMode == MODE_UPDATE) {
                             updateUserNickname(userUid, nickname)
                         } else { // MODE_SETUP
-                            setupNewUser(userUid, currentUser.email, nickname)
+                            setupNewUser(userUid, currentUser.email, nickname, loginType)
                         }
                     }
                 }
@@ -117,11 +117,12 @@ class NicknameSetupActivity : AppCompatActivity() {
     }
 
     // 신규 사용자 닉네임 설정 로직
-    private fun setupNewUser(uid: String, email: String?, nickname: String) {
+    private fun setupNewUser(uid: String, email: String?, nickname: String, loginType: String) {
         val userMap = hashMapOf(
             "email" to email,
             "nickname" to nickname,
             "profileImageUrl" to "",
+            "loginType" to loginType,
             "createdAt" to FieldValue.serverTimestamp()
         )
 

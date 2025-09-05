@@ -195,6 +195,13 @@ class LoginActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     Log.d(TAG, "signInWithEmail:success")
                     updateFcmToken() // ★★★ FCM 토큰 저장 로직 호출 ★★★
+                    val currentUser = auth.currentUser
+                    if (currentUser != null) {
+                        FirebaseFirestore.getInstance()
+                            .collection("Users")
+                            .document(currentUser.uid)
+                            .update("loginType", "email")
+                    }
                     Toast.makeText(this, "로그인 성공", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this, MainActivity::class.java)
                     // 로그인 성공 후에는 보통 이전 액티비티 스택을 모두 지우고 새 태스크로 시작합니다.
@@ -272,14 +279,19 @@ class LoginActivity : AppCompatActivity() {
 
     private fun checkIfUserHasNickname(email: String) {
         val firestore = FirebaseFirestore.getInstance()
-        val userRef = firestore.collection("Users").whereEqualTo("email", email)
+        val currentUser = auth.currentUser ?: return
 
-        userRef.get()
-            .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    val document = querySnapshot.documents[0]
+        val userDocRef = firestore.collection("Users").document(currentUser.uid)
+
+        userDocRef.get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    userDocRef.update("loginType", "google")
+                        .addOnSuccessListener {
+                            Log.d("GOOGLE_LOGIN", "loginType updated to google")
+                        }
+
                     val nickname = document.getString("nickname")
-
                     if (!nickname.isNullOrEmpty()) {
                         Toast.makeText(this, "${nickname}님, 로그인 성공", Toast.LENGTH_SHORT).show()
                         val intent = Intent(this, MainActivity::class.java)
@@ -287,23 +299,22 @@ class LoginActivity : AppCompatActivity() {
                         startActivity(intent)
                         finish()
                     } else {
-                        navigateToNicknameSetup(email)
+                        navigateToNicknameSetup(email, "google")
                     }
                 } else {
-                    // 사용자 문서가 없을 경우에도 닉네임 설정 액티비티로 이동
-                    Log.w("Firestore", "사용자 문서 없음")
-                    navigateToNicknameSetup(email)
+                    navigateToNicknameSetup(email, "google")
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("Firestore", "사용자 닉네임 조회 실패", e)
+                Log.e("Firestore", "사용자 정보 조회 실패", e)
                 Toast.makeText(this, "사용자 정보 조회 실패", Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun navigateToNicknameSetup(email: String) {
+    private fun navigateToNicknameSetup(email: String, loginType: String = "google") {
         val intent = Intent(this, NicknameSetupActivity::class.java)
         intent.putExtra("email", email)
+        intent.putExtra("loginType", loginType)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
         finish()

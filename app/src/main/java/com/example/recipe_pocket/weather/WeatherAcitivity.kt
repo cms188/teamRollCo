@@ -109,10 +109,30 @@ class WeatherActivity : AppCompatActivity() {
     }
 
     private fun parseWeatherXml(xmlString: String): WeatherData? {
-        val weatherDataMap = mutableMapOf<String, String>()
+        // 현재 한국 시간 가져오기
+        val koreaTimeZone = TimeZone.getTimeZone("Asia/Seoul")
+        val calendar = Calendar.getInstance(koreaTimeZone)
+        val currentHour = SimpleDateFormat("HH00", Locale.KOREAN).apply {
+            timeZone = koreaTimeZone
+        }.format(calendar.time)
+
+        // 날짜 포맷 (fcstDate 비교용)
+        val currentDate = SimpleDateFormat("yyyyMMdd", Locale.KOREAN).apply {
+            timeZone = koreaTimeZone
+        }.format(calendar.time)
+
+        // 여러 시간대의 데이터를 저장할 리스트
+        data class WeatherItem(
+            val fcstDate: String,
+            val fcstTime: String,
+            val category: String,
+            val fcstValue: String
+        )
+
+        val weatherItems = mutableListOf<WeatherItem>()
         var baseTime = ""
 
-        return try {
+        try {
             val factory = XmlPullParserFactory.newInstance()
             val parser = factory.newPullParser()
             parser.setInput(StringReader(xmlString))
@@ -120,7 +140,10 @@ class WeatherActivity : AppCompatActivity() {
             var eventType = parser.eventType
             var currentCategory = ""
             var currentFcstValue = ""
+            var currentFcstDate = ""
+            var currentFcstTime = ""
 
+            // 모든 item 파싱
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 when (eventType) {
                     XmlPullParser.START_TAG -> {
@@ -128,33 +151,86 @@ class WeatherActivity : AppCompatActivity() {
                             "baseTime" -> baseTime = parser.nextText()
                             "category" -> currentCategory = parser.nextText()
                             "fcstValue" -> currentFcstValue = parser.nextText()
+                            "fcstDate" -> currentFcstDate = parser.nextText()
+                            "fcstTime" -> currentFcstTime = parser.nextText()
                         }
                     }
                     XmlPullParser.END_TAG -> {
                         if (parser.name == "item") {
-                            // 하나의 item 파싱이 끝나면, category에 맞는 값을 map에 저장
-                            if (currentCategory.isNotEmpty()) {
-                                weatherDataMap[currentCategory] = currentFcstValue
-                            }
+                            weatherItems.add(
+                                WeatherItem(
+                                    fcstDate = currentFcstDate,
+                                    fcstTime = currentFcstTime,
+                                    category = currentCategory,
+                                    fcstValue = currentFcstValue
+                                )
+                            )
+                            // 초기화
                             currentCategory = ""
                             currentFcstValue = ""
+                            currentFcstDate = ""
+                            currentFcstTime = ""
                         }
                     }
                 }
                 eventType = parser.next()
             }
 
-            // 모든 item을 파싱한 후, map에서 데이터를 꺼내 WeatherData 객체를 생성
-            WeatherData(
-                baseTime = baseTime,
-                tmp = weatherDataMap["TMP"] ?: "N/A",
-                pty = weatherDataMap["PTY"] ?: "N/A",
-                reh = weatherDataMap["REH"] ?: "N/A",
-                sky = weatherDataMap["SKY"] ?: "N/A"
-            )
+            // 현재 시간과 가장 가까운 데이터 찾기
+            val targetDateTime = currentDate + currentHour
+
+            // 1. 먼저 현재 시간과 정확히 일치하는 데이터 찾기
+            var selectedItems = weatherItems.filter {
+                it.fcstDate + it.fcstTime == targetDateTime
+            }
+
+            // 2. 없으면 현재 시간 이후의 가장 가까운 데이터 찾기
+            if (selectedItems.isEmpty()) {
+                val futureItems = weatherItems.filter {
+                    (it.fcstDate + it.fcstTime) > targetDateTime
+                }.sortedBy { it.fcstDate + it.fcstTime }
+
+                if (futureItems.isNotEmpty()) {
+                    val nearestTime = futureItems.first().let { it.fcstDate + it.fcstTime }
+                    selectedItems = weatherItems.filter {
+                        it.fcstDate + it.fcstTime == nearestTime
+                    }
+                }
+            }
+
+            // 3. 그래도 없으면 가장 첫 번째 시간대의 데이터 사용
+            if (selectedItems.isEmpty() && weatherItems.isNotEmpty()) {
+                val firstTime = weatherItems.minByOrNull { it.fcstDate + it.fcstTime }
+                    ?.let { it.fcstDate + it.fcstTime }
+                selectedItems = weatherItems.filter {
+                    it.fcstDate + it.fcstTime == firstTime
+                }
+            }
+
+            // 선택된 시간대의 데이터로 WeatherData 생성
+            if (selectedItems.isNotEmpty()) {
+                val weatherMap = mutableMapOf<String, String>()
+                selectedItems.forEach { item ->
+                    weatherMap[item.category] = item.fcstValue
+                }
+
+                // 실제 예보 시간 정보도 포함 (디버깅/표시용)
+                val actualFcstTime = selectedItems.firstOrNull()?.fcstTime ?: ""
+
+                return WeatherData(
+                    baseTime = "$baseTime (예보시간: $actualFcstTime)",  // 실제 사용되는 예보 시간 표시
+                    tmp = weatherMap["TMP"] ?: weatherMap["T1H"] ?: "N/A",  // TMP 또는 T1H (1시간 기온)
+                    pty = weatherMap["PTY"] ?: "0",  // 강수형태 (없으면 0)
+                    reh = weatherMap["REH"] ?: "N/A",  // 습도
+                    sky = weatherMap["SKY"] ?: "N/A"   // 하늘상태
+                )
+            }
+
+            return null
+
         } catch (e: Exception) {
             e.printStackTrace()
-            null
+            return null
         }
     }
 }

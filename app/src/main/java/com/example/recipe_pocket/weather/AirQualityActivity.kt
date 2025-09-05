@@ -17,13 +17,16 @@ import java.io.StringReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 
 @Parcelize
 data class AirQualityData(val pm10: String, val pm25: String, val time: String) : Parcelable
 
 class AirQualityActivity : AppCompatActivity() {
 
-    // URL 인코딩된 서비스 키를 그대로 사용합니다.
     private val airKoreaServiceKey = BuildConfig.AIR_API_KEY
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,15 +72,25 @@ class AirQualityActivity : AppCompatActivity() {
     }
 
     private fun parseXml(xmlString: String): AirQualityData? {
+        val koreaTimeZone = TimeZone.getTimeZone("Asia/Seoul")
+        val calendar = Calendar.getInstance(koreaTimeZone)
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:00", Locale.KOREAN).apply {
+            timeZone = koreaTimeZone
+        }
+        val currentTimeStr = dateFormat.format(calendar.time)
+
+        val airQualityDataMap = mutableMapOf<String, MutableList<Triple<String, String, String>>>()
+
         return try {
             val factory = XmlPullParserFactory.newInstance()
             val parser = factory.newPullParser()
             parser.setInput(StringReader(xmlString))
 
             var eventType = parser.eventType
-            var pm10 = ""
-            var pm25 = ""
-            var time = ""
+            var currentStationName = ""
+            var currentPm10 = ""
+            var currentPm25 = ""
+            var currentDataTime = ""
             var currentTag: String? = null
 
             while (eventType != XmlPullParser.END_DOCUMENT) {
@@ -87,21 +100,67 @@ class AirQualityActivity : AppCompatActivity() {
                     }
                     XmlPullParser.TEXT -> {
                         when (currentTag) {
-                            "pm10Value" -> pm10 = parser.text ?: ""
-                            "pm25Value" -> pm25 = parser.text ?: ""
-                            "dataTime" -> time = parser.text ?: ""
+                            "stationName" -> currentStationName = parser.text ?: ""
+                            "pm10Value" -> currentPm10 = parser.text ?: ""
+                            "pm25Value" -> currentPm25 = parser.text ?: ""
+                            "dataTime" -> currentDataTime = parser.text ?: ""
                         }
                     }
                     XmlPullParser.END_TAG -> {
                         if (parser.name == "item") {
-                            if (pm10.isNotEmpty() && pm25.isNotEmpty() && time.isNotEmpty()) {
-                                return AirQualityData(pm10, pm25, time)
+                            // 유효한 데이터만 저장
+                            if (currentPm10.isNotEmpty() && currentPm10 != "-" &&
+                                currentPm25.isNotEmpty() && currentPm25 != "-" &&
+                                currentDataTime.isNotEmpty()) {
+
+                                if (!airQualityDataMap.containsKey(currentDataTime)) {
+                                    airQualityDataMap[currentDataTime] = mutableListOf()
+                                }
+                                airQualityDataMap[currentDataTime]?.add(
+                                    Triple(currentStationName, currentPm10, currentPm25)
+                                )
                             }
+                            // 초기화
+                            currentStationName = ""
+                            currentPm10 = ""
+                            currentPm25 = ""
+                            currentDataTime = ""
                         }
                         currentTag = null
                     }
                 }
                 eventType = parser.next()
+            }
+
+            val sortedTimes = airQualityDataMap.keys.sorted()
+
+            var selectedTime = sortedTimes.find { it == currentTimeStr }
+
+            if (selectedTime == null) {
+                selectedTime = sortedTimes.filter { it <= currentTimeStr }.maxOrNull()
+            }
+
+            if (selectedTime == null && sortedTimes.isNotEmpty()) {
+                selectedTime = sortedTimes.last()
+            }
+
+            selectedTime?.let { time ->
+                val stations = airQualityDataMap[time] ?: return null
+
+                val validStations = stations.filter { (_, pm10, pm25) ->
+                    pm10.toIntOrNull() != null && pm25.toIntOrNull() != null
+                }
+
+                if (validStations.isNotEmpty()) {
+                    val avgPm10 = validStations.map { it.second.toInt() }.average().toInt()
+                    val avgPm25 = validStations.map { it.third.toInt() }.average().toInt()
+
+                    return AirQualityData(
+                        pm10 = avgPm10.toString(),
+                        pm25 = avgPm25.toString(),
+                        time = time
+                    )
+                }
             }
             null
         } catch (e: Exception) {

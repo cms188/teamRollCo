@@ -164,6 +164,7 @@ class RegisterActivity : AppCompatActivity() {
         val userData = hashMapOf(
             "email" to email,
             "nickname" to nickname,
+            "loginType" to "App",
             "createdAt" to FieldValue.serverTimestamp()  // 생성 시간 추가
         )
 
