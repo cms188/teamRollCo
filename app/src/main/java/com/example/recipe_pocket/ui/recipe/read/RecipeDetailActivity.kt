@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -91,6 +92,10 @@ class RecipeDetailActivity : AppCompatActivity() {
 
         initViews()
         setupUI()
+
+        onBackPressedDispatcher.addCallback(this) {
+            finish()
+        }
     }
 
     override fun onResume() {
