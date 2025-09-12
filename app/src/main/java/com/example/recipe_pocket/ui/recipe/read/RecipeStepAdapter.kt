@@ -27,7 +27,10 @@ sealed class RecipePageItem {
     data class FinishPage(val recipe: Recipe) : RecipePageItem()
 }
 
-class RecipeStepAdapter(initialRecipe: Recipe?) :
+class RecipeStepAdapter(
+    initialRecipe: Recipe?,
+    private val timerStateListener: CircularTimerView.OnTimerStateChangedListener? // 리스너 추가
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var pageItems: List<RecipePageItem> = emptyList()
@@ -56,6 +59,10 @@ class RecipeStepAdapter(initialRecipe: Recipe?) :
             VIEW_TYPE_STEP -> {
                 val view = inflater.inflate(R.layout.read_recipe_step, parent, false)
                 val holder = StepViewHolder(view)
+                // ViewHolder 생성 시 리스너 설정
+                timerStateListener?.let {
+                    holder.setTimerStateListener(it)
+                }
                 viewHolders.add(holder)
                 holder
             }
@@ -104,7 +111,7 @@ class RecipeStepAdapter(initialRecipe: Recipe?) :
         private val stepTitleTextView: TextView = itemView.findViewById(R.id.tv_step_title)
         private val stepDescriptionTextView: TextView = itemView.findViewById(R.id.tv_step_description)
         private val stepImageView: ImageView = itemView.findViewById(R.id.iv_step_image)
-        private val circularTimerView: CircularTimerView = itemView.findViewById(R.id.circular_timer_view)
+        val circularTimerView: CircularTimerView = itemView.findViewById(R.id.circular_timer_view)
 
         fun bind(step: RecipeStep) {
             stepTitleTextView.text = if (step.title.isNullOrEmpty()) "요리하기" else step.title
@@ -124,6 +131,11 @@ class RecipeStepAdapter(initialRecipe: Recipe?) :
                 circularTimerView.visibility = View.GONE
             }
         }
+        // CircularTimerView에 리스너를 설정하는 메서드 추가
+        fun setTimerStateListener(listener: CircularTimerView.OnTimerStateChangedListener) {
+            circularTimerView.setOnTimerStateChangedListener(listener)
+        }
+
         fun startTimer() { if (circularTimerView.visibility == View.VISIBLE) circularTimerView.startTimer() }
         fun pauseTimer() { if (circularTimerView.visibility == View.VISIBLE) circularTimerView.pauseTimer() }
         fun releaseCircularTimer() { circularTimerView.releaseTimer() }

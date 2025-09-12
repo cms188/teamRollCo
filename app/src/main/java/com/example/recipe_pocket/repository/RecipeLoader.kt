@@ -57,6 +57,27 @@ object RecipeLoader {
         return recipe
     }
 
+    // 15분 이하 레시피를 불러오는 함수
+    suspend fun loadRecipesByCookingTime(maxTime: Int, count: Int): Result<List<Recipe>> {
+        return try {
+            val querySnapshot = db.collection("Recipes")
+                .whereLessThanOrEqualTo("cookingTime", maxTime)
+                .limit(count.toLong())
+                .get()
+                .await()
+
+            val recipes = coroutineScope {
+                querySnapshot.documents.map { doc ->
+                    async { enrichRecipeWithAuthor(doc) }
+                }.awaitAll().filterNotNull()
+            }
+            Result.success(recipes)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
     suspend fun loadUsers(userIds: List<String>): Result<Map<String, User>> {
         if (userIds.isEmpty()) {
             return Result.success(emptyMap())
@@ -113,16 +134,26 @@ object RecipeLoader {
         }
     }
 
-    suspend fun searchRecipesByTitle(query: String): Result<List<Recipe>> {
+    // 제목 + 재료 검색
+    suspend fun searchRecipes(query: String): Result<List<Recipe>> {
         if (query.isBlank()) return Result.success(emptyList())
 
         val normalizedQuery = Normalizer.normalize(query.lowercase().trim(), Normalizer.Form.NFC)
         return try {
+            // Firestore에서는 OR 쿼리가 복잡하므로, 일단 모든 레시피를 가져와서 클라이언트에서 필터링
             val recipeQueryResult = db.collection("Recipes").get().await()
 
             val filteredDocuments = recipeQueryResult.documents.filter { doc ->
                 val title = doc.getString("title") ?: ""
-                Normalizer.normalize(title.lowercase(), Normalizer.Form.NFC).contains(normalizedQuery)
+                val titleMatches = Normalizer.normalize(title.lowercase(), Normalizer.Form.NFC).contains(normalizedQuery)
+
+                val ingredients = doc.get("ingredients") as? List<Map<String, Any>>
+                val ingredientMatches = ingredients?.any { ingredient ->
+                    val name = ingredient["name"] as? String ?: ""
+                    Normalizer.normalize(name.lowercase(), Normalizer.Form.NFC).contains(normalizedQuery)
+                } ?: false
+
+                titleMatches || ingredientMatches // 제목 또는 재료명에 포함되면 true
             }
 
             val recipes = coroutineScope {

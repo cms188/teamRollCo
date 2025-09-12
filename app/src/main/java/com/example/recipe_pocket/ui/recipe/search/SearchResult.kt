@@ -32,7 +32,6 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.util.*
 
-// OnFilterAppliedListener 인터페이스 구현 추가
 class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppliedListener {
 
     private lateinit var binding: SearchResultBinding
@@ -62,8 +61,16 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
         setupBottomNavigation()
         handleOnBackPressed()
 
-        // 액티비티가 처음 생성될 때 전체 레시피 목록을 불러옵니다.
-        loadData(null)
+        // 인텐트에서 검색어 확인 및 처리 로직
+        val incomingQuery = intent.getStringExtra("search_query")
+        if (!incomingQuery.isNullOrBlank()) {
+            // 인텐트로 검색어가 전달된 경우 (예: 제철 재료 클릭)
+            binding.etSearchBar.setText(incomingQuery)
+            performSearch() // 검색 수행 (UI 숨김, 데이터 로딩 등 포함)
+        } else {
+            // 직접 검색 화면으로 들어온 경우, 전체 레시피 목록을 불러옴
+            loadData(null)
+        }
     }
 
     override fun onResume() {
@@ -280,7 +287,7 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
             val recipeResult = if (query.isNullOrBlank()) {
                 RecipeLoader.loadAllRecipes()
             } else {
-                RecipeLoader.searchRecipesByTitle(query)
+                RecipeLoader.searchRecipes(query)
             }
 
             recipeResult.fold(
