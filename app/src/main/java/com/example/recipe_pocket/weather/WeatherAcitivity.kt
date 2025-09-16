@@ -22,14 +22,14 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
-// 데이터를 담을 클래스
 @Parcelize
 data class WeatherData(
     val baseTime: String,
     var tmp: String,
-    val pty: String, // 강수형태
-    val reh: String, // 습도
-    val sky: String  // 하늘상태
+    val pty: String, // precipitation type
+    val reh: String, // humidity
+    val sky: String, // sky condition
+    val pop: String  // precipitation probability (%)
 ) : Parcelable
 
 class WeatherActivity : AppCompatActivity() {
@@ -60,7 +60,7 @@ class WeatherActivity : AppCompatActivity() {
             val urlBuilder = StringBuilder("https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst")
             urlBuilder.append("?${URLEncoder.encode("serviceKey", "UTF-8")}=$weatherServiceKey")
             urlBuilder.append("&${URLEncoder.encode("pageNo", "UTF-8")}=1")
-            urlBuilder.append("&${URLEncoder.encode("numOfRows", "UTF-8")}=100") // 충분한 데이터를 가져오도록 설정
+            urlBuilder.append("&${URLEncoder.encode("numOfRows", "UTF-8")}=100")
             urlBuilder.append("&${URLEncoder.encode("dataType", "UTF-8")}=XML")
             urlBuilder.append("&${URLEncoder.encode("base_date", "UTF-8")}=${URLEncoder.encode(baseDate, "UTF-8")}")
             urlBuilder.append("&${URLEncoder.encode("base_time", "UTF-8")}=${URLEncoder.encode(baseTime, "UTF-8")}")
@@ -89,7 +89,6 @@ class WeatherActivity : AppCompatActivity() {
         val koreaTimeZone = TimeZone.getTimeZone("Asia/Seoul")
         val calendar = Calendar.getInstance(koreaTimeZone)
 
-        // 2. SimpleDateFormat 에도 KST를 적용하여 포매팅 오류를 방지합니다.
         val nowFormat = SimpleDateFormat("HHmm", Locale.KOREAN).apply { timeZone = koreaTimeZone }
         val dateFormat = SimpleDateFormat("yyyyMMdd", Locale.KOREAN).apply { timeZone = koreaTimeZone }
 
@@ -102,26 +101,22 @@ class WeatherActivity : AppCompatActivity() {
         return if (latestBaseTime != null) {
             Pair(dateFormat.format(calendar.time), latestBaseTime)
         } else {
-            // 자정을 넘은 경우, 어제 날짜의 마지막 발표 시각을 사용
             calendar.add(Calendar.DATE, -1)
             Pair(dateFormat.format(calendar.time), baseTimes.last())
         }
     }
 
     private fun parseWeatherXml(xmlString: String): WeatherData? {
-        // 현재 한국 시간 가져오기
         val koreaTimeZone = TimeZone.getTimeZone("Asia/Seoul")
         val calendar = Calendar.getInstance(koreaTimeZone)
         val currentHour = SimpleDateFormat("HH00", Locale.KOREAN).apply {
             timeZone = koreaTimeZone
         }.format(calendar.time)
 
-        // 날짜 포맷 (fcstDate 비교용)
         val currentDate = SimpleDateFormat("yyyyMMdd", Locale.KOREAN).apply {
             timeZone = koreaTimeZone
         }.format(calendar.time)
 
-        // 여러 시간대의 데이터를 저장할 리스트
         data class WeatherItem(
             val fcstDate: String,
             val fcstTime: String,
@@ -143,7 +138,6 @@ class WeatherActivity : AppCompatActivity() {
             var currentFcstDate = ""
             var currentFcstTime = ""
 
-            // 모든 item 파싱
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 when (eventType) {
                     XmlPullParser.START_TAG -> {
@@ -165,7 +159,6 @@ class WeatherActivity : AppCompatActivity() {
                                     fcstValue = currentFcstValue
                                 )
                             )
-                            // 초기화
                             currentCategory = ""
                             currentFcstValue = ""
                             currentFcstDate = ""
@@ -176,15 +169,12 @@ class WeatherActivity : AppCompatActivity() {
                 eventType = parser.next()
             }
 
-            // 현재 시간과 가장 가까운 데이터 찾기
             val targetDateTime = currentDate + currentHour
 
-            // 1. 먼저 현재 시간과 정확히 일치하는 데이터 찾기
             var selectedItems = weatherItems.filter {
                 it.fcstDate + it.fcstTime == targetDateTime
             }
 
-            // 2. 없으면 현재 시간 이후의 가장 가까운 데이터 찾기
             if (selectedItems.isEmpty()) {
                 val futureItems = weatherItems.filter {
                     (it.fcstDate + it.fcstTime) > targetDateTime
@@ -198,7 +188,6 @@ class WeatherActivity : AppCompatActivity() {
                 }
             }
 
-            // 3. 그래도 없으면 가장 첫 번째 시간대의 데이터 사용
             if (selectedItems.isEmpty() && weatherItems.isNotEmpty()) {
                 val firstTime = weatherItems.minByOrNull { it.fcstDate + it.fcstTime }
                     ?.let { it.fcstDate + it.fcstTime }
@@ -207,22 +196,21 @@ class WeatherActivity : AppCompatActivity() {
                 }
             }
 
-            // 선택된 시간대의 데이터로 WeatherData 생성
             if (selectedItems.isNotEmpty()) {
                 val weatherMap = mutableMapOf<String, String>()
                 selectedItems.forEach { item ->
                     weatherMap[item.category] = item.fcstValue
                 }
 
-                // 실제 예보 시간 정보도 포함 (디버깅/표시용)
                 val actualFcstTime = selectedItems.firstOrNull()?.fcstTime ?: ""
 
                 return WeatherData(
-                    baseTime = "$baseTime (예보시간: $actualFcstTime)",  // 실제 사용되는 예보 시간 표시
-                    tmp = weatherMap["TMP"] ?: weatherMap["T1H"] ?: "N/A",  // TMP 또는 T1H (1시간 기온)
-                    pty = weatherMap["PTY"] ?: "0",  // 강수형태 (없으면 0)
-                    reh = weatherMap["REH"] ?: "N/A",  // 습도
-                    sky = weatherMap["SKY"] ?: "N/A"   // 하늘상태
+                    baseTime = "$baseTime (예보시간: $actualFcstTime)",
+                    tmp = weatherMap["TMP"] ?: weatherMap["T1H"] ?: "N/A",
+                    pty = weatherMap["PTY"] ?: "0",
+                    reh = weatherMap["REH"] ?: "N/A",
+                    sky = weatherMap["SKY"] ?: "N/A",
+                    pop = weatherMap["POP"] ?: "N/A"
                 )
             }
 
@@ -234,3 +222,4 @@ class WeatherActivity : AppCompatActivity() {
         }
     }
 }
+

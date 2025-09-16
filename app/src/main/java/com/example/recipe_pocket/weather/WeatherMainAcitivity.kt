@@ -90,7 +90,7 @@ class WeatherMainActivity : AppCompatActivity() {
             })
         } else {
             binding.locationTextView.text = "위치 정보를 가져오는 데 실패했습니다."
-            binding.weatherTextView.text = ""
+            binding.tempTextView.text = ""
         }
     }
 
@@ -128,18 +128,30 @@ class WeatherMainActivity : AppCompatActivity() {
             if (currentWeatherData != null) {
                 val sky = convertSkyCodeToText(currentWeatherData!!.sky)
                 val pty = convertPtyCodeToText(currentWeatherData!!.pty)
-                binding.weatherTextView.text = "온도: ${currentWeatherData!!.tmp}°C 발표: ${currentWeatherData!!.baseTime}\n하늘: $sky, 강수: $pty, 습도: ${currentWeatherData!!.reh}%"
+                binding.tempTextView.text = "${currentWeatherData!!.tmp}°C"
+                binding.humidityTextView.text = "습도 ${currentWeatherData!!.reh}%"
+                binding.precipitationTextView.text = "강수확률 ${currentWeatherData!!.pop}%"
                 attemptToRecommendRecipes()
             } else {
-                binding.weatherTextView.text = "날씨 정보를 가져올 수 없습니다."
+                binding.tempTextView.text = ""
             }
         } else {
-            binding.weatherTextView.text = "날씨 정보를 가져오는 데 실패했습니다."
+            binding.tempTextView.text = ""
         }
     }
 
     private fun attemptToRecommendRecipes() {
         if (currentWeatherData != null && currentAirQualityData != null) {
+            // Update overlay text in the requested format: "23°C, Region, 습도 n%, 강수확률 n%"
+            val temp = currentWeatherData!!.tmp
+            val region = regionName ?: ""
+            val humidity = currentWeatherData!!.reh
+            val pop = currentWeatherData!!.pop
+            binding.tempTextView.text = "${temp}°C"
+            binding.locationTextView.text = region
+            binding.humidityTextView.text = "습도 ${humidity}%"
+            binding.precipitationTextView.text = "강수확률 ${pop}%"
+
             lifecycleScope.launch {
                 val weatherTags = determineWeatherTags()
                 recommendRecipes(weatherTags)
@@ -213,20 +225,65 @@ class WeatherMainActivity : AppCompatActivity() {
         binding.recommendationStatusTextView.visibility = View.GONE
         binding.recommendationRecyclerView.visibility = View.GONE
 
-        val priorities = listOf("weather", "temperature", "dust", "humidity")
+        // 카테고리별 대표 태그 선택 (설계상 각 1개)
+        val tempTag = tags["temperature"]?.firstOrNull()
+        val weatherTag = tags["weather"]?.firstOrNull()
+        val dustTag = tags["dust"]?.firstOrNull()
+        val humidityTag = tags["humidity"]?.firstOrNull()
+
+        // 시작 조건: 온도 태그가 없으면 날씨부터 시도, 둘 다 없으면 종료 메시지
+        val requiredAll = mutableListOf<String>()
+        if (tempTag != null) {
+            requiredAll += tempTag
+            if (weatherTag != null) requiredAll += weatherTag
+        } else if (weatherTag != null) {
+            requiredAll += weatherTag
+        } else {
+            binding.recommendationProgressBar.visibility = View.GONE
+            binding.recommendationStatusTextView.text = "오늘 날씨에 맞는 추천 레시피를 찾지 못했어요."
+            binding.recommendationStatusTextView.visibility = View.VISIBLE
+            return
+        }
+
+        // 우선 순서대로 시도할 조합 생성
+        val baseTW = requiredAll.toList() // temperature + (optional) weather
+        val attempts = mutableListOf<List<String>>()
+
+        // Attempt 1: base + dust + humidity (있는 것만)
+        var full = baseTW
+        if (dustTag != null) full = full + dustTag
+        if (humidityTag != null) full = full + humidityTag
+        if (full.isNotEmpty()) attempts.add(full)
+
+        // Attempt 2: drop humidity (먼지 유지)
+        if (humidityTag != null) {
+            val noHumidity = full.filter { it != humidityTag }
+            if (noHumidity.isNotEmpty() && (attempts.isEmpty() || attempts.last() != noHumidity)) {
+                attempts.add(noHumidity)
+            }
+        }
+
+        // Attempt 3: drop dust (temperature + weather)
+        if (dustTag != null) {
+            if (baseTW.isNotEmpty() && (attempts.isEmpty() || attempts.last() != baseTW)) {
+                attempts.add(baseTW)
+            }
+        }
+
+        // Attempt 4: drop weather (temperature only)
+        if (tempTag != null && weatherTag != null) {
+            val tempOnly = listOf(tempTag)
+            if (attempts.isEmpty() || attempts.last() != tempOnly) {
+                attempts.add(tempOnly)
+            }
+        }
+
         var finalRecipes = listOf<Recipe>()
-
-        // 4개 태그부터 1개 태그까지 우선순위대로 검색
-        for (i in priorities.size downTo 1) {
-            val currentPriorityTags = priorities.take(i)
-            val searchTags = currentPriorityTags.flatMap { key -> tags[key] ?: emptyList() }
-
-            if (searchTags.isEmpty()) continue
-
-            val result = queryRecipesWithTags(searchTags)
+        for (combo in attempts) {
+            val result = queryRecipesWithTags(combo)
             if (result.isNotEmpty()) {
                 finalRecipes = result
-                break // 결과를 찾으면 루프 중단
+                break
             }
         }
 
