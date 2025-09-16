@@ -180,7 +180,7 @@ class UserPageActivity : AppCompatActivity() {
                     nicknameTextView.text = nickname
 
                     // 칭호 설정
-                    val title = document.getString("title")
+                    /*val title = document.getString("title")
                     if (!title.isNullOrEmpty()) {
                         badgeTextView.visibility = View.VISIBLE
                         badgeTextView.text = title
@@ -188,7 +188,7 @@ class UserPageActivity : AppCompatActivity() {
                     } else {
                         badgeTextView.visibility = View.GONE
                         badgeCardView.visibility = View.GONE
-                    }
+                    }*/
 
                     // 프로필 이미지 설정
                     val imageUrl = document.getString("profileImageUrl")
