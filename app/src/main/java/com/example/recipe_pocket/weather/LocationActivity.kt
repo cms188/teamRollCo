@@ -60,13 +60,14 @@ class LocationActivity : AppCompatActivity() {
             if (location != null) {
                 GlobalScope.launch(Dispatchers.Main) {
                     val address = getAddress(location.latitude, location.longitude)
-                    val shortName = convertAddressToShortName(address)
+                    val regionInfo = extractRegionInfo(address)
 
                     // 위도/경도를 격자 좌표로 변환
                     val grid = GpsConverter.convert(GpsConverter.TO_GRID, location.latitude, location.longitude)
 
                     val resultIntent = Intent().apply {
-                        putExtra("REGION_NAME", shortName)
+                        putExtra("REGION_NAME", regionInfo.displayName)
+                        putExtra("SIDO_NAME", regionInfo.sidoShortName)
                         putExtra("NX", grid.x)
                         putExtra("NY", grid.y)
                     }
@@ -99,10 +100,31 @@ class LocationActivity : AppCompatActivity() {
         }
     }
 
-    private fun convertAddressToShortName(fullAddress: String?): String {
-        if (fullAddress == null) return "알 수 없음"
-        val addressParts = fullAddress.split(" ")
-        return when (addressParts.getOrNull(1)) {
+    private data class RegionInfo(
+        val sidoShortName: String,
+        val displayName: String
+    )
+
+    private fun extractRegionInfo(fullAddress: String?): RegionInfo {
+        val unknown = "알 수 없음"
+        if (fullAddress.isNullOrBlank()) {
+            return RegionInfo(unknown, unknown)
+        }
+
+        val addressParts = fullAddress.split(" ").filter { it.isNotBlank() }
+        if (addressParts.isEmpty()) {
+            return RegionInfo(unknown, unknown)
+        }
+
+        var startIndex = 0
+        if (addressParts.firstOrNull() == "대한민국") {
+            startIndex = 1
+        }
+
+        val sidoRaw = addressParts.getOrNull(startIndex)
+        val cityRaw = addressParts.getOrNull(startIndex + 1)
+
+        val normalizedSido = when (sidoRaw) {
             "서울특별시" -> "서울"
             "부산광역시" -> "부산"
             "대구광역시" -> "대구"
@@ -120,7 +142,21 @@ class LocationActivity : AppCompatActivity() {
             "경상남도" -> "경남"
             "제주특별자치도" -> "제주"
             "세종특별자치시" -> "세종"
-            else -> addressParts.getOrNull(1) ?: "알 수 없음"
+            else -> sidoRaw
         }
+
+        val sidoShortName = normalizedSido?.trim().takeUnless { it.isNullOrEmpty() } ?: unknown
+
+        val displayName = when {
+            !sidoRaw.isNullOrBlank() && !cityRaw.isNullOrBlank() -> "${sidoRaw.trim()} ${cityRaw.trim()}"
+            !sidoRaw.isNullOrBlank() -> sidoRaw.trim()
+            !cityRaw.isNullOrBlank() -> cityRaw.trim()
+            else -> unknown
+        }
+
+        return RegionInfo(
+            sidoShortName = sidoShortName,
+            displayName = displayName
+        )
     }
 }

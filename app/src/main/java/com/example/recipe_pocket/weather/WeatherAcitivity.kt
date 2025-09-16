@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.recipe_pocket.BuildConfig
@@ -26,10 +27,10 @@ import java.util.TimeZone
 data class WeatherData(
     val baseTime: String,
     var tmp: String,
-    val pty: String, // precipitation type
-    val reh: String, // humidity
-    val sky: String, // sky condition
-    val pop: String  // precipitation probability (%)
+    val pty: String,
+    val reh: String,
+    val sky: String,
+    val pop: String
 ) : Parcelable
 
 class WeatherActivity : AppCompatActivity() {
@@ -56,8 +57,9 @@ class WeatherActivity : AppCompatActivity() {
 
     private suspend fun fetchWeatherData(nx: Int, ny: Int): WeatherData? {
         return withContext(Dispatchers.IO) {
+            Log.d("WeatherActivity", "fetchWeatherData nx=$nx ny=$ny")
             val (baseDate, baseTime) = getBaseTime()
-            val urlBuilder = StringBuilder("https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst")
+            val urlBuilder = StringBuilder("https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst")
             urlBuilder.append("?${URLEncoder.encode("serviceKey", "UTF-8")}=$weatherServiceKey")
             urlBuilder.append("&${URLEncoder.encode("pageNo", "UTF-8")}=1")
             urlBuilder.append("&${URLEncoder.encode("numOfRows", "UTF-8")}=100")
@@ -66,7 +68,7 @@ class WeatherActivity : AppCompatActivity() {
             urlBuilder.append("&${URLEncoder.encode("base_time", "UTF-8")}=${URLEncoder.encode(baseTime, "UTF-8")}")
             urlBuilder.append("&${URLEncoder.encode("nx", "UTF-8")}=${URLEncoder.encode(nx.toString(), "UTF-8")}")
             urlBuilder.append("&${URLEncoder.encode("ny", "UTF-8")}=${URLEncoder.encode(ny.toString(), "UTF-8")}")
-
+            
             try {
                 val url = URL(urlBuilder.toString())
                 val conn = url.openConnection() as HttpURLConnection
@@ -74,7 +76,7 @@ class WeatherActivity : AppCompatActivity() {
                 conn.setRequestProperty("Content-type", "application/json")
 
                 if (conn.responseCode in 200..300) {
-                    parseWeatherXml(conn.inputStream.bufferedReader().readText())
+                    parseWeatherXml(conn.inputStream.bufferedReader().readText(), baseDate, baseTime, nx, ny)
                 } else {
                     null
                 }
@@ -85,140 +87,210 @@ class WeatherActivity : AppCompatActivity() {
         }
     }
 
+    private fun fetchForecastSkyPop(nx: Int, ny: Int, targetKey: String): Map<String, String>? {
+        val (baseDate, baseTime) = getBaseTimeSkyPop()
+        val urlBuilder = StringBuilder("https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst")
+        urlBuilder.append("?${URLEncoder.encode("serviceKey", "UTF-8")}=$weatherServiceKey")
+        urlBuilder.append("&${URLEncoder.encode("pageNo", "UTF-8")}=1")
+        urlBuilder.append("&${URLEncoder.encode("numOfRows", "UTF-8")}=100")
+        urlBuilder.append("&${URLEncoder.encode("dataType", "UTF-8")}=XML")
+        urlBuilder.append("&${URLEncoder.encode("base_date", "UTF-8")}=${URLEncoder.encode(baseDate, "UTF-8")}")
+        urlBuilder.append("&${URLEncoder.encode("base_time", "UTF-8")}=${URLEncoder.encode(baseTime, "UTF-8")}")
+        urlBuilder.append("&${URLEncoder.encode("nx", "UTF-8")}=${URLEncoder.encode(nx.toString(), "UTF-8")}")
+        urlBuilder.append("&${URLEncoder.encode("ny", "UTF-8")}=${URLEncoder.encode(ny.toString(), "UTF-8")}")
+
+        return try {
+            val url = URL(urlBuilder.toString())
+            val conn = url.openConnection() as HttpURLConnection
+            conn.requestMethod = "GET"
+            conn.setRequestProperty("Content-type", "application/json")
+
+            if (conn.responseCode in 200..300) {
+                parseForecastXml(conn.inputStream.bufferedReader().readText(), targetKey)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
     private fun getBaseTime(): Pair<String, String> {
         val koreaTimeZone = TimeZone.getTimeZone("Asia/Seoul")
         val calendar = Calendar.getInstance(koreaTimeZone)
 
-        val nowFormat = SimpleDateFormat("HHmm", Locale.KOREAN).apply { timeZone = koreaTimeZone }
         val dateFormat = SimpleDateFormat("yyyyMMdd", Locale.KOREAN).apply { timeZone = koreaTimeZone }
+        val hourFormat = SimpleDateFormat("HH", Locale.KOREAN).apply { timeZone = koreaTimeZone }
 
-        val now = nowFormat.format(calendar.time)
-
-        val baseTimes = listOf("0200", "0500", "0800", "1100", "1400", "1700", "2000", "2300")
-
-        val latestBaseTime = baseTimes.lastOrNull { it <= now }
-
-        return if (latestBaseTime != null) {
-            Pair(dateFormat.format(calendar.time), latestBaseTime)
-        } else {
-            calendar.add(Calendar.DATE, -1)
-            Pair(dateFormat.format(calendar.time), baseTimes.last())
+        val minute = calendar.get(Calendar.MINUTE)
+        if (minute < 10) {
+            calendar.add(Calendar.HOUR_OF_DAY, -1)
         }
+
+        val baseDate = dateFormat.format(calendar.time)
+        val baseTime = hourFormat.format(calendar.time) + "00"
+
+        return Pair(baseDate, baseTime)
     }
 
-    private fun parseWeatherXml(xmlString: String): WeatherData? {
+    private fun getBaseTimeSkyPop(): Pair<String, String> {
         val koreaTimeZone = TimeZone.getTimeZone("Asia/Seoul")
         val calendar = Calendar.getInstance(koreaTimeZone)
-        val currentHour = SimpleDateFormat("HH00", Locale.KOREAN).apply {
-            timeZone = koreaTimeZone
-        }.format(calendar.time)
 
-        val currentDate = SimpleDateFormat("yyyyMMdd", Locale.KOREAN).apply {
-            timeZone = koreaTimeZone
-        }.format(calendar.time)
+        val dateFormat = SimpleDateFormat("yyyyMMdd", Locale.KOREAN).apply { timeZone = koreaTimeZone }
+        val minute = calendar.get(Calendar.MINUTE)
+        if (minute < 10) {
+            calendar.add(Calendar.HOUR_OF_DAY, -1)
+        }
+        val hourFormat = SimpleDateFormat("HH", Locale.KOREAN).apply { timeZone = koreaTimeZone }
+        val hour = hourFormat.format(calendar.time).toInt()
 
-        data class WeatherItem(
-            val fcstDate: String,
-            val fcstTime: String,
-            val category: String,
-            val fcstValue: String
-        )
+        val baseHours = listOf("02", "05", "08", "11", "14", "17", "20", "23")
+        val baseHour = baseHours.map { it.toInt() }.filter { it <= hour }.maxOrNull() ?: run {
+            calendar.add(Calendar.DATE, -1)
+            baseHours.last().toInt()
+        }
 
-        val weatherItems = mutableListOf<WeatherItem>()
-        var baseTime = ""
+        val baseDate = dateFormat.format(calendar.time)
+        val baseTime = String.format(Locale.KOREAN, "%02d00", baseHour)
 
-        try {
+        return Pair(baseDate, baseTime)
+    }
+
+    private fun findClosestKey(keys: Set<String>, targetKey: String): String? {
+        if (keys.isEmpty()) return null
+        val nextOrSame = keys.filter { it >= targetKey }.minOrNull()
+        return nextOrSame ?: keys.maxOrNull()
+    }
+
+    private fun parseForecastXml(xmlString: String, targetKey: String): Map<String, String>? {
+        val wantedCategories = setOf("SKY", "POP")
+        val dataByKey = mutableMapOf<String, MutableMap<String, String>>()
+
+        return try {
             val factory = XmlPullParserFactory.newInstance()
             val parser = factory.newPullParser()
             parser.setInput(StringReader(xmlString))
 
             var eventType = parser.eventType
-            var currentCategory = ""
-            var currentFcstValue = ""
-            var currentFcstDate = ""
-            var currentFcstTime = ""
+            var currentTag: String? = null
+            var fcstDate = ""
+            var fcstTime = ""
+            var category = ""
+            var value = ""
 
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 when (eventType) {
-                    XmlPullParser.START_TAG -> {
-                        when (parser.name) {
-                            "baseTime" -> baseTime = parser.nextText()
-                            "category" -> currentCategory = parser.nextText()
-                            "fcstValue" -> currentFcstValue = parser.nextText()
-                            "fcstDate" -> currentFcstDate = parser.nextText()
-                            "fcstTime" -> currentFcstTime = parser.nextText()
-                        }
+                    XmlPullParser.START_TAG -> currentTag = parser.name
+                    XmlPullParser.TEXT -> when (currentTag) {
+                        "fcstDate" -> fcstDate = parser.text ?: ""
+                        "fcstTime" -> fcstTime = parser.text ?: ""
+                        "category" -> category = parser.text ?: ""
+                        "fcstValue" -> value = parser.text ?: ""
                     }
                     XmlPullParser.END_TAG -> {
                         if (parser.name == "item") {
-                            weatherItems.add(
-                                WeatherItem(
-                                    fcstDate = currentFcstDate,
-                                    fcstTime = currentFcstTime,
-                                    category = currentCategory,
-                                    fcstValue = currentFcstValue
-                                )
-                            )
-                            currentCategory = ""
-                            currentFcstValue = ""
-                            currentFcstDate = ""
-                            currentFcstTime = ""
+                            if (category in wantedCategories && fcstDate.isNotEmpty() && fcstTime.isNotEmpty() && value.isNotEmpty() && value != "-") {
+                                val key = fcstDate + fcstTime
+                                val bucket = dataByKey.getOrPut(key) { mutableMapOf() }
+                                if (!bucket.containsKey(category)) {
+                                    bucket[category] = value
+                                }
+                            }
+                            fcstDate = ""
+                            fcstTime = ""
+                            category = ""
+                            value = ""
                         }
+                        currentTag = null
                     }
                 }
                 eventType = parser.next()
             }
 
-            val targetDateTime = currentDate + currentHour
-
-            var selectedItems = weatherItems.filter {
-                it.fcstDate + it.fcstTime == targetDateTime
+            val closestKey = findClosestKey(dataByKey.keys, targetKey) ?: return null
+            val bucket = dataByKey[closestKey] ?: return null
+            val result = mutableMapOf<String, String>()
+            wantedCategories.forEach { cat ->
+                bucket[cat]?.let { result[cat] = it }
             }
-
-            if (selectedItems.isEmpty()) {
-                val futureItems = weatherItems.filter {
-                    (it.fcstDate + it.fcstTime) > targetDateTime
-                }.sortedBy { it.fcstDate + it.fcstTime }
-
-                if (futureItems.isNotEmpty()) {
-                    val nearestTime = futureItems.first().let { it.fcstDate + it.fcstTime }
-                    selectedItems = weatherItems.filter {
-                        it.fcstDate + it.fcstTime == nearestTime
-                    }
-                }
-            }
-
-            if (selectedItems.isEmpty() && weatherItems.isNotEmpty()) {
-                val firstTime = weatherItems.minByOrNull { it.fcstDate + it.fcstTime }
-                    ?.let { it.fcstDate + it.fcstTime }
-                selectedItems = weatherItems.filter {
-                    it.fcstDate + it.fcstTime == firstTime
-                }
-            }
-
-            if (selectedItems.isNotEmpty()) {
-                val weatherMap = mutableMapOf<String, String>()
-                selectedItems.forEach { item ->
-                    weatherMap[item.category] = item.fcstValue
-                }
-
-                val actualFcstTime = selectedItems.firstOrNull()?.fcstTime ?: ""
-
-                return WeatherData(
-                    baseTime = "$baseTime (예보시간: $actualFcstTime)",
-                    tmp = weatherMap["TMP"] ?: weatherMap["T1H"] ?: "N/A",
-                    pty = weatherMap["PTY"] ?: "0",
-                    reh = weatherMap["REH"] ?: "N/A",
-                    sky = weatherMap["SKY"] ?: "N/A",
-                    pop = weatherMap["POP"] ?: "N/A"
-                )
-            }
-
-            return null
-
+            if (result.isEmpty()) null else result
         } catch (e: Exception) {
             e.printStackTrace()
-            return null
+            null
+        }
+    }
+
+    private fun parseWeatherXml(xmlString: String, expectedDate: String, expectedTime: String, nx: Int, ny: Int): WeatherData? {
+        val observationMap = mutableMapOf<String, MutableMap<String, String>>()
+
+        return try {
+            val factory = XmlPullParserFactory.newInstance()
+            val parser = factory.newPullParser()
+            parser.setInput(StringReader(xmlString))
+
+            var eventType = parser.eventType
+            var currentTag: String? = null
+            var baseDate = ""
+            var baseTime = ""
+            var category = ""
+            var obsrValue = ""
+
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                when (eventType) {
+                    XmlPullParser.START_TAG -> {
+                        currentTag = parser.name
+                    }
+                    XmlPullParser.TEXT -> {
+                        when (currentTag) {
+                            "baseDate" -> baseDate = parser.text ?: ""
+                            "baseTime" -> baseTime = parser.text ?: ""
+                            "category" -> category = parser.text ?: ""
+                            "obsrValue" -> obsrValue = parser.text ?: ""
+                        }
+                    }
+                    XmlPullParser.END_TAG -> {
+                        if (parser.name == "item") {
+                            if (baseDate.isNotEmpty() && baseTime.isNotEmpty() &&
+                                category.isNotEmpty() && obsrValue.isNotEmpty() && obsrValue != "-") {
+                                val key = baseDate + baseTime
+                                val dataForTime = observationMap.getOrPut(key) { mutableMapOf() }
+                                dataForTime[category] = obsrValue
+                            }
+                            baseDate = ""
+                            baseTime = ""
+                            category = ""
+                            obsrValue = ""
+                        }
+                        currentTag = null
+                    }
+                }
+                eventType = parser.next()
+            }
+
+            val expectedKey = expectedDate + expectedTime
+            val selectedKey = findClosestKey(observationMap.keys, expectedKey) ?: return null
+
+            val selectedData = observationMap[selectedKey]?.toMutableMap() ?: return null
+            fetchForecastSkyPop(nx, ny, selectedKey)?.let { forecastValues ->
+                selectedData.putAll(forecastValues)
+            }
+
+            val selectedDate = selectedKey.take(8)
+            val selectedTime = selectedKey.drop(8)
+
+            WeatherData(
+                baseTime = "$selectedDate $selectedTime",
+                tmp = selectedData["T1H"] ?: "N/A",
+                pty = selectedData["PTY"] ?: "0",
+                reh = selectedData["REH"] ?: "N/A",
+                sky = selectedData["SKY"] ?: "N/A",
+                pop = selectedData["POP"] ?: "N/A"
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }

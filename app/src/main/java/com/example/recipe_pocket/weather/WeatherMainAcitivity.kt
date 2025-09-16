@@ -51,6 +51,7 @@ class WeatherMainActivity : AppCompatActivity() {
     private var currentWeatherData: WeatherData? = null
     private var currentAirQualityData: AirQualityData? = null
     private var regionName: String? = null
+    private var regionSidoName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,12 +79,19 @@ class WeatherMainActivity : AppCompatActivity() {
 
     private fun handleLocationResult(result: androidx.activity.result.ActivityResult) {
         if (result.resultCode == Activity.RESULT_OK) {
-            regionName = result.data?.getStringExtra("REGION_NAME") ?: "알 수 없음"
+            val displayName = result.data?.getStringExtra("REGION_NAME") ?: "알 수 없음"
+            val sidoName = result.data?.getStringExtra("SIDO_NAME") ?: displayName
+            regionName = displayName
+            regionSidoName = sidoName
             val nx = result.data?.getIntExtra("NX", 0) ?: 0
             val ny = result.data?.getIntExtra("NY", 0) ?: 0
 
             // 미세먼지 및 날씨 정보 요청
-            airQualityResultLauncher.launch(Intent(this, AirQualityActivity::class.java).putExtra("REGION_NAME", regionName))
+            val airQualityIntent = Intent(this, AirQualityActivity::class.java).apply {
+                putExtra("REGION_NAME", displayName)
+                putExtra("SIDO_NAME", sidoName)
+            }
+            airQualityResultLauncher.launch(airQualityIntent)
             weatherResultLauncher.launch(Intent(this, WeatherActivity::class.java).apply {
                 putExtra("NX", nx)
                 putExtra("NY", ny)
@@ -96,6 +104,7 @@ class WeatherMainActivity : AppCompatActivity() {
 
     private fun handleAirQualityResult(result: androidx.activity.result.ActivityResult) {
         regionName = result.data?.getStringExtra("REGION_NAME") ?: regionName
+        regionSidoName = result.data?.getStringExtra("SIDO_NAME") ?: regionSidoName
 
         if (result.resultCode == Activity.RESULT_OK) {
             currentAirQualityData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -106,7 +115,7 @@ class WeatherMainActivity : AppCompatActivity() {
             }
 
             if (currentAirQualityData != null) {
-                binding.locationTextView.text = "시간: ${currentAirQualityData!!.time} '${regionName}' 미세먼지(PM10): ${currentAirQualityData!!.pm10}µg/m³, 초미세먼지(PM2.5): ${currentAirQualityData!!.pm25}µg/m³"
+                //binding.locationTextView.text = "시간: ${currentAirQualityData!!.time} '${regionName}' 미세먼지(PM10): ${currentAirQualityData!!.pm10}µg/m³, 초미세먼지(PM2.5): ${currentAirQualityData!!.pm25}µg/m³"
                 attemptToRecommendRecipes()
             } else {
                 binding.locationTextView.text = "'${regionName}' 지역의 대기 질 정보를 가져올 수 없습니다."
@@ -130,7 +139,7 @@ class WeatherMainActivity : AppCompatActivity() {
                 val pty = convertPtyCodeToText(currentWeatherData!!.pty)
                 binding.tempTextView.text = "${currentWeatherData!!.tmp}°C"
                 binding.humidityTextView.text = "습도 ${currentWeatherData!!.reh}%"
-                binding.precipitationTextView.text = "강수확률 ${currentWeatherData!!.pop}%"
+                binding.popTextView.text = "강수확률 ${currentWeatherData!!.pop}%"
                 attemptToRecommendRecipes()
             } else {
                 binding.tempTextView.text = ""
@@ -142,7 +151,6 @@ class WeatherMainActivity : AppCompatActivity() {
 
     private fun attemptToRecommendRecipes() {
         if (currentWeatherData != null && currentAirQualityData != null) {
-            // Update overlay text in the requested format: "23°C, Region, 습도 n%, 강수확률 n%"
             val temp = currentWeatherData!!.tmp
             val region = regionName ?: ""
             val humidity = currentWeatherData!!.reh
@@ -150,7 +158,9 @@ class WeatherMainActivity : AppCompatActivity() {
             binding.tempTextView.text = "${temp}°C"
             binding.locationTextView.text = region
             binding.humidityTextView.text = "습도 ${humidity}%"
-            binding.precipitationTextView.text = "강수확률 ${pop}%"
+            binding.popTextView.text = "강수확률 ${pop}%"
+            binding.pm10TextView.text = "미세먼지 ${currentAirQualityData!!.pm10}µg/m³"
+            binding.pm25TextView.text = "초미세먼지 ${currentAirQualityData!!.pm25}µg/m³"
 
             lifecycleScope.launch {
                 val weatherTags = determineWeatherTags()
@@ -159,10 +169,6 @@ class WeatherMainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * 날씨 데이터를 기반으로 검색할 태그 목록을 생성합니다. (단일 책임 원칙)
-     * 이 함수의 이름은 그것의 존재 이유, 기능, 사용법을 명확히 드러냅니다. (의도를 드러내는 이름)
-     */
     private fun determineWeatherTags(): Map<String, List<String>> {
         val weatherData = currentWeatherData ?: return emptyMap()
         val airData = currentAirQualityData ?: return emptyMap()
@@ -216,9 +222,6 @@ class WeatherMainActivity : AppCompatActivity() {
         return tags
     }
 
-    /**
-     * 우선순위에 따라 태그를 조합하여 레시피를 검색하고 UI에 표시합니다. (단계별 규칙)
-     */
     private suspend fun recommendRecipes(tags: Map<String, List<String>>) {
         binding.recommendationTitleTextView.visibility = View.VISIBLE
         binding.recommendationProgressBar.visibility = View.VISIBLE
@@ -297,9 +300,6 @@ class WeatherMainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * 주어진 태그 목록을 사용하여 Firestore에서 레시피를 쿼리합니다. (단일 책임 원칙)
-     */
     private suspend fun queryRecipesWithTags(tags: List<String>): List<Recipe> {
         if (tags.isEmpty()) return emptyList()
 

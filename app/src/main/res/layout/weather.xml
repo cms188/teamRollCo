@@ -8,14 +8,12 @@
     tools:context=".weather.WeatherMainActivity"
     android:background="@color/white">
 
-    <!-- Status bar spacer to match project top design -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/search_color"
         android:paddingTop="30dp" />
 
-    <!-- Top Bar -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top_bar_layout"
         android:layout_width="match_parent"
@@ -53,7 +51,6 @@
             app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- GIF with overlayed weather info -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="250dp"
@@ -66,14 +63,12 @@
             android:scaleType="fitXY"
             android:src="@raw/testgif" />
 
-        <!-- Optional soft gradient for readability -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="120dp"
+            android:layout_height="150dp"
             android:layout_gravity="bottom"
             android:background="@drawable/gradient_overlay" />
 
-        <!-- Info card overlay -->
         <LinearLayout
             android:id="@+id/weatherOverlay"
             android:layout_width="wrap_content"
@@ -83,14 +78,13 @@
             android:orientation="vertical"
             android:padding="4dp">
 
-            <!-- Temperature (keep id for code compatibility) -->
             <TextView
                 android:id="@+id/tempTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="25&#176;C"
                 android:textColor="@android:color/white"
-                android:textSize="28sp"
+                android:textSize="36sp"
                 android:textStyle="bold"
                 android:shadowColor="#99000000"
                 android:shadowDx="0"
@@ -98,7 +92,6 @@
                 android:shadowRadius="4"
                 tools:text="23&#176;C" />
 
-            <!-- Location (keep id for code compatibility) -->
             <TextView
                 android:id="@+id/locationTextView"
                 android:layout_width="wrap_content"
@@ -113,7 +106,6 @@
                 android:shadowRadius="3"
                 tools:text="서울, 대한민국" />
 
-            <!-- Humidity / Precipitation row -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -142,7 +134,7 @@
                     android:textSize="13sp" />
 
                 <TextView
-                    android:id="@+id/precipitationTextView"
+                    android:id="@+id/popTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -152,14 +144,52 @@
                     android:shadowColor="#99000000"
                     android:shadowDx="0"
                     android:shadowDy="1"
-                    android:shadowRadius="3"
-                    tools:text="강수확률 20%" />
+                    android:shadowRadius="3"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/pm10TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="미세먼지 15µg/m³"
+                    android:textColor="@android:color/white"
+                    android:textSize="13sp"
+                    android:shadowColor="#99000000"
+                    android:shadowDx="0"
+                    android:shadowDy="1"
+                    android:shadowRadius="3"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="&#8226;"
+                    android:textColor="#80FFFFFF"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/pm25TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="초미세먼지 15µg/m³"
+                    android:textColor="@android:color/white"
+                    android:textSize="13sp"
+                    android:shadowColor="#99000000"
+                    android:shadowDx="0"
+                    android:shadowDy="1"
+                    android:shadowRadius="3"/>
             </LinearLayout>
         </LinearLayout>
 
     </FrameLayout>
 
-    <!-- Keep title placeholder (hidden) for consistency with WeatherActivity list section -->
     <TextView
         android:id="@+id/recommendationTitleTextView"
         android:layout_width="match_parent"
@@ -173,7 +203,6 @@
 
         tools:text="오늘 날씨에 어울리는 추천 레시피"/>
 
-    <!-- RecyclerView section -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"

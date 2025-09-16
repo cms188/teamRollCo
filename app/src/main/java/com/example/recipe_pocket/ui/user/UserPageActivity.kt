@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -76,7 +77,7 @@ class UserPageActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        EdgeToEdge()
         setContentView(R.layout.activity_userpage)
 
         // 뷰 초기화
@@ -139,6 +140,19 @@ class UserPageActivity : AppCompatActivity() {
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             view.updatePadding(top = statusBarHeight)
             view.updateLayoutParams { height = statusBarHeight + dpToPx(56) }
+            WindowInsetsCompat.CONSUMED
+        }
+    }
+
+    private fun  EdgeToEdge() {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = insets.top
+                leftMargin = insets.left
+                bottomMargin = insets.bottom
+                rightMargin = insets.right
+            }
             WindowInsetsCompat.CONSUMED
         }
     }

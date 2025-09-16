@@ -32,11 +32,14 @@ class AirQualityActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val regionName = intent.getStringExtra("REGION_NAME") ?: "알 수 없음"
+        val sidoName = intent.getStringExtra("SIDO_NAME") ?: regionName
+        val normalizedSidoName = normalizeSidoName(sidoName)
 
         lifecycleScope.launch {
-            val airData = fetchAirQualityData(regionName)
+            val airData = fetchAirQualityData(normalizedSidoName)
             val resultIntent = Intent().apply {
                 putExtra("REGION_NAME", regionName)
+                putExtra("SIDO_NAME", normalizedSidoName)
                 putExtra("AIR_QUALITY_DATA", airData)
             }
             setResult(if (airData != null) Activity.RESULT_OK else Activity.RESULT_CANCELED, resultIntent)
@@ -69,6 +72,31 @@ class AirQualityActivity : AppCompatActivity() {
                 null
             }
         }
+    }
+
+    private fun normalizeSidoName(raw: String): String {
+        val trimmed = raw.trim()
+        val base = when (trimmed) {
+            "서울특별시", "서울" -> "서울"
+            "부산광역시", "부산" -> "부산"
+            "대구광역시", "대구" -> "대구"
+            "인천광역시", "인천" -> "인천"
+            "광주광역시", "광주" -> "광주"
+            "대전광역시", "대전" -> "대전"
+            "울산광역시", "울산" -> "울산"
+            "경기도", "경기" -> "경기"
+            "강원도", "강원특별자치도", "강원" -> "강원"
+            "충청북도", "충북" -> "충북"
+            "충청남도", "충남" -> "충남"
+            "전라북도", "전북특별자치도", "전북" -> "전북"
+            "전라남도", "전남" -> "전남"
+            "경상북도", "경북" -> "경북"
+            "경상남도", "경남" -> "경남"
+            "제주특별자치도", "제주" -> "제주"
+            "세종특별자치시", "세종" -> "세종"
+            else -> trimmed
+        }
+        return base.split(" ").firstOrNull()?.trim().takeUnless { it.isNullOrEmpty() } ?: trimmed
     }
 
     private fun parseXml(xmlString: String): AirQualityData? {
