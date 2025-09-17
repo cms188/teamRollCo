@@ -103,6 +103,8 @@
         <activity
             android:name=".ui.tip.CookTipDetailActivity"
             android:exported="false" />
+        <activity android:name=".ui.tip.MyTipsActivity" />
+        <activity android:name=".ui.tip.LikedTipsActivity" />
 
         <activity
             android:name=".ui.notification.NotificationActivity"

@@ -181,8 +181,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadAllData() {
         lifecycleScope.launch {
-            // Hot Cook 로딩
-            RecipeLoader.loadMultipleRandomRecipesWithAuthor(count = 5).fold(
+            // Hot Cook 로딩 (좋아요 순)
+            RecipeLoader.loadPopularRecipes(count = 5).fold(
                 onSuccess = { recipes ->
                     hotCookRecipeAdapter.updateRecipes(recipes)
                 },

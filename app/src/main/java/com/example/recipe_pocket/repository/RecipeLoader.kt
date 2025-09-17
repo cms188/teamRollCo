@@ -6,6 +6,7 @@ import com.example.recipe_pocket.data.User
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.async
@@ -56,6 +57,27 @@ object RecipeLoader {
         }
         return recipe
     }
+
+    // 인기 레시피를 불러오는 함수 (좋아요 순)
+    suspend fun loadPopularRecipes(count: Int): Result<List<Recipe>> {
+        return try {
+            val querySnapshot = db.collection("Recipes")
+                .orderBy("likeCount", Query.Direction.DESCENDING)
+                .limit(count.toLong())
+                .get()
+                .await()
+
+            val recipes = coroutineScope {
+                querySnapshot.documents.map { doc ->
+                    async { enrichRecipeWithAuthor(doc) }
+                }.awaitAll().filterNotNull()
+            }
+            Result.success(recipes)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 
     // 15분 이하 레시피를 불러오는 함수
     suspend fun loadRecipesByCookingTime(maxTime: Int, count: Int): Result<List<Recipe>> {

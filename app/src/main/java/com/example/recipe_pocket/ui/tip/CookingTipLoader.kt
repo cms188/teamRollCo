@@ -93,4 +93,44 @@ object CookingTipLoader {
             Result.failure(e)
         }
     }
+
+    // 특정 사용자가 작성한 모든 요리 팁을 가져옵니다.
+    suspend fun loadTipsByUserId(userId: String): Result<List<CookingTip>> {
+        return try {
+            val querySnapshot = db.collection("CookingTips")
+                .whereEqualTo("userId", userId)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .get()
+                .await()
+
+            val tips = coroutineScope {
+                querySnapshot.documents.map { doc ->
+                    async { enrichTipWithAuthor(doc) }
+                }.awaitAll().filterNotNull()
+            }
+            Result.success(tips)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // 현재 사용자가 추천한 모든 요리 팁을 가져옵니다.
+    suspend fun loadLikedTips(): Result<List<CookingTip>> {
+        val currentUserId = auth.currentUser?.uid ?: return Result.success(emptyList())
+        return try {
+            val querySnapshot = db.collection("CookingTips")
+                .whereArrayContains("likedBy", currentUserId)
+                .get()
+                .await()
+
+            val tips = coroutineScope {
+                querySnapshot.documents.map { doc ->
+                    async { enrichTipWithAuthor(doc) }
+                }.awaitAll().filterNotNull()
+            }
+            Result.success(tips)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
