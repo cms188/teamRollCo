@@ -195,9 +195,9 @@ class WeatherMainActivity : AppCompatActivity() {
         val temp = weatherData.tmp.toFloatOrNull() ?: return tags
         when {
             temp >= 33 -> tags["temperature"]?.add("매우더운날")
-            temp in 27.0..32.9 -> tags["temperature"]?.add("더운날")
-            temp in 12.0..26.9 -> tags["temperature"]?.add("쾌적한날")
-            temp in 0.0..11.9 -> tags["temperature"]?.add("추운날")
+            temp in 29.0..32.9 -> tags["temperature"]?.add("더운날")
+            temp in 19.0..28.9 -> tags["temperature"]?.add("쾌적한날")
+            temp in 8.0..18.9 -> tags["temperature"]?.add("추운날")
             else -> tags["temperature"]?.add("매우추운날")
         }
 

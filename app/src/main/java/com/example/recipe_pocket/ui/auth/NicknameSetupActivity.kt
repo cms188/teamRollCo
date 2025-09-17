@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -53,6 +54,8 @@ class NicknameSetupActivity : AppCompatActivity() {
             view.updateLayoutParams { height = statusBarHeight + dpToPx(56) }
             WindowInsetsCompat.CONSUMED
         }
+        var backButton = toolbar.findViewById<ImageButton>(R.id.back_button)
+        backButton.setOnClickListener { finish() }
 
         // Intent로부터 실행 모드를 받아오고 전달된 값이 없으면 기본값(MODE_SETUP) 사용
         currentMode = intent.getStringExtra(EXTRA_MODE) ?: MODE_SETUP
