@@ -282,8 +282,7 @@ class UserPageActivity : AppCompatActivity() {
 
         // 최근 본 레시피 클릭
         recentRecipeLayout.setOnClickListener {
-            // TODO: 최근 본 레시피 액티비티로 이동
-            Toast.makeText(this, "최근 본 레시피 기능은 준비 중입니다.", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, RecentlyViewedRecipesActivity::class.java))
         }
     }
 
