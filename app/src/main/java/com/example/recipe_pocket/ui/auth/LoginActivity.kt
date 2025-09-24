@@ -28,11 +28,17 @@ import com.example.recipe_pocket.ui.main.MainActivity
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.messaging.FirebaseMessaging
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
+import com.navercorp.nid.NaverIdLoginSDK
+import com.navercorp.nid.oauth.NidOAuthLogin
+import com.navercorp.nid.oauth.OAuthLoginCallback
+import com.navercorp.nid.profile.NidProfileCallback
+import com.navercorp.nid.profile.data.NidProfileResponse
 import com.kakao.sdk.common.util.Utility
 
 class LoginActivity : AppCompatActivity() {
@@ -40,6 +46,24 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var auth: FirebaseAuth
     private val RC_SIGN_IN = 1001
+    private val naverLoginCallback = object : OAuthLoginCallback {
+        override fun onSuccess() {
+            runOnUiThread { requestNaverUserProfile() }
+        }
+
+        override fun onFailure(httpStatus: Int, message: String) {
+            runOnUiThread {
+                val errorCode = NaverIdLoginSDK.getLastErrorCode().code
+                val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                val detail = "$httpStatus $message (" + errorCode + ": " + (errorDescription ?: "") + ")"
+                Toast.makeText(this@LoginActivity, "Naver login failed: $detail", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        override fun onError(errorCode: Int, message: String) {
+            onFailure(errorCode, message)
+        }
+    }
 
     var findpass: Boolean = false //뒤로가기 버튼 두가지 기능을 위한 Boolean
 
@@ -75,6 +99,7 @@ class LoginActivity : AppCompatActivity() {
         val editPassword = findViewById<EditText>(R.id.editPassword)
 
         val ivGoogleLogin = findViewById<ImageView>(R.id.iv_google_login_linear)
+        val ivNaverLogin = findViewById<ImageView>(R.id.iv_naver_login_linear)
 
         loginButton.setOnClickListener {
             loginUser()
@@ -162,6 +187,9 @@ class LoginActivity : AppCompatActivity() {
         ivGoogleLogin.setOnClickListener {
             val signInIntent = googleSignInClient.signInIntent
             startActivityForResult(signInIntent, RC_SIGN_IN)
+        }
+        ivNaverLogin.setOnClickListener {
+            startNaverLogin()
         }
     }
 
@@ -443,4 +471,131 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
     }
+
+    /////////////////////////////Naver login api/////////////////////////////
+    private fun startNaverLogin() {
+        NaverIdLoginSDK.authenticate(this, naverLoginCallback)
+    }
+
+    private fun requestNaverUserProfile() {
+        NidOAuthLogin().callProfileApi(object : NidProfileCallback<NidProfileResponse> {
+            override fun onSuccess(result: NidProfileResponse) {
+                runOnUiThread { handleNaverProfile(result) }
+            }
+
+            override fun onFailure(httpStatus: Int, message: String) {
+                runOnUiThread { handleNaverProfileError(httpStatus, message) }
+            }
+
+            override fun onError(errorCode: Int, message: String) {
+                runOnUiThread { handleNaverProfileError(errorCode, message) }
+            }
+        })
+    }
+
+    private fun handleNaverProfile(result: NidProfileResponse) {
+        val profile = result.profile
+        val naverId = profile?.id
+        val email = profile?.email
+        if (naverId.isNullOrBlank()) {
+            Toast.makeText(this, "Failed to get Naver user id.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (email.isNullOrBlank()) {
+            Toast.makeText(this, "Email permission is required for Naver login.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val nickname = profile.nickname
+        val profileImageUrl = profile.profileImage
+        val password = "naver_$naverId"
+        signInWithNaver(email, password, nickname, profileImageUrl)
+    }
+
+    private fun handleNaverProfileError(code: Int, message: String) {
+        val errorCode = NaverIdLoginSDK.getLastErrorCode().code
+        val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+        val detail = "$code $message (" + errorCode + ": " + (errorDescription ?: "") + ")"
+        Toast.makeText(this, "Naver profile error: $detail", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun signInWithNaver(email: String, password: String, nickname: String?, profileImageUrl: String?) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    updateFcmToken()
+                    val user = auth.currentUser
+                    if (user != null) {
+                        val updates = mutableMapOf<String, Any>(
+                            "email" to email,
+                            "loginType" to "naver"
+                        )
+                        nickname?.let { updates["nickname"] = it }
+                        profileImageUrl?.let { updates["profileImageUrl"] = it }
+                        FirebaseFirestore.getInstance()
+                            .collection("Users")
+                            .document(user.uid)
+                            .set(updates, SetOptions.merge())
+                            .addOnSuccessListener { navigateToMainAfterNaverLogin() }
+                            .addOnFailureListener { e ->
+                                Log.e(TAG, "Failed to update Naver user", e)
+                                navigateToMainAfterNaverLogin()
+                            }
+                    } else {
+                        Toast.makeText(this, "Login state is unknown.", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    createNaverFirebaseUser(email, password, nickname, profileImageUrl)
+                }
+            }
+    }
+
+    private fun createNaverFirebaseUser(email: String, password: String, nickname: String?, profileImageUrl: String?) {
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    if (user != null) {
+                        val userData = hashMapOf<String, Any>(
+                            "email" to email,
+                            "loginType" to "naver",
+                            "createdAt" to FieldValue.serverTimestamp()
+                        )
+                        nickname?.let { userData["nickname"] = it }
+                        profileImageUrl?.let { userData["profileImageUrl"] = it }
+                        FirebaseFirestore.getInstance()
+                            .collection("Users")
+                            .document(user.uid)
+                            .set(userData)
+                            .addOnSuccessListener {
+                                updateFcmToken()
+                                navigateToMainAfterNaverLogin()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e(TAG, "Failed to save Naver user", e)
+                                Toast.makeText(this, "Could not save user info.", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "Login state is unknown.", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    val errorMessage = task.exception?.message ?: "unknown error"
+                    Toast.makeText(this, "Naver sign-up failed: $errorMessage", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+    private fun navigateToMainAfterNaverLogin() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivity(intent)
+        finish()
+    }
 }
+
+
+
+
+
+
+
+

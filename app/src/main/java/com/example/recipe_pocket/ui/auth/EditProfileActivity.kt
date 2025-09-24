@@ -186,13 +186,16 @@ class EditProfileActivity : AppCompatActivity() {
                     val loginType = document.getString("loginType")
 
                     // loginType이 google 또는 kakao인 경우 차단
-                    if (loginType == "google" || loginType == "kakao") {
+                    if (loginType == "google" || loginType == "kakao"|| loginType == "naver") {
                         when (loginType) {
                             "google" -> {
                                 Toast.makeText(this, "Google 계정으로 소셜 로그인한 사용자는 \n 비밀번호를 변경할 수 없습니다.", Toast.LENGTH_LONG).show()
                             }
                             "kakao" -> {
                                 Toast.makeText(this, "카카오 계정으로 소셜 로그인한 사용자는 \n 비밀번호를 변경할 수 없습니다.", Toast.LENGTH_LONG).show()
+                            }
+                            "naver" -> {
+                                Toast.makeText(this, "네이버로 소셜 로그인한 사용자는 \n 비밀번호를 변경할 수 없습니다.", Toast.LENGTH_LONG).show()
                             }
                         }
                     } else {

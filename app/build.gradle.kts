@@ -57,6 +57,13 @@ android {
 
         val kakaoKey = localProperties.getProperty("KAKAO_NATIVE_APP_KEY") ?: ""
         buildConfigField("String", "KAKAO_NATIVE_APP_KEY", "\"$kakaoKey\"")
+
+        val naverClientId = localProperties.getProperty("NAVER_CLIENT_ID") ?: ""
+        val naverClientSecret = localProperties.getProperty("NAVER_CLIENT_SECRET") ?: ""
+        val naverClientName = localProperties.getProperty("NAVER_CLIENT_NAME") ?: ""
+        buildConfigField("String", "NAVER_CLIENT_ID", "\"$naverClientId\"")
+        buildConfigField("String", "NAVER_CLIENT_SECRET", "\"$naverClientSecret\"")
+        buildConfigField("String", "NAVER_CLIENT_NAME", "\"$naverClientName\"")
         manifestPlaceholders["KAKAO_SCHEME"] = "kakao$kakaoKey"
     }
 
@@ -134,5 +141,10 @@ dependencies {
 
     // 카카오톡 sdk
     implementation ("com.kakao.sdk:v2-user:2.20.1")
+
+    //네이버
+    implementation("com.navercorp.nid:oauth:5.10.0") // jdk 11
 }
+
+
 
