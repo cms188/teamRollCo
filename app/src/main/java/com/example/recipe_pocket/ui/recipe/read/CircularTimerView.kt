@@ -10,12 +10,21 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.recipe_pocket.R
+import kotlin.math.roundToInt
 
 class CircularTimerView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
+
+    interface OnTimerStateChangedListener {
+        fun onTimerStart()
+        fun onTimerPause()
+        fun onTimerStop()
+    }
+
+    private var timerStateListener: OnTimerStateChangedListener? = null
 
     private var countDownTimer: CountDownTimer? = null
 
@@ -62,16 +71,34 @@ class CircularTimerView @JvmOverloads constructor(
         }
     }
 
+    fun setOnTimerStateChangedListener(listener: OnTimerStateChangedListener) {
+        this.timerStateListener = listener
+    }
+
+    fun getTimeLeftInMillis(): Long = timeLeftInMillis
+    fun getInitialTimeInMillis(): Long = initialTimeInMillis
+    fun isRunning(): Boolean = isTimerRunning
+
     fun setTime(totalSeconds: Int) {
         if (totalSeconds <= 0) return
         this.initialTimeInMillis = totalSeconds * 1000L
         resetTimer()
     }
 
+    // 남은 시간을 직접 설정하는 함수
+    fun setRemainingTime(remainingMillis: Long) {
+        if (!isTimerRunning) {
+            this.timeLeftInMillis = remainingMillis
+            updateTimerUI()
+        }
+    }
+
+
     fun startTimer() {
         if (timeLeftInMillis <= 0 || isTimerRunning) return
 
         isTimerRunning = true
+        timerStateListener?.onTimerStart()
 
         countDownTimer = object : CountDownTimer(timeLeftInMillis, 50) {
             override fun onTick(millisUntilFinished: Long) {
@@ -83,6 +110,7 @@ class CircularTimerView @JvmOverloads constructor(
                 timeLeftInMillis = 0
                 isTimerRunning = false
                 updateTimerUI()
+                timerStateListener?.onTimerStop()
             }
         }.start()
     }
@@ -90,18 +118,23 @@ class CircularTimerView @JvmOverloads constructor(
         if (!isTimerRunning) return
         countDownTimer?.cancel()
         isTimerRunning = false
+        timerStateListener?.onTimerPause()
     }
 
     private fun resetTimer() {
+        val wasRunning = isTimerRunning
         pauseTimer()
         timeLeftInMillis = initialTimeInMillis
         updateTimerUI()
+        if (wasRunning) {
+            timerStateListener?.onTimerStop()
+        }
     }
 
     private fun updateTimerUI() {
         tvTime.text = formatTime(timeLeftInMillis)
         if (initialTimeInMillis > 0) {
-            val progress = (timeLeftInMillis * 10000 / initialTimeInMillis).toInt()
+            val progress = (timeLeftInMillis.toDouble() * 10000 / initialTimeInMillis).roundToInt()
             progressBar.progress = progress
         } else {
             progressBar.progress = 0
@@ -114,7 +147,7 @@ class CircularTimerView @JvmOverloads constructor(
         val minutes = (totalSeconds % 3600) / 60
         val seconds = totalSeconds % 60
 
-        return if (hours > 0) { // 1시간 이상일 경우 h:m:s 형식으로 표시
+        return if (hours > 0) {
             tvTime.setTextSize(TypedValue.COMPLEX_UNIT_PX, smallTextSize)
             String.format("%02d:%02d:%02d", hours, minutes, seconds)
         } else {

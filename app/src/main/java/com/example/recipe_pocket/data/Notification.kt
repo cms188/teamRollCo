@@ -2,16 +2,10 @@ package com.example.recipe_pocket.data
 
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.PropertyName
 
-/**
- * 알림 유형을 정의하는 Enum 클래스
- * - LIKE: 좋아요
- * - REVIEW: 리뷰
- * - FOLLOW: 팔로우
- * - TITLE: 칭호 획득
- */
 enum class NotificationType {
-    LIKE, REVIEW, FOLLOW, TITLE
+    LIKE, REVIEW, FOLLOW, TITLE, TIP_LIKE, TIP_COMMENT, TIP_REPLY // 답글 알림 타입 추가
 }
 
 data class Notification(
@@ -30,30 +24,24 @@ data class Notification(
     // 1시간 이내에 발생한 동일 유형의 알림을 그룹화하기 위한 사용자 ID 목록
     var aggregatedUserIds: List<String>? = null,
 
-    val relatedContentId: String? = null, // 레시피 ID (LIKE, REVIEW), 팔로우한 사용자 ID 등
-    val recipeTitle: String? = null, // 레시피 제목 (LIKE, REVIEW)
-    val recipeThumbnailUrl: String? = null, // 레시피 썸네일 (LIKE, REVIEW)
-    val titleName: String? = null, // 획득한 칭호 이름 (TITLE)
+    val relatedContentId: String? = null, // 레시피 ID, 팁 ID, 팔로우한 사용자 ID 등
+    val recipeTitle: String? = null,
+    val recipeThumbnailUrl: String? = null,
+    val titleName: String? = null,
+    val tipTitle: String? = null, // 요리 팁 제목
+    val tipFirstImageUrl: String? = null, // 요리 팁 대표 이미지
+    val commentContent: String? = null, // 답글 알림을 위한 댓글 내용 추가
 
-    var createdAt: Timestamp? = null, // 알림 생성 또는 마지막 업데이트 시간
+    var createdAt: Timestamp? = null,
 
-    var isRead: Boolean = false // 사용자가 알림을 읽었는지 여부
+    @get:PropertyName("isRead") @set:PropertyName("isRead")
+    var isRead: Boolean = false
 ) {
-
-    //Firestore가 데이터를 객체로 변환할 때 필요한 빈 생성자
     constructor() : this(
-        id = null,
-        userId = null,
-        type = null,
-        senderId = null,
-        senderName = null,
-        senderProfileUrl = null,
-        aggregatedUserIds = null,
-        relatedContentId = null,
-        recipeTitle = null,
-        recipeThumbnailUrl = null,
-        titleName = null,
-        createdAt = Timestamp.now(), // 기본값으로 현재 시간 설정
-        isRead = false // 기본값으로 '읽지 않음' 상태
+        id = null, userId = null, type = null, senderId = null, senderName = null,
+        senderProfileUrl = null, aggregatedUserIds = null, relatedContentId = null,
+        recipeTitle = null, recipeThumbnailUrl = null, titleName = null,
+        tipTitle = null, tipFirstImageUrl = null, commentContent = null, // 생성자 초기화
+        createdAt = Timestamp.now(), isRead = false
     )
 }

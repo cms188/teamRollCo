@@ -28,10 +28,8 @@ import com.example.recipe_pocket.ui.recipe.search.SearchResult
 import com.example.recipe_pocket.ui.recipe.write.CookWrite01Activity
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.ui.review.MyReviewsActivity
-import com.example.recipe_pocket.ui.user.FollowListActivity
-import com.example.recipe_pocket.ui.user.LikedRecipesActivity
-import com.example.recipe_pocket.ui.user.MyRecipesActivity
-import com.example.recipe_pocket.ui.user.TitleListActivity
+import com.example.recipe_pocket.ui.tip.LikedTipsActivity
+import com.example.recipe_pocket.ui.tip.MyTipsActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -53,11 +51,15 @@ class UserPageActivity : AppCompatActivity() {
     private lateinit var myRecipesLayout: LinearLayout
     private lateinit var followersLayout: LinearLayout
     private lateinit var followingLayout: LinearLayout
-    private lateinit var bookmarkLayout: LinearLayout
-    private lateinit var likeLayout: LinearLayout
-    private lateinit var reviewManageLayout: LinearLayout
-    private lateinit var recentRecipeLayout: LinearLayout
     private lateinit var bottomNavigationView: BottomNavigationView
+
+    // 신규 메뉴 레이아웃
+    private lateinit var bookmarkLayout: LinearLayout
+    private lateinit var likedRecipesLayout: LinearLayout
+    private lateinit var reviewManageLayout: LinearLayout
+    private lateinit var myTipsLayout: LinearLayout
+    private lateinit var likedTipsLayout: LinearLayout
+    private lateinit var recentRecipeLayout: LinearLayout
 
     // TextViews for counts
     private lateinit var recipeCountTextView: TextView
@@ -115,11 +117,14 @@ class UserPageActivity : AppCompatActivity() {
         followerCountTextView = findViewById(R.id.textView_followersCount)
         followingCountTextView = findViewById(R.id.textView_followingCount)
 
-        // 활동 섹션
+        // 활동 섹션 (ID 수정 및 추가)
         bookmarkLayout = findViewById(R.id.layout_bookmark)
-        likeLayout = findViewById(R.id.layout_like)
+        likedRecipesLayout = findViewById(R.id.layout_liked_recipes)
         reviewManageLayout = findViewById(R.id.layout_reviewManage)
+        myTipsLayout = findViewById(R.id.layout_my_tips)
+        likedTipsLayout = findViewById(R.id.layout_liked_tips)
         recentRecipeLayout = findViewById(R.id.layout_recentRecipe)
+
 
         // 하단 네비게이션
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
@@ -179,16 +184,15 @@ class UserPageActivity : AppCompatActivity() {
                     val nickname = document.getString("nickname") ?: "닉네임 없음"
                     nicknameTextView.text = nickname
 
-                    // 칭호 설정
-                    /*val title = document.getString("title")
+                    // [수정] 칭호 설정 로직
+                    val title = document.getString("title")
+                    badgeCardView.visibility = View.VISIBLE // 항상 보이도록 변경
                     if (!title.isNullOrEmpty()) {
-                        badgeTextView.visibility = View.VISIBLE
                         badgeTextView.text = title
-                        badgeCardView.visibility = View.VISIBLE
                     } else {
-                        badgeTextView.visibility = View.GONE
-                        badgeCardView.visibility = View.GONE
-                    }*/
+                        badgeTextView.text = "칭호를 설정해보세요"
+                    }
+
 
                     // 프로필 이미지 설정
                     val imageUrl = document.getString("profileImageUrl")
@@ -255,8 +259,8 @@ class UserPageActivity : AppCompatActivity() {
             startActivity(Intent(this, BookmarkActivity::class.java))
         }
 
-        // 좋아요 클릭
-        likeLayout.setOnClickListener {
+        // 좋아요한 레시피 클릭
+        likedRecipesLayout.setOnClickListener {
             startActivity(Intent(this, LikedRecipesActivity::class.java))
         }
 
@@ -265,9 +269,21 @@ class UserPageActivity : AppCompatActivity() {
             startActivity(Intent(this, MyReviewsActivity::class.java))
         }
 
+        // 내가 쓴 팁 클릭
+        myTipsLayout.setOnClickListener {
+            startActivity(Intent(this, MyTipsActivity::class.java))
+        }
+
+        // 좋아요한 팁 클릭
+        likedTipsLayout.setOnClickListener {
+            startActivity(Intent(this, LikedTipsActivity::class.java))
+        }
+
+
         // 최근 본 레시피 클릭
         recentRecipeLayout.setOnClickListener {
-            startActivity(Intent(this, RecentlyViewedRecipesActivity::class.java))
+            // TODO: 최근 본 레시피 액티비티로 이동
+            Toast.makeText(this, "최근 본 레시피 기능은 준비 중입니다.", Toast.LENGTH_SHORT).show()
         }
     }
 

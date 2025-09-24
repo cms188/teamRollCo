@@ -60,4 +60,8 @@
     <color name="warning">#FF9800</color>
     <color name="success">#4CAF50</color>
 
+    <!-- OX -->
+    <color name="primary_blue">#4FC3F7</color>
+    <color name="primary_red">#EF9A9A</color>
+
 </resources>

@@ -1,7 +1,6 @@
 package com.example.recipe_pocket.ui.main
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -22,13 +21,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.recipe_pocket.CategoryPageActivity
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.RecipeAdapter
-import com.example.recipe_pocket.data.CookTipItem
+import com.example.recipe_pocket.data.Quiz
 import com.example.recipe_pocket.databinding.ActivityMainBinding
+import com.example.recipe_pocket.repository.ContentLoader
+import com.example.recipe_pocket.repository.CookingTipLoader
 import com.example.recipe_pocket.repository.RecipeLoader
 import com.example.recipe_pocket.ui.auth.LoginActivity
 import com.example.recipe_pocket.ui.notification.NotificationActivity
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
-import com.example.recipe_pocket.ui.recipe.write.CookWrite01Activity
+import com.example.recipe_pocket.ui.tip.CookTipDetailActivity
+import com.example.recipe_pocket.ui.tip.CookTipListActivity
 import com.example.recipe_pocket.ui.user.UserPageActivity
 import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.example.recipe_pocket.weather.WeatherMainActivity
@@ -43,12 +45,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var hotCookRecipeAdapter: RecipeAdapter
     private lateinit var pickCookRecipeAdapter: RecipeAdapter
-    private lateinit var nCookRecipeAdapter: RecipeAdapter
+    private lateinit var simpleRecipeAdapter: RecipeAdapter
+    private lateinit var cookTipAdapter: CookTipAdapter
+    private lateinit var seasonalIngredientAdapter: SeasonalIngredientAdapter
+    private var currentQuiz: Quiz? = null
 
     private var notificationListener: ListenerRegistration? = null
     private var newNotificationCount = 0 // 새로운 알림 개수를 저장할 변수
 
-    // ★★★ 알림 권한 요청을 위한 ActivityResultLauncher 선언 ★★★
+    // 알림 권한 요청을 위한 ActivityResultLauncher 선언
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
@@ -64,7 +69,7 @@ class MainActivity : AppCompatActivity() {
     private val notificationResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        // NotificationActivity가 종료되고 돌아왔을 때 항상 리스너를 재설정하여 상태를 강제 갱신합니다.
+        // NotificationActivity가 종료되고 돌아왔을 때 항상 리스너를 재설정하여 상태를 강제 갱신
         Log.d("NotificationDebug", "MainActivity: NotificationActivity로부터 결과 받음 (ResultCode: ${result.resultCode}). 리스너를 갱신합니다.")
         setupNotificationListener()
     }
@@ -79,14 +84,15 @@ class MainActivity : AppCompatActivity() {
         setupClickListeners()
         setupRecyclerView()
         setupBottomNavigation()
+        setupNotificationListener()
 
-        // ★★★ 알림 권한 요청 함수 호출 ★★★
+        // 알림 권한 요청 함수 호출
         askNotificationPermission()
     }
 
     override fun onResume() {
         super.onResume()
-        loadAllRecipes()
+        loadAllData()
         binding.bottomNavigationView.menu.findItem(R.id.fragment_home).isChecked = true
         setupNotificationListener()
     }
@@ -96,9 +102,8 @@ class MainActivity : AppCompatActivity() {
         notificationListener?.remove()
     }
 
-    // ★★★ 알림 권한을 요청하는 함수 추가 ★★★
+    // 알림 권한을 요청하는 함수
     private fun askNotificationPermission() {
-        // 이 코드는 Android 13 (API 레벨 33) 이상에서만 실행됩니다.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
                 PackageManager.PERMISSION_GRANTED
@@ -142,15 +147,13 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("new_notification_count", newNotificationCount)
             notificationResultLauncher.launch(intent)
         }
+        binding.ivSeeAllTips.setOnClickListener {
+            startActivity(Intent(this, CookTipListActivity::class.java))
+        }
     }
 
     private fun setupNotificationListener() {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        if (currentUser == null) {
-            binding.notificationDot.visibility = View.GONE
-            return
-        }
-
+        val currentUser = FirebaseAuth.getInstance().currentUser ?: return
         notificationListener?.remove()
         Log.d("NotificationDebug", "MainActivity: 알림 리스너 설정 시작.")
 
@@ -176,12 +179,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadAllRecipes() {
+    private fun loadAllData() {
         lifecycleScope.launch {
-            // Hot Cook 로딩
-            RecipeLoader.loadMultipleRandomRecipesWithAuthor(count = 5).fold(
+            // Hot Cook 로딩 (좋아요 순)
+            RecipeLoader.loadPopularRecipes(count = 5).fold(
                 onSuccess = { recipes ->
-                    binding.hotCookRecyclerview.visibility = if (recipes.isNotEmpty()) View.VISIBLE else View.GONE
                     hotCookRecipeAdapter.updateRecipes(recipes)
                 },
                 onFailure = {
@@ -192,7 +194,6 @@ class MainActivity : AppCompatActivity() {
             // Pick Cook 로딩
             RecipeLoader.loadMultipleRandomRecipesWithAuthor(count = 5).fold(
                 onSuccess = { recipes ->
-                    binding.pickCookRecyclerview.visibility = if (recipes.isNotEmpty()) View.VISIBLE else View.GONE
                     pickCookRecipeAdapter.updateRecipes(recipes)
                 },
                 onFailure = {
@@ -200,15 +201,29 @@ class MainActivity : AppCompatActivity() {
                 }
             )
 
-            // N Cook 로딩
-            RecipeLoader.loadMultipleRandomRecipesWithAuthor(count = 5).fold(
+            // 15분 이하 간단요리 로딩
+            RecipeLoader.loadRecipesByCookingTime(15, 5).fold(
                 onSuccess = { recipes ->
-                    binding.nCookRecyclerview.visibility = if (recipes.isNotEmpty()) View.VISIBLE else View.GONE
-                    nCookRecipeAdapter.updateRecipes(recipes)
+                    simpleRecipeAdapter.updateRecipes(recipes)
                 },
                 onFailure = {
-                    Toast.makeText(this@MainActivity, "신규 레시피 로드 실패", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "간단요리 로드 실패", Toast.LENGTH_SHORT).show()
                 }
+            )
+
+            // 요리 팁 로딩
+            CookingTipLoader.loadRandomTips(5).fold(
+                onSuccess = { tips -> cookTipAdapter.updateData(tips) },
+                onFailure = { Toast.makeText(this@MainActivity, "요리 팁 로드 실패", Toast.LENGTH_SHORT).show() }
+            )
+
+            // O/X 퀴즈 로딩
+            loadNewQuiz()
+
+            // 제철 재료 로딩
+            ContentLoader.loadSeasonalIngredients().fold(
+                onSuccess = { ingredients -> seasonalIngredientAdapter.updateIngredients(ingredients) },
+                onFailure = { Toast.makeText(this@MainActivity, "제철 재료 로드 실패", Toast.LENGTH_SHORT).show() }
             )
         }
     }
@@ -226,21 +241,86 @@ class MainActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@MainActivity, RecyclerView.HORIZONTAL, false)
         }
 
-        nCookRecipeAdapter = RecipeAdapter(emptyList(), R.layout.cook_card_02)
-        binding.nCookRecyclerview.apply {
-            adapter = nCookRecipeAdapter
+        simpleRecipeAdapter = RecipeAdapter(emptyList(), R.layout.cook_card_02)
+        binding.simpleRecipeRecyclerview.apply {
+            adapter = simpleRecipeAdapter
             layoutManager = LinearLayoutManager(this@MainActivity, RecyclerView.HORIZONTAL, false)
         }
 
-        // ViewPager2 어댑터 설정
-        val cookTipItems = listOf(
-            CookTipItem("오늘의 추천 요리팁!", "재료 손질부터 플레이팅까지", R.drawable.bg_no_img_gray),
-            CookTipItem("간단한 밑반찬 만들기", "냉장고를 든든하게 채워요", R.drawable.bg_no_img_gray),
-            CookTipItem("특별한 날 홈파티 메뉴", "쉽고 근사하게 준비하기", R.drawable.bg_no_img_gray)
-        )
-        binding.cookTipsViewPager.adapter = CookTipAdapter(cookTipItems)
+        // ViewPager2 어댑터 설정 (클릭 리스너 구현)
+        cookTipAdapter = CookTipAdapter(emptyList()) { tip ->
+            val intent = Intent(this, CookTipDetailActivity::class.java).apply {
+                putExtra(CookTipDetailActivity.EXTRA_TIP_ID, tip.id)
+            }
+            startActivity(intent)
+        }
+        binding.cookTipsViewPager.adapter = cookTipAdapter
         binding.cookTipsViewPager.offscreenPageLimit = 1
+
+        seasonalIngredientAdapter = SeasonalIngredientAdapter(emptyList())
+        binding.seasonalRecyclerview.apply {
+            adapter = seasonalIngredientAdapter
+            layoutManager = LinearLayoutManager(this@MainActivity, RecyclerView.HORIZONTAL, false)
+        }
+
+        // 퀴즈 카드 설정
+        setupQuizCard()
     }
+
+    private fun setupQuizCard() {
+        val quizCard = binding.quizCard
+        quizCard.btnQuizO.setOnClickListener { handleQuizAnswer(true) }
+        quizCard.btnQuizX.setOnClickListener { handleQuizAnswer(false) }
+        quizCard.btnQuizRefresh.setOnClickListener { loadNewQuiz() }
+    }
+
+    private fun loadNewQuiz() {
+        lifecycleScope.launch {
+            ContentLoader.loadRandomQuiz().fold(
+                onSuccess = { quiz ->
+                    currentQuiz = quiz
+                    updateQuizUI()
+                },
+                onFailure = {
+                    binding.quizCard.tvQuizQuestion.text = "퀴즈를 불러오는 데 실패했습니다."
+                }
+            )
+        }
+    }
+
+    private fun updateQuizUI() {
+        val quizCard = binding.quizCard
+        currentQuiz?.let {
+            quizCard.tvQuizQuestion.text = it.question
+            quizCard.btnQuizO.isEnabled = true
+            quizCard.btnQuizO.alpha = 1.0f
+            quizCard.btnQuizX.isEnabled = true
+            quizCard.btnQuizX.alpha = 1.0f
+            quizCard.tvQuizFeedback.visibility = View.GONE
+            quizCard.btnQuizRefresh.visibility = View.GONE
+        }
+    }
+
+    private fun handleQuizAnswer(userAnswer: Boolean) {
+        val quiz = currentQuiz ?: return
+        val quizCard = binding.quizCard
+
+        quizCard.btnQuizO.isEnabled = false
+        quizCard.btnQuizX.isEnabled = false
+        quizCard.btnQuizRefresh.visibility = View.VISIBLE
+        quizCard.tvQuizFeedback.visibility = View.VISIBLE
+
+        if (userAnswer == quiz.answer) {
+            quizCard.tvQuizFeedback.text = "정답입니다!"
+            quizCard.tvQuizFeedback.setTextColor(ContextCompat.getColor(this, R.color.success))
+            if(userAnswer) quizCard.btnQuizO.alpha = 1.0f else quizCard.btnQuizX.alpha = 1.0f
+        } else {
+            quizCard.tvQuizFeedback.text = "오답! ${quiz.explanation}"
+            quizCard.tvQuizFeedback.setTextColor(ContextCompat.getColor(this, R.color.error))
+            if(userAnswer) quizCard.btnQuizO.alpha = 0.5f else quizCard.btnQuizX.alpha = 0.5f
+        }
+    }
+
 
     private fun setupBottomNavigation() {
         binding.bottomNavigationView.setOnItemReselectedListener { /* 아무것도 하지 않음 */ }
@@ -251,14 +331,18 @@ class MainActivity : AppCompatActivity() {
             }
 
             val currentUser = FirebaseAuth.getInstance().currentUser
-            val intent = when (item.itemId) {
-                //R.id.fragment_search -> Intent(this, SearchResult::class.java) //임시변경
-                R.id.fragment_search -> Intent(this, WeatherMainActivity::class.java) //weathermainactivity로 이동 임시변경
-                R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
-                R.id.fragment_favorite -> {
-                    if (currentUser != null) Intent(this, CookWrite01Activity::class.java)
-                    else Intent(this, LoginActivity::class.java)
+            if (item.itemId == R.id.fragment_favorite) {
+                if (currentUser != null) {
+                    WriteChoiceDialogFragment().show(supportFragmentManager, WriteChoiceDialogFragment.TAG)
+                } else {
+                    startActivity(Intent(this, LoginActivity::class.java))
                 }
+                return@setOnItemSelectedListener false
+            }
+
+            val intent = when (item.itemId) {
+                R.id.fragment_search -> Intent(this, WeatherMainActivity::class.java)
+                R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
                 R.id.fragment_settings -> {
                     if (currentUser != null) Intent(this, UserPageActivity::class.java)
                     else Intent(this, LoginActivity::class.java)
