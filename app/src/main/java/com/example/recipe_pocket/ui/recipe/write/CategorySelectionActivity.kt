@@ -23,15 +23,10 @@ class CategorySelectionActivity : AppCompatActivity() {
         binding = ActivityCategorySelectionBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupToolbar()
+        utils.ToolbarUtils.setupTransparentToolbar(this, "")
         loadInitialSelection()
         populateCategoryChips()
         setupSaveButton()
-    }
-
-    private fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
     private fun loadInitialSelection() {

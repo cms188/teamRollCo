@@ -1,26 +1,71 @@
 package com.example.recipe_pocket.ui.auth
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import com.bumptech.glide.Glide
 import com.example.recipe_pocket.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
-import utils.ToolbarUtils
+import com.google.firebase.storage.FirebaseStorage
 
 class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
+    private lateinit var storage: FirebaseStorage
+
+    // 프로필 이미지 관련
+    private lateinit var profileImageView: ImageView
+    private lateinit var changeProfileImageButton: View
+
+    // 닉네임 편집 관련 UI 컴포넌트들
+    private lateinit var nicknameDisplayLayout: LinearLayout
+    private lateinit var nicknameEditLayout: LinearLayout
+    private lateinit var tvCurrentNickname: TextView
+    private lateinit var nicknameEditText: TextInputEditText
+    private lateinit var nicknameInputLayout: TextInputLayout
+    private lateinit var btnConfirmNickname: View
+    private lateinit var btnCancelNickname: View
+
+    private var isEditMode = false
+
+    // 이미지 선택 결과 처리
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            result.data?.data?.let { uri ->
+                uploadProfilePicture(uri)
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,35 +73,305 @@ class EditProfileActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
+        storage = FirebaseStorage.getInstance()
 
         // 툴바 설정
-        ToolbarUtils.setupTransparentToolbar(this, "프로필 편집")
+        utils.ToolbarUtils.setupTransparentToolbar(this, "프로필 편집")
 
-        // UI 요소 연결 및 리스너 설정
-        val changeNicknameButton: LinearLayout = findViewById(R.id.btnChangeNickname)
+        // UI 요소 연결
+        initViews()
+        setupClickListeners()
+
+        // 현재 사용자 정보 로드
+        loadUserProfile()
+    }
+
+    private fun initViews() {
+        // 프로필 이미지 관련
+        profileImageView = findViewById(R.id.imageView_currentProfile)
+        changeProfileImageButton = findViewById(R.id.btnChangeProfileImage)
+
+        // 기존 UI 요소들
         val changePasswordButton: LinearLayout = findViewById(R.id.btnChangePassword)
         val logoutButton: LinearLayout = findViewById(R.id.btnLogout)
         val deleteAccountButton: LinearLayout = findViewById(R.id.btnDeleteAccount)
-        val profileImageFrame: FrameLayout = findViewById(R.id.ChangeProfileImageFrame)
-        val tvCurrentNickname: TextView = findViewById(R.id.tvCurrentNickname)
 
-        // 프로필 이미지 클릭 리스너
-        // profileImageFrame.setOnClickListener { handleChangeProfileImage() }
-        changeNicknameButton.setOnClickListener { handleChangeNickname() }
+        // 닉네임 편집 관련 UI 요소들
+        nicknameDisplayLayout = findViewById(R.id.nicknameDisplayLayout)
+        nicknameEditLayout = findViewById(R.id.nicknameEditLayout)
+        tvCurrentNickname = findViewById(R.id.tvCurrentNickname)
+        nicknameEditText = findViewById(R.id.nicknameEditText)
+        nicknameInputLayout = findViewById(R.id.nicknameInputLayout)
+        btnConfirmNickname = findViewById(R.id.btnConfirmNickname)
+        btnCancelNickname = findViewById(R.id.btnCancelNickname)
+    }
+
+    private fun setupClickListeners() {
+        val changePasswordButton: LinearLayout = findViewById(R.id.btnChangePassword)
+        val logoutButton: LinearLayout = findViewById(R.id.btnLogout)
+        val deleteAccountButton: LinearLayout = findViewById(R.id.btnDeleteAccount)
+
+        // 기존 리스너들
         changePasswordButton.setOnClickListener { handleChangePassword() }
         logoutButton.setOnClickListener { logoutUser() }
         deleteAccountButton.setOnClickListener { showDeleteAccountConfirmation() }
+
+        // 프로필 이미지 변경 리스너
+        changeProfileImageButton.setOnClickListener { openGallery() }
+
+        // 닉네임 편집 리스너들
+        nicknameDisplayLayout.setOnClickListener {
+            if (!isEditMode) {
+                startEditMode()
+            }
+        }
+
+        btnConfirmNickname.setOnClickListener {
+            confirmNicknameChange()
+        }
+
+        btnCancelNickname.setOnClickListener {
+            cancelEditMode()
+        }
+
+        // EditText의 Done 액션 처리
+        nicknameEditText.setOnEditorActionListener { _, _, _ ->
+            confirmNicknameChange()
+            true
+        }
     }
 
-    // 닉네임 변경 화면으로 이동
-    private fun handleChangeNickname() {
-        val intent = Intent(this, NicknameSetupActivity::class.java)
-        // 닉네임 변경 모드로 실행
-        intent.putExtra(NicknameSetupActivity.EXTRA_MODE, NicknameSetupActivity.MODE_UPDATE)
-        startActivity(intent)
+    // ==================== 프로필 정보 로드 ====================
+
+    private fun loadUserProfile() {
+        val currentUser = auth.currentUser ?: return
+
+        firestore.collection("Users").document(currentUser.uid).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    var nickname = document.getString("nickname")
+                    if (!nickname.isNullOrEmpty()) {
+                        tvCurrentNickname.text = nickname
+                    } else {
+                        tvCurrentNickname.text = "닉네임 없음"
+                    }
+                    val imageUrl = document.getString("profileImageUrl")
+                    if (!imageUrl.isNullOrEmpty()) {
+                        Glide.with(this)
+                            .load(imageUrl)
+                            .placeholder(R.drawable.bg_author_profile)
+                            .error(R.drawable.bg_author_profile)
+                            .circleCrop()
+                            .into(profileImageView)
+                    } else {
+                        profileImageView.setImageResource(R.drawable.bg_author_profile)
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("EditProfile", "프로필 정보 로드 실패", e)
+                tvCurrentNickname.text = "닉네임 없음"
+                profileImageView.setImageResource(R.drawable.bg_author_profile)
+            }
     }
 
-    // 비밀번호 변경 로직
+    override fun onResume() {
+        super.onResume()
+        loadUserProfile()
+    }
+
+    // ==================== 프로필 이미지 변경 ====================
+
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        pickImageLauncher.launch(intent)
+    }
+
+    private fun uploadProfilePicture(imageUri: Uri) {
+        val currentUser = auth.currentUser ?: return
+        val storageRef = storage.reference.child("profile_pictures/${currentUser.uid}")
+
+        Toast.makeText(this, "프로필 사진을 업로드 중입니다...", Toast.LENGTH_SHORT).show()
+
+        storageRef.putFile(imageUri)
+            .addOnSuccessListener {
+                storageRef.downloadUrl.addOnSuccessListener { uri ->
+                    updateProfileUrlInFirestore(uri.toString())
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "업로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun updateProfileUrlInFirestore(url: String) {
+        val currentUser = auth.currentUser ?: return
+
+        firestore.collection("Users").document(currentUser.uid)
+            .update("profileImageUrl", url)
+            .addOnSuccessListener {
+                Toast.makeText(this, "프로필 사진이 변경되었습니다.", Toast.LENGTH_SHORT).show()
+                // 화면에 즉시 반영
+                Glide.with(this)
+                    .load(url)
+                    .placeholder(R.drawable.bg_author_profile)
+                    .error(R.drawable.bg_author_profile)
+                    .circleCrop()
+                    .into(profileImageView)
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "프로필 사진 정보 저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // ==================== 닉네임 편집 애니메이션 관련 ====================
+
+    private fun startEditMode() {
+        if (isEditMode) return
+
+        isEditMode = true
+
+        // 현재 닉네임을 EditText에 설정
+        nicknameEditText.setText(tvCurrentNickname.text.toString())
+
+        // 편집 레이아웃을 화면 오른쪽 밖에 위치시킴
+        nicknameEditLayout.visibility = View.VISIBLE
+        nicknameEditLayout.alpha = 1f
+
+        // 레이아웃 크기가 측정된 후 애니메이션 시작
+        nicknameEditLayout.post {
+            val containerWidth = nicknameEditLayout.parent.let {
+                if (it is View) it.width else resources.displayMetrics.widthPixels
+            }
+
+            nicknameEditLayout.translationX = containerWidth.toFloat()
+
+            // 슬라이드 인 애니메이션 (오른쪽에서 왼쪽으로)
+            nicknameEditLayout.animate()
+                .translationX(0f)
+                .setDuration(350)
+                .setInterpolator(DecelerateInterpolator(1.5f))
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        // 애니메이션 완료 후 포커스 및 키보드 표시
+                        nicknameEditText.requestFocus()
+                        nicknameEditText.selectAll()
+                        showKeyboard()
+                    }
+                })
+                .start()
+
+            // 표시 레이아웃 페이드 아웃
+            nicknameDisplayLayout.animate()
+                .alpha(0.3f)
+                .setDuration(200)
+                .start()
+        }
+    }
+
+    private fun confirmNicknameChange() {
+        val newNickname = nicknameEditText.text.toString().trim()
+
+        // 닉네임 검증
+        if (newNickname.isEmpty()) {
+            nicknameInputLayout.error = "닉네임을 입력해주세요"
+            return
+        }
+
+        if (newNickname.length > 20) {
+            nicknameInputLayout.error = "닉네임은 20자 이하로 입력해주세요"
+            return
+        }
+
+        // 에러 메시지 제거
+        nicknameInputLayout.error = null
+
+        // Firebase Firestore에 닉네임 업데이트
+        updateNicknameInFirestore(newNickname)
+    }
+
+    private fun updateNicknameInFirestore(newNickname: String) {
+        val currentUser = auth.currentUser ?: return
+        val uid = currentUser.uid
+
+        firestore.collection("Users").document(uid)
+            .update("nickname", newNickname)
+            .addOnSuccessListener {
+                Log.d("EditProfile", "닉네임 업데이트 성공")
+                // UI 업데이트
+                tvCurrentNickname.text = newNickname
+                // 편집 모드 종료
+                endEditMode(true)
+                Toast.makeText(this, "닉네임이 변경되었습니다", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Log.e("EditProfile", "닉네임 업데이트 실패", e)
+                nicknameInputLayout.error = "닉네임 변경에 실패했습니다"
+                Toast.makeText(this, "닉네임 변경에 실패했습니다", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun cancelEditMode() {
+        // 변경사항 취소하고 편집 모드 종료
+        nicknameInputLayout.error = null
+        endEditMode(false)
+    }
+
+    private fun endEditMode(isConfirmed: Boolean = false) {
+        if (!isEditMode) return
+
+        hideKeyboard()
+
+        // 레이아웃 크기가 측정된 후 애니메이션 시작
+        nicknameEditLayout.post {
+            val containerWidth = nicknameEditLayout.parent.let {
+                if (it is View) it.width else resources.displayMetrics.widthPixels
+            }
+
+            // 슬라이드 아웃 애니메이션 (왼쪽에서 오른쪽으로)
+            nicknameEditLayout.animate()
+                .translationX(containerWidth.toFloat())
+                .setDuration(300)
+                .setInterpolator(AccelerateInterpolator(1.2f))
+                .setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        nicknameEditLayout.visibility = View.GONE
+                        isEditMode = false
+                    }
+                })
+                .start()
+
+            // 표시 레이아웃 페이드 인
+            nicknameDisplayLayout.animate()
+                .alpha(1f)
+                .setDuration(250)
+                .start()
+        }
+    }
+
+    private fun showKeyboard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(nicknameEditText, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(nicknameEditText.windowToken, 0)
+    }
+
+    // 뒤로가기 버튼 처리
+    override fun onBackPressed() {
+        if (isEditMode) {
+            cancelEditMode()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    // ==================== 비밀번호 변경 ====================
+
+    // 비밀번호 변경
     private fun handleChangePassword() {
         val currentUser = auth.currentUser ?: return
 
@@ -106,6 +421,8 @@ class EditProfileActivity : AppCompatActivity() {
             .setNegativeButton("취소", null)
             .show()
     }
+
+    // ==================== 계정 관리 ====================
 
     // 로그아웃
     private fun logoutUser() {
@@ -157,9 +474,6 @@ class EditProfileActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * 1단계: 사용자가 작성한 모든 레시피를 삭제 (Firestore)
-     */
     private fun deleteUserRecipes(uid: String, onComplete: (Boolean) -> Unit) {
         firestore.collection("Recipes").whereEqualTo("userId", uid).get()
             .addOnSuccessListener { querySnapshot ->
@@ -184,9 +498,6 @@ class EditProfileActivity : AppCompatActivity() {
             }
     }
 
-    /**
-     * 2단계: 사용자 프로필 문서를 삭제 (Firestore)
-     */
     private fun deleteUserProfile(uid: String, onComplete: (Boolean) -> Unit) {
         firestore.collection("Users").document(uid).delete()
             .addOnSuccessListener {
@@ -199,9 +510,6 @@ class EditProfileActivity : AppCompatActivity() {
             }
     }
 
-    /**
-     * 3단계: 사용자 계정을 삭제 (Firebase Auth)
-     */
     private fun deleteFirebaseAuthUser(user: FirebaseUser) {
         user.delete()
             .addOnSuccessListener {

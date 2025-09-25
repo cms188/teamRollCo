@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
@@ -91,61 +92,164 @@
 
                     </LinearLayout>
 
-                    <!-- 닉네임 변경 -->
-                    <LinearLayout
-                        android:id="@+id/btnChangeNickname"
+                    <!-- 닉네임 변경 (인라인 편집) -->
+                    <FrameLayout
+                        android:id="@+id/nicknameContainer"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:gravity="center_vertical"
-                        android:minHeight="56dp"
-                        android:orientation="horizontal"
-                        android:padding="20dp"
-                        android:paddingTop="16dp"
-                        android:paddingBottom="16dp">
+                        android:layout_height="wrap_content" >
 
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_marginEnd="16dp"
-                            android:src="@drawable/ic_nickname"
-                            app:tint="@color/text_primary" />
-
-                        <TextView
-                            android:layout_width="0dp"
+                        <!-- 닉네임 표시 모드 -->
+                        <LinearLayout
+                            android:id="@+id/nicknameDisplayLayout"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:fontFamily="@font/notosans_medium"
-                            android:includeFontPadding="false"
-                            android:text="닉네임"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp" />
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:minHeight="56dp"
+                            android:orientation="horizontal"
+                            android:padding="20dp"
+                            android:paddingTop="16dp"
+                            android:paddingBottom="16dp">
 
-                        <!-- 현재 닉네임 표시 -->
-                        <TextView
-                            android:id="@+id/tvCurrentNickname"
-                            android:layout_width="wrap_content"
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="16dp"
+                                android:src="@drawable/ic_nickname"
+                                app:tint="@color/text_primary" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/notosans_medium"
+                                android:includeFontPadding="false"
+                                android:text="닉네임"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp" />
+
+                            <!-- 현재 닉네임 표시 -->
+                            <TextView
+                                android:id="@+id/tvCurrentNickname"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:ellipsize="end"
+                                android:fontFamily="@font/notosans_regular"
+                                android:includeFontPadding="false"
+                                android:maxWidth="120dp"
+                                android:maxLines="1"
+                                android:text="사용자 닉네임"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="14sp" />
+
+                            <ImageView
+                                android:id="@+id/ivEditIcon"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:alpha="0.6"
+                                android:paddingTop="2dp"
+                                android:src="@drawable/ic_arrow_right_r"
+                                app:tint="@color/text_hint" />
+                        </LinearLayout>
+
+                        <!-- 닉네임 편집 모드 -->
+                        <LinearLayout
+                            android:id="@+id/nicknameEditLayout"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="8dp"
-                            android:ellipsize="end"
-                            android:fontFamily="@font/notosans_regular"
-                            android:includeFontPadding="false"
-                            android:maxWidth="120dp"
-                            android:maxLines="1"
-                            android:text="사용자 닉네임"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="14sp" />
+                            android:orientation="vertical"
+                            android:padding="20dp"
+                            android:paddingTop="16dp"
+                            android:paddingBottom="16dp"
+                            android:visibility="gone"
+                            tools:visibility="gone" >
 
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:alpha="0.6"
-                            android:paddingTop="2dp"
-                            android:src="@drawable/ic_arrow_right_r"
-                            app:tint="@color/text_hint" />
-                    </LinearLayout>
+                            <!-- 닉네임 입력창 -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <!-- 닉네임 입력창 -->
+                                <com.google.android.material.textfield.TextInputLayout
+                                    android:id="@+id/nicknameInputLayout"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    app:boxBackgroundColor="@color/background_warm_beige"
+                                    app:boxCornerRadiusBottomEnd="8dp"
+                                    app:boxCornerRadiusBottomStart="8dp"
+                                    app:boxCornerRadiusTopEnd="8dp"
+                                    app:boxCornerRadiusTopStart="8dp"
+                                    app:boxStrokeColor="@color/primary"
+                                    app:boxStrokeWidth="0dp"
+                                    app:boxStrokeWidthFocused="1dp"
+                                    app:hintEnabled="false">
+
+                                    <com.google.android.material.textfield.TextInputEditText
+                                        android:id="@+id/nicknameEditText"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="36dp"
+                                        android:fontFamily="@font/notosans_regular"
+                                        android:gravity="center_vertical"
+                                        android:includeFontPadding="false"
+                                        android:inputType="text"
+                                        android:maxLength="20"
+                                        android:paddingStart="12dp"
+                                        android:paddingEnd="12dp"
+                                        android:selectAllOnFocus="true"
+                                        android:text=""
+                                        android:textColor="@color/text_primary"
+                                        android:textSize="14sp" />
+                                </com.google.android.material.textfield.TextInputLayout>
+
+                            </LinearLayout>
+
+                            <!-- 두 번째 줄: 버튼들 -->
+                            <LinearLayout
+                                android:id="@+id/nicknameButtonLayout"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:gravity="end"
+                                android:orientation="horizontal">
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnCancelNickname"
+                                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                                    android:layout_width="0dp"
+                                    android:layout_height="44dp"
+                                    android:layout_marginEnd="8dp"
+                                    android:layout_weight="1"
+                                    android:fontFamily="@font/notosans_medium"
+                                    android:includeFontPadding="false"
+                                    android:text="취소"
+                                    android:textColor="@color/text_secondary"
+                                    android:textSize="13sp"
+                                    app:cornerRadius="20dp"
+                                    app:strokeColor="@color/text_sub"
+                                    app:strokeWidth="1dp" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnConfirmNickname"
+                                    android:layout_width="0dp"
+                                    android:layout_height="44dp"
+                                    android:layout_weight="1"
+                                    android:fontFamily="@font/notosans_medium"
+                                    android:includeFontPadding="false"
+                                    android:text="확인"
+                                    android:textSize="13sp"
+                                    app:backgroundTint="@color/primary"
+                                    app:cornerRadius="20dp" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </FrameLayout>
 
                     <!-- 비밀번호 변경 -->
                     <LinearLayout

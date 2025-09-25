@@ -28,7 +28,7 @@ class MyReviewsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupRecyclerView()
-        binding.ivBackButton.setOnClickListener { finish() }
+        utils.ToolbarUtils.setupTransparentToolbar(this, "작성한 리뷰")
     }
 
     override fun onResume() {

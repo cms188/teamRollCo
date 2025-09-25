@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
@@ -63,11 +62,12 @@ class RecipeDetailActivity : AppCompatActivity() {
     private var isTabSelectionInProgress = false
     private val isLayoutReady = AtomicBoolean(false)
 
-    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            // onResume에서 처리
+    private val resultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // onResume에서 처리
+            }
         }
-    }
 
     private companion object {
         const val TOOLBAR_HEIGHT_DP = 56
@@ -104,35 +104,67 @@ class RecipeDetailActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
+        // 기본 탭 설정
         binding.btnPageSummary.isChecked = true
         currentTab = 0
 
-        binding.toolbar.toolbarTitle.text = ""
-        binding.toolbar.backButton.setOnClickListener { finish() }
-        setupToolbarWindowInsets()
+        // 툴바 초기 설정
+        utils.ToolbarUtils.setupTransparentToolbar(
+            this, "", showEditButton = true, showDeleteButton = true,
+            onEditClicked = {
+                // 수정 버튼 클릭 시 처리
+                val intent =
+                    Intent(this, RecipeEditActivity::class.java).putExtra("RECIPE_ID", recipeId)
+                resultLauncher.launch(intent)
+            },
+            onDeleteClicked = {
+                // 삭제 버튼 클릭 시 처리
+                showDeleteConfirmationDialog()
+            }
+        )
 
+        // 리사이클러뷰 설정
         binding.recyclerViewReviews.apply {
             adapter = reviewAdapter
             layoutManager = LinearLayoutManager(this@RecipeDetailActivity)
             isNestedScrollingEnabled = false
         }
 
+        // 스크롤 리스너 설정 - 스티키 탭 표시/숨김
         binding.nestedScrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
-            val toolbarHeight = binding.toolbar.root.height
+            val toolbarHeight = binding.toolbar.toolbar.height
             val triggerPoint = binding.originalTabContainer.bottom - toolbarHeight
 
             if (scrollY >= triggerPoint) {
                 if (binding.stickyTabContainer.visibility != View.VISIBLE) {
                     binding.stickyTabContainer.visibility = View.VISIBLE
                     binding.originalTabContainer.visibility = View.INVISIBLE
-                    binding.toolbar.root.setBackgroundColor(ContextCompat.getColor(this, R.color.cream))
+                    binding.toolbar.toolbar.setBackgroundColor(
+                        ContextCompat.getColor(
+                            this,
+                            R.color.white
+                        )
+                    )
                     binding.stickyTabContainer.bringToFront()
+
+                    // 그라데이션 View 표시 (스티키 탭 바로 위)
+                    binding.root.findViewById<View>(R.id.gradient_sticky_overlay)?.visibility =
+                        View.VISIBLE
                 }
             } else {
                 if (binding.stickyTabContainer.visibility == View.VISIBLE) {
                     binding.stickyTabContainer.visibility = View.GONE
                     binding.originalTabContainer.visibility = View.VISIBLE
-                    binding.toolbar.root.setBackgroundColor(ContextCompat.getColor(this, android.R.color.transparent))
+                    binding.toolbar.toolbar.setBackgroundColor(
+                        ContextCompat.getColor(
+                            this,
+                            android.R.color.transparent
+                        )
+                    )
+
+                    // 그라데이션 View 숨김
+                    binding.root.findViewById<View>(R.id.gradient_sticky_overlay)?.visibility =
+                        View.GONE
                 }
             }
         }
@@ -155,16 +187,22 @@ class RecipeDetailActivity : AppCompatActivity() {
                     loadReviews(recipe.id!!)
                     setupInteractionButtons(recipe)
                 } else {
-                    Toast.makeText(this@RecipeDetailActivity, "레시피를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@RecipeDetailActivity, "레시피를 찾을 수 없습니다.", Toast.LENGTH_SHORT)
+                        .show()
                     finish()
                 }
             }.onFailure {
-                Toast.makeText(this@RecipeDetailActivity, "데이터 로딩 실패: ${it.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this@RecipeDetailActivity,
+                    "데이터 로딩 실패: ${it.message}",
+                    Toast.LENGTH_LONG
+                ).show()
                 finish()
             }
         }
     }
 
+    // 조회수 증가 처리
     private fun incrementViewCount(recipe: Recipe) {
         val currentUser = auth.currentUser ?: return // 비로그인 사용자는 조회수 증가 안 함
 
@@ -188,6 +226,7 @@ class RecipeDetailActivity : AppCompatActivity() {
         }
     }
 
+    // 헤더 정보 표시
     private fun displayHeaderInfo(recipe: Recipe) {
         Glide.with(this).load(recipe.thumbnailUrl).into(binding.headerImage)
         binding.title.text = recipe.title
@@ -202,54 +241,89 @@ class RecipeDetailActivity : AppCompatActivity() {
         binding.tvViewCount.text = "조회수 ${"%,d".format(recipe.viewCount ?: 0)}"
     }
 
+    // 요약 탭 내용 구성
     private fun populateSummaryTab(recipe: Recipe) {
         val summaryContainer = binding.scrollViewSummaryContent
         summaryContainer.removeAllViews()
         val summaryBinding = ContentRecipeSummaryBinding.inflate(layoutInflater)
-        val authorInfoView = layoutInflater.inflate(R.layout.item_author_info, summaryBinding.authorInfoLayout, false)
+
+        // 작성자 정보 추가
+        val authorInfoView = layoutInflater.inflate(
+            R.layout.item_author_info,
+            summaryBinding.authorInfoLayout,
+            false
+        )
         recipe.author?.let { author ->
             val tvAuthorTitle: TextView = authorInfoView.findViewById(R.id.tv_author_title)
             val tvAuthorName: TextView = authorInfoView.findViewById(R.id.tv_author_name)
-            val ivAuthorProfile: de.hdodenhof.circleimageview.CircleImageView = authorInfoView.findViewById(R.id.iv_author_profile)
+            val ivAuthorProfile: de.hdodenhof.circleimageview.CircleImageView =
+                authorInfoView.findViewById(R.id.iv_author_profile)
+
             if (!author.title.isNullOrEmpty()) {
                 tvAuthorTitle.visibility = View.VISIBLE
                 tvAuthorTitle.text = author.title
             } else {
                 tvAuthorTitle.visibility = View.GONE
             }
+
             tvAuthorName.text = author.nickname ?: "작성자 정보 없음"
+
             if (!author.profileImageUrl.isNullOrEmpty()) {
                 Glide.with(this).load(author.profileImageUrl).into(ivAuthorProfile)
             } else {
                 ivAuthorProfile.setImageResource(R.drawable.ic_profile_placeholder)
             }
         }
+
         summaryBinding.authorInfoLayout.addView(authorInfoView)
         summaryBinding.authorInfoLayout.setOnClickListener {
-            val intent = Intent(this, UserFeedActivity::class.java).apply { putExtra(UserFeedActivity.EXTRA_USER_ID, recipe.userId) }
+            val intent = Intent(this, UserFeedActivity::class.java).apply {
+                putExtra(UserFeedActivity.EXTRA_USER_ID, recipe.userId)
+            }
             startActivity(intent)
         }
+
+        // 간단 설명
         summaryBinding.tvRecipeSimpleDescription.text = recipe.simpleDescription
+
+        // 재료 목록
         summaryBinding.ingredientsContainer.removeAllViews()
         recipe.ingredients?.forEach { ingredient ->
-            val view = layoutInflater.inflate(R.layout.item_ingredient_display, summaryBinding.ingredientsContainer, false)
+            val view = layoutInflater.inflate(
+                R.layout.item_ingredient_display,
+                summaryBinding.ingredientsContainer,
+                false
+            )
             view.findViewById<TextView>(R.id.ingredient_name).text = ingredient.name
-            view.findViewById<TextView>(R.id.ingredient_amount).text = "${ingredient.amount ?: ""}${ingredient.unit ?: ""}"
+            view.findViewById<TextView>(R.id.ingredient_amount).text =
+                "${ingredient.amount ?: ""}${ingredient.unit ?: ""}"
             summaryBinding.ingredientsContainer.addView(view)
         }
+
+        // 도구 목록
         summaryBinding.toolsContainer.removeAllViews()
         recipe.tools?.forEach { tool ->
-            val view = layoutInflater.inflate(R.layout.item_tool_display, summaryBinding.toolsContainer, false)
+            val view = layoutInflater.inflate(
+                R.layout.item_tool_display,
+                summaryBinding.toolsContainer,
+                false
+            )
             view.findViewById<TextView>(R.id.tool_name).text = tool
             summaryBinding.toolsContainer.addView(view)
         }
-        summaryBinding.btnStartCooking.setOnClickListener {
-            val intent = Intent(this, RecipeReadActivity::class.java).apply { putExtra("RECIPE_ID", recipeId) }
+
+        // 요리 시작 버튼
+        binding.btnStartCooking.setOnClickListener {
+            val intent = Intent(this, RecipeReadActivity::class.java).apply {
+                putExtra("RECIPE_ID", recipeId)
+            }
             resultLauncher.launch(intent)
         }
+
         summaryContainer.addView(summaryBinding.root)
     }
 
+    // 리뷰 데이터 로드
     private fun loadReviews(recipeId: String) {
         binding.progressBarLoading.visibility = View.VISIBLE
         firestore.collection("Recipes").document(recipeId).collection("Reviews").get()
@@ -259,11 +333,13 @@ class RecipeDetailActivity : AppCompatActivity() {
                 val reviewCountText = "리뷰 (${reviews.size})"
                 binding.btnPageReview.text = reviewCountText
                 binding.btnPageReviewSticky.text = reviewCountText
+
                 if (reviews.isNotEmpty()) {
                     binding.textViewEmpty.visibility = View.GONE
                     binding.recyclerViewReviews.visibility = View.VISIBLE
                     val avgRating = reviews.mapNotNull { it.rating }.average()
-                    binding.textViewRateAVG.text = if (avgRating.isNaN()) "0.0" else String.format("%.1f", avgRating)
+                    binding.textViewRateAVG.text =
+                        if (avgRating.isNaN()) "0.0" else String.format("%.1f", avgRating)
                 } else {
                     binding.textViewEmpty.text = "작성된 후기가 없습니다.\n첫 번째로 후기를 남겨 보세요!"
                     binding.textViewEmpty.visibility = View.VISIBLE
@@ -274,21 +350,11 @@ class RecipeDetailActivity : AppCompatActivity() {
             }
     }
 
+    // 상호작용 버튼 설정
     private fun setupInteractionButtons(recipe: Recipe) {
         val currentUser = auth.currentUser
-        val editDeleteContainer = binding.toolbar.root.findViewById<LinearLayout>(R.id.edit_delete_container_toolbar)
-        val btnEditRecipe = binding.toolbar.root.findViewById<View>(R.id.btn_edit_recipe_toolbar)
-        val btnDeleteRecipe = binding.toolbar.root.findViewById<View>(R.id.btn_delete_recipe_toolbar)
-        if (currentUser != null && currentUser.uid == recipe.userId) {
-            editDeleteContainer.visibility = View.VISIBLE
-            btnEditRecipe.setOnClickListener {
-                val intent = Intent(this, RecipeEditActivity::class.java).putExtra("RECIPE_ID", recipeId)
-                resultLauncher.launch(intent)
-            }
-            btnDeleteRecipe.setOnClickListener { showDeleteConfirmationDialog() }
-        } else {
-            editDeleteContainer.visibility = View.GONE
-        }
+
+        // 북마크 버튼 설정
         updateBookmarkButton(recipe.isBookmarked)
         binding.btnBookmark.setOnClickListener {
             if (currentUser == null) {
@@ -297,6 +363,8 @@ class RecipeDetailActivity : AppCompatActivity() {
             }
             toggleBookmark()
         }
+
+        // 좋아요 버튼 설정
         updateLikeButton(recipe.isLiked)
         binding.btnLike.setOnClickListener {
             if (currentUser == null) {
@@ -309,10 +377,16 @@ class RecipeDetailActivity : AppCompatActivity() {
         }
     }
 
+    // 북마크 토글
     private fun toggleBookmark() {
         val recipe = currentRecipe ?: return
         val currentUser = auth.currentUser ?: return
-        BookmarkManager.toggleBookmark(recipe.id!!, currentUser.uid, recipe.isBookmarked) { result ->
+
+        BookmarkManager.toggleBookmark(
+            recipe.id!!,
+            currentUser.uid,
+            recipe.isBookmarked
+        ) { result ->
             result.onSuccess { newState ->
                 recipe.isBookmarked = newState
                 updateBookmarkButton(newState)
@@ -322,6 +396,7 @@ class RecipeDetailActivity : AppCompatActivity() {
         }
     }
 
+    // 좋아요 토글
     private fun toggleLike() {
         val recipe = currentRecipe ?: return
         val currentUser = auth.currentUser ?: return
@@ -373,6 +448,7 @@ class RecipeDetailActivity : AppCompatActivity() {
         }
     }
 
+    // 북마크 버튼 UI 업데이트
     private fun updateBookmarkButton(isBookmarked: Boolean) {
         if (isBookmarked) {
             binding.iconBookmark.visibility = View.GONE
@@ -385,6 +461,7 @@ class RecipeDetailActivity : AppCompatActivity() {
         }
     }
 
+    // 좋아요 버튼 UI 업데이트
     private fun updateLikeButton(isLiked: Boolean) {
         if (isLiked) {
             binding.iconLike.visibility = View.GONE
@@ -395,6 +472,7 @@ class RecipeDetailActivity : AppCompatActivity() {
         }
     }
 
+    // 삭제 확인 다이얼로그
     private fun showDeleteConfirmationDialog() {
         AlertDialog.Builder(this)
             .setTitle("레시피 삭제")
@@ -404,6 +482,7 @@ class RecipeDetailActivity : AppCompatActivity() {
             .show()
     }
 
+    // 레시피 삭제 처리
     private fun deleteRecipeProcess(recipe: Recipe) {
         deleteRecipeImages(recipe) { isSuccess ->
             if (isSuccess) {
@@ -413,24 +492,48 @@ class RecipeDetailActivity : AppCompatActivity() {
                         Toast.makeText(this, "레시피가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
                         finish()
                     }
-                    .addOnFailureListener { e -> Toast.makeText(this, "레시피 문서 삭제 실패: ${e.message}", Toast.LENGTH_SHORT).show() }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "레시피 문서 삭제 실패: ${e.message}", Toast.LENGTH_SHORT)
+                            .show()
+                    }
             } else {
                 Toast.makeText(this, "이미지 삭제 실패. 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
+    // 레시피 이미지들 삭제
     private fun deleteRecipeImages(recipe: Recipe, onComplete: (Boolean) -> Unit) {
         val storage = Firebase.storage
         val imageTasks = mutableListOf<Task<Void>>()
-        recipe.thumbnailUrl?.takeIf { it.isNotEmpty() }?.let { imageTasks.add(storage.getReferenceFromUrl(it).delete()) }
-        recipe.steps?.forEach { step -> step.imageUrl?.takeIf { it.isNotEmpty() }?.let { imageTasks.add(storage.getReferenceFromUrl(it).delete()) } }
-        if (imageTasks.isEmpty()) { onComplete(true); return }
+
+        recipe.thumbnailUrl?.takeIf { it.isNotEmpty() }?.let {
+            imageTasks.add(storage.getReferenceFromUrl(it).delete())
+        }
+
+        recipe.steps?.forEach { step ->
+            step.imageUrl?.takeIf { it.isNotEmpty() }?.let {
+                imageTasks.add(storage.getReferenceFromUrl(it).delete())
+            }
+        }
+
+        if (imageTasks.isEmpty()) {
+            onComplete(true)
+            return
+        }
+
         Tasks.whenAll(imageTasks)
-            .addOnSuccessListener { Log.d("DeleteRecipe", "모든 이미지 삭제 성공"); onComplete(true) }
-            .addOnFailureListener { e -> Log.e("DeleteRecipe", "이미지 삭제 중 오류 발생", e); onComplete(false) }
+            .addOnSuccessListener {
+                Log.d("DeleteRecipe", "모든 이미지 삭제 성공")
+                onComplete(true)
+            }
+            .addOnFailureListener { e ->
+                Log.e("DeleteRecipe", "이미지 삭제 중 오류 발생", e)
+                onComplete(false)
+            }
     }
 
+    // 사용자 레시피 수 업데이트
     private fun updateUserRecipeCount() {
         val currentUser = auth.currentUser ?: return
         val userRef = firestore.collection("Users").document(currentUser.uid)
@@ -439,36 +542,31 @@ class RecipeDetailActivity : AppCompatActivity() {
             .addOnFailureListener { e -> Log.w("DeleteRecipe", "recipeCount 업데이트 실패", e) }
     }
 
-    private fun setupToolbarWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar.root) { view, insets ->
-            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = statusBarHeight)
-            val toolbarHeight = statusBarHeight + dpToPx(TOOLBAR_HEIGHT_DP)
-            view.layoutParams.height = toolbarHeight
-            (binding.stickyTabContainer.layoutParams as CoordinatorLayout.LayoutParams).topMargin = statusBarHeight
-            insets
-        }
-    }
-
+    // 바텀시트 콜백 설정
     private fun setupBottomSheetCallbacks() {
-        binding.headerImage.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        binding.headerImage.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 if (isLayoutReady.compareAndSet(false, true)) {
                     val screenHeight = resources.displayMetrics.heightPixels
-                    val toolbarHeight = binding.toolbar.root.height
+                    val toolbarHeight = binding.toolbar.toolbar.height
                     val imageHeight = binding.headerImage.height
-                    val peekHeight = (screenHeight - (toolbarHeight + imageHeight * (1 - IMAGE_OVERLAP_RATIO)))
-                        .toInt().coerceAtLeast(dpToPx(MIN_PEEK_HEIGHT_DP))
+                    val peekHeight =
+                        (screenHeight - (toolbarHeight + imageHeight * (1 - IMAGE_OVERLAP_RATIO)))
+                            .toInt().coerceAtLeast(dpToPx(MIN_PEEK_HEIGHT_DP))
                     bottomSheetBehavior.peekHeight = peekHeight
                     binding.bottomSheet.layoutParams.height = screenHeight
                 }
             }
         })
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {}
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 if (slideOffset >= TRANSPARENCY_START_THRESHOLD) {
-                    val adjustedOffset = (slideOffset - TRANSPARENCY_START_THRESHOLD) / (1.0f - TRANSPARENCY_START_THRESHOLD)
+                    val adjustedOffset =
+                        (slideOffset - TRANSPARENCY_START_THRESHOLD) / (1.0f - TRANSPARENCY_START_THRESHOLD)
                     binding.headerImage.alpha = 1.0f - adjustedOffset
                 } else {
                     binding.headerImage.alpha = 1.0f
@@ -477,6 +575,7 @@ class RecipeDetailActivity : AppCompatActivity() {
         })
     }
 
+    // 탭 리스너 설정
     private fun setupTabListeners() {
         val listener = RadioGroup.OnCheckedChangeListener { radioGroup, checkedId ->
             if (isTabSelectionInProgress) return@OnCheckedChangeListener
@@ -491,9 +590,11 @@ class RecipeDetailActivity : AppCompatActivity() {
         binding.framePageSelectorSticky.setOnCheckedChangeListener(listener)
     }
 
+    // 탭 선택
     private fun selectTab(tabIndex: Int, withAnimation: Boolean = true) {
         if (currentTab == tabIndex && withAnimation) return
         isTabSelectionInProgress = true
+
         if (tabIndex == 0) {
             binding.framePageSelector.check(R.id.btn_pageSummary)
             binding.framePageSelectorSticky.check(R.id.btn_pageSummary_sticky)
@@ -501,14 +602,17 @@ class RecipeDetailActivity : AppCompatActivity() {
             binding.framePageSelector.check(R.id.btn_pageReview)
             binding.framePageSelectorSticky.check(R.id.btn_pageReview_sticky)
         }
+
         isTabSelectionInProgress = false
         showTab(tabIndex, withAnimation)
     }
 
+    // 탭 표시
     private fun showTab(tabIndex: Int, withAnimation: Boolean = true) {
         if (currentTab == tabIndex && withAnimation) return
         val previousTab = currentTab
         currentTab = tabIndex
+
         if (withAnimation) {
             animateTabTransition(previousTab, currentTab)
         } else {
@@ -517,6 +621,7 @@ class RecipeDetailActivity : AppCompatActivity() {
         }
     }
 
+    // 탭 전환 애니메이션
     private fun animateTabTransition(fromTab: Int, toTab: Int) {
         val fromView = getTabView(fromTab)
         val toView = getTabView(toTab)
@@ -526,6 +631,7 @@ class RecipeDetailActivity : AppCompatActivity() {
         toView.translationX = screenWidth * slideDirection
         toView.visibility = View.VISIBLE
         toView.alpha = 0f
+
         fromView.animate()
             .translationX(-screenWidth * slideDirection).alpha(0f)
             .setDuration(ANIMATION_DURATION)
@@ -534,12 +640,14 @@ class RecipeDetailActivity : AppCompatActivity() {
                 fromView.translationX = 0f
                 fromView.alpha = 1f
             }.start()
+
         toView.animate()
             .translationX(0f).alpha(1f)
             .setDuration(ANIMATION_DURATION)
             .start()
     }
 
+    // 탭 뷰 가져오기
     private fun getTabView(tabIndex: Int): View {
         return when (tabIndex) {
             0 -> binding.scrollViewSummaryContent
@@ -548,10 +656,12 @@ class RecipeDetailActivity : AppCompatActivity() {
         }
     }
 
+    // 탭 표시/숨김 설정
     private fun setTabVisibility(tabIndex: Int, visibility: Int) {
         getTabView(tabIndex).visibility = visibility
     }
 
+    // dp를 px로 변환
     private fun dpToPx(dp: Int): Int {
         return (dp * resources.displayMetrics.density).toInt()
     }

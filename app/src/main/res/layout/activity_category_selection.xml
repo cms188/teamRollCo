@@ -7,63 +7,73 @@
     android:background="@color/white"
     tools:context=".ui.recipe.write.CategorySelectionActivity">
 
-    <!-- 상단 툴바 -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
+    <LinearLayout
+        android:id="@+id/header_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        android:background="@color/primary_cream"
+        android:orientation="vertical">
 
-        <androidx.appcompat.widget.Toolbar
+        <!-- 툴바 -->
+        <include
             android:id="@+id/toolbar"
+            layout="@layout/toolbar_basic" />
+
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/Theme.AppCompat.Light" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="@font/notosans_medium"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="레시피 종류를 모두 선택해주세요."
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
 
-    </com.google.android.material.appbar.AppBarLayout>
+    </LinearLayout>
 
-    <!-- 저장 버튼 (하단 고정) -->
-    <Button
-        android:id="@+id/btn_save_categories"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
-        android:text="저장"
-        android:textSize="16sp"
-        android:textStyle="bold" />
-
-    <!-- 카테고리 목록 (스크롤 가능) -->
+    <!-- 스크롤 영역 -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/appBarLayout"
-        android:layout_above="@id/btn_save_categories"
+        android:layout_below="@id/header_layout"
+        android:background="@color/white"
         android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="레시피의 종류를 모두 선택해주세요."
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="16dp"/>
+            android:padding="16dp"
+            android:paddingBottom="90dp">
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chip_group_categories"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:chipSpacing="8dp" />
+                android:layout_marginTop="8dp"
+                app:chipSpacing="8dp"
+                app:chipSpacingHorizontal="8dp"
+                app:chipSpacingVertical="4dp" />
 
         </LinearLayout>
     </ScrollView>
+
+    <!-- 플로팅 저장 버튼 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_save_categories"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/primary"
+        android:elevation="8dp"
+        android:fontFamily="@font/notosans_bold"
+        android:includeFontPadding="false"
+        android:text="저장"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        app:cornerRadius="16dp" />
 
 </RelativeLayout>

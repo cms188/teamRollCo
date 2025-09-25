@@ -23,8 +23,8 @@ class LikedRecipesActivity : AppCompatActivity() {
         binding = ActivityLikedRecipesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        utils.ToolbarUtils.setupTransparentToolbar(this, "좋아요한 레시피")
         setupRecyclerView()
-        setupBackButton()
     }
 
     override fun onResume() {
@@ -37,12 +37,6 @@ class LikedRecipesActivity : AppCompatActivity() {
         binding.recyclerViewLikedRecipes.apply {
             adapter = recipeAdapter
             layoutManager = LinearLayoutManager(this@LikedRecipesActivity)
-        }
-    }
-
-    private fun setupBackButton() {
-        binding.ivBackButton.setOnClickListener {
-            finish()
         }
     }
 
@@ -66,7 +60,7 @@ class LikedRecipesActivity : AppCompatActivity() {
             result.fold(
                 onSuccess = { recipes ->
                     if (recipes.isEmpty()) {
-                        binding.tvNoLikedRecipes.text = "좋아요한 레시피가 없습니다."
+                        binding.tvNoLikedRecipes.text = "좋아요한 레시피가 없어요."
                         binding.tvNoLikedRecipes.visibility = View.VISIBLE
                     } else {
                         binding.recyclerViewLikedRecipes.visibility = View.VISIBLE
