@@ -152,15 +152,27 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
     }
 
     private fun updateCategoryUI(selectedCategory: String) {
+        var targetView: TextView? = null
         categoryTags.forEach { (category, textView) ->
             if (category == selectedCategory) {
                 // 선택된 카테고리 스타일
                 textView.setBackgroundResource(R.drawable.bg_category_tag_selected)
                 textView.setTextColor(ContextCompat.getColor(this, R.color.white))
+                targetView = textView
             } else {
                 // 선택되지 않은 카테고리 스타일
                 textView.setBackgroundResource(R.drawable.bg_category_tag_normal)
                 textView.setTextColor(ContextCompat.getColor(this, R.color.black))
+            }
+        }
+        targetView?.let { selectedView ->
+            binding.categoryScrollView.post {
+                val scrollView = binding.categoryScrollView
+                val containerWidth = scrollView.getChildAt(0)?.width ?: scrollView.width
+                val desiredScroll = selectedView.left - (scrollView.width - selectedView.width) / 2
+                val maxScroll = containerWidth - scrollView.width
+                val scrollX = if (maxScroll > 0) desiredScroll.coerceIn(0, maxScroll) else 0
+                scrollView.smoothScrollTo(scrollX, 0)
             }
         }
     }

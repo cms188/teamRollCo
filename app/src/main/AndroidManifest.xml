@@ -83,6 +83,7 @@
         <activity android:name=".weather.AirQualityActivity" android:exported="false"/>
         <activity android:name=".weather.WeatherActivity" android:exported="false" />
         <activity android:name=".CategoryPageActivity" />
+        <activity android:name=".ui.category.AllCategoriesActivity" android:exported="false" />
         <activity
             android:name=".ui.review.ReviewWriteActivity"
             android:exported="false" />

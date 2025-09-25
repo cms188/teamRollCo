@@ -31,6 +31,7 @@ import com.example.recipe_pocket.ui.notification.NotificationActivity
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
 import com.example.recipe_pocket.ui.tip.CookTipDetailActivity
 import com.example.recipe_pocket.ui.tip.CookTipListActivity
+import com.example.recipe_pocket.ui.category.AllCategoriesActivity
 import com.example.recipe_pocket.ui.user.UserPageActivity
 import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.example.recipe_pocket.weather.WeatherMainActivity
@@ -158,6 +159,9 @@ class MainActivity : AppCompatActivity() {
         }
         binding.categoryButton13.setOnClickListener {
             startActivity(CategoryPageActivity.createIntent(this, "음료"))
+        }
+        binding.categoryButton14.setOnClickListener {
+            startActivity(Intent(this, AllCategoriesActivity::class.java))
         }
 
         binding.topNotificationButton.setOnClickListener {
