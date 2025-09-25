@@ -86,9 +86,13 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerView()
         setupBottomNavigation()
         setupNotificationListener()
-
         // 알림 권한 요청 함수 호출
         askNotificationPermission()
+
+        binding.refreshLayout.setOnRefreshListener {
+            loadAllData()
+            binding.refreshLayout.isRefreshing = false
+        }
     }
 
     override fun onResume() {

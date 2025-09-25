@@ -51,6 +51,10 @@ class RecipeAdapter(
             binding.recipeNameText.text = recipe.title ?: "제목 없음"
             binding.cookingTimeText.text = recipe.cookingTime?.let { "${it}분" } ?: "시간 정보 없음"
 
+            binding.ratingText.text = String.format("%.1f", recipe.averageRating)
+            binding.reviewCountText.text = "(${recipe.reviewCount})"
+            binding.likeCountText.text = (recipe.likeCount ?: 0).toString()
+
             recipe.thumbnailUrl?.let { url ->
                 if (url.isNotEmpty()) {
                     Glide.with(context).load(url).error(defaultRecipeImageErrorResId).into(binding.recipeImageView)
@@ -106,6 +110,10 @@ class RecipeAdapter(
             val context = binding.root.context
             binding.recipeNameText.text = recipe.title ?: "제목 없음"
             binding.cookingTimeText.text = recipe.cookingTime?.let { "${it}분" } ?: "시간 정보 없음"
+
+            binding.ratingText.text = String.format("%.1f", recipe.averageRating)
+            binding.reviewCountText.text = "(${recipe.reviewCount})"
+            binding.likeCountText.text = (recipe.likeCount ?: 0).toString()
 
             recipe.thumbnailUrl?.let { url ->
                 if (url.isNotEmpty()) {

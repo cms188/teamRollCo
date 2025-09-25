@@ -148,6 +148,9 @@ dependencies {
 
     //네이버
     implementation("com.navercorp.nid:oauth:5.10.0") // jdk 11
+
+    //새로고침
+    implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 }
 
 
