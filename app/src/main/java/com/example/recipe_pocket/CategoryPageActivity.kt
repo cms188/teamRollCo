@@ -130,8 +130,8 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
         categoryTags["양식"] = binding.tagWestern
         categoryTags["분식"] = binding.tagSnack
         categoryTags["디저트"] = binding.tagDessert
-        categoryTags["기타"] = binding.tagOther
         categoryTags["음료"] = binding.tagDrink
+        categoryTags["기타"] = binding.tagOther
 
         // 각 카테고리 태그에 클릭 리스너 설정
         categoryTags.forEach { (category, textView) ->

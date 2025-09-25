@@ -202,7 +202,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="제작 중.."
+                                    android:text="디저트"
                                     android:textAppearance="@style/category"
                                     android:textColor="#333333"/>
                             </LinearLayout>
@@ -226,7 +226,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="제작 중.."
+                                    android:text="분식"
                                     android:textAppearance="@style/category"
                                     android:textColor="#333333"/>
                             </LinearLayout>
@@ -250,7 +250,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="제작 중.."
+                                    android:text="음료"
                                     android:textAppearance="@style/category"
                                     android:textColor="#333333"/>
                             </LinearLayout>
@@ -274,7 +274,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="제작 중.."
+                                    android:text="기타"
                                     android:textAppearance="@style/category"
                                     android:textColor="#333333"/>
                             </LinearLayout>

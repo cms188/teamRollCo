@@ -150,6 +150,15 @@ class MainActivity : AppCompatActivity() {
         binding.categoryButton4.setOnClickListener {
             startActivity(CategoryPageActivity.createIntent(this, "일식"))
         }
+        binding.categoryButton11.setOnClickListener {
+            startActivity(CategoryPageActivity.createIntent(this, "디저트"))
+        }
+        binding.categoryButton12.setOnClickListener {
+            startActivity(CategoryPageActivity.createIntent(this, "분식"))
+        }
+        binding.categoryButton13.setOnClickListener {
+            startActivity(CategoryPageActivity.createIntent(this, "음료"))
+        }
 
         binding.topNotificationButton.setOnClickListener {
             val intent = Intent(this, NotificationActivity::class.java)
