@@ -139,8 +139,18 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, SearchResult::class.java))
         }
         binding.categoryButton1.setOnClickListener {
-            startActivity(Intent(this, CategoryPageActivity::class.java))
+            startActivity(CategoryPageActivity.createIntent(this, "한식"))
         }
+        binding.categoryButton2.setOnClickListener {
+            startActivity(CategoryPageActivity.createIntent(this, "양식"))
+        }
+        binding.categoryButton3.setOnClickListener {
+            startActivity(CategoryPageActivity.createIntent(this, "중식"))
+        }
+        binding.categoryButton4.setOnClickListener {
+            startActivity(CategoryPageActivity.createIntent(this, "일식"))
+        }
+
         binding.topNotificationButton.setOnClickListener {
             val intent = Intent(this, NotificationActivity::class.java)
             // 인텐트에 현재 새로운 알림 개수 정보를 추가하여 전달

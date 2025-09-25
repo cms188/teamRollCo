@@ -1,6 +1,7 @@
 package com.example.recipe_pocket
 
 import android.content.Intent
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +33,16 @@ import java.util.*
 
 class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppliedListener {
 
+    companion object {
+        private const val EXTRA_INITIAL_CATEGORY = "extra_initial_category"
+
+        fun createIntent(context: Context, category: String): Intent {
+            return Intent(context, CategoryPageActivity::class.java).apply {
+                putExtra(EXTRA_INITIAL_CATEGORY, category)
+            }
+        }
+    }
+
     private lateinit var binding: CategoryPageBinding
     private lateinit var recipeAdapter: RecipeAdapter
 
@@ -57,14 +68,17 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
         setContentView(binding.root)
 
         //setupWindowInsets()
+        val initialCategory = intent.getStringExtra(EXTRA_INITIAL_CATEGORY)
         setupBackButton()
         setupRecyclerView()
         setupCategoryTags()
         setupFilterAndSortButtons()
         setupBottomNavigation()
 
-        // 초기 데이터 로드 (전체 카테고리)
-        loadRecipesByCategory("전체")
+        val resolvedCategory = initialCategory?.takeIf { categoryTags.containsKey(it) } ?: "전체"
+        selectedCategory = resolvedCategory
+        updateCategoryUI(resolvedCategory)
+        loadRecipesByCategory(resolvedCategory)
     }
 
     override fun onResume() {
@@ -127,7 +141,6 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
         }
 
         // 초기 선택 상태 설정 (전체)
-        updateCategoryUI("전체")
     }
 
     private fun selectCategory(category: String) {

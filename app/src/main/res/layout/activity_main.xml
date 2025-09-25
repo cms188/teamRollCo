@@ -89,12 +89,12 @@
                                     android:layout_width="56dp"
                                     android:layout_height="56dp"
                                     android:background="@drawable/cate1_01"
-                                    android:contentDescription="국/탕/찌개"/>
+                                    android:contentDescription="한식"/>
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="국/탕/찌개"
+                                    android:text="한식"
                                     android:textAppearance="@style/category"
                                     android:textColor="#333333"/>
                             </LinearLayout>
@@ -118,7 +118,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="제작 중.."
+                                    android:text="양식"
                                     android:textAppearance="@style/category"
                                     android:textColor="#333333"/>
                             </LinearLayout>
@@ -142,7 +142,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="제작 중.."
+                                    android:text="중식"
                                     android:textAppearance="@style/category"
                                     android:textColor="#333333"/>
                             </LinearLayout>
@@ -166,7 +166,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="4dp"
-                                    android:text="제작 중.."
+                                    android:text="일식"
                                     android:textAppearance="@style/category"
                                     android:textColor="#333333"/>
                             </LinearLayout>
@@ -192,10 +192,12 @@
                                 android:paddingBottom="8dp"
                                 android:clickable="true"
                                 android:focusable="true">
+
                                 <ImageView
                                     android:layout_width="56dp"
                                     android:layout_height="56dp"
-                                    android:background="@drawable/cate1_05"/>
+                                    android:background="@drawable/cate1_05" />
+
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
