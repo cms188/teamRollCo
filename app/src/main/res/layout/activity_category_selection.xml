@@ -1,69 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white"
-    tools:context=".ui.recipe.write.CategorySelectionActivity">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_modal_bottom"
+    android:paddingStart="20dp"
+    android:paddingTop="20dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="24dp"
+    tools:context=".ui.recipe.write.CategorySelection">
 
-    <!-- 상단 툴바 -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
+    <TextView
+        android:id="@+id/tv_category_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        android:text="레시피의 종류를 모두 선택해주세요."
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:paddingBottom="12dp" />
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/Theme.AppCompat.Light" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <!-- 저장 버튼 (하단 고정) -->
-    <Button
-        android:id="@+id/btn_save_categories"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
-        android:text="저장"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:paddingBottom="16dp">
 
-    <!-- 카테고리 목록 (스크롤 가능) -->
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/appBarLayout"
-        android:layout_above="@id/btn_save_categories"
-        android:fillViewport="true">
-
-        <LinearLayout
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_categories"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:isScrollContainer="false"
+            android:paddingBottom="8dp"
+            app:chipSpacing="8dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="레시피의 종류를 모두 선택해주세요."
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="16dp"/>
+    </androidx.core.widget.NestedScrollView>
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group_categories"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:chipSpacing="8dp" />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_save_categories"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="저장"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp" />
 
-        </LinearLayout>
-    </ScrollView>
-
-</RelativeLayout>
+</LinearLayout>

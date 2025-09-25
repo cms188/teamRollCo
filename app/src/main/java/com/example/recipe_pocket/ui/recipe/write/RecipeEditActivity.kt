@@ -46,17 +46,6 @@ class RecipeEditActivity : AppCompatActivity() {
     private lateinit var thumbnailLauncher: ActivityResultLauncher<Intent>
     private lateinit var stepImageLauncher: ActivityResultLauncher<Intent>
 
-    private val categorySelectionLauncher: ActivityResultLauncher<Intent> =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                result.data?.getStringArrayListExtra(CategorySelectionActivity.EXTRA_SELECTED_CATEGORIES)?.let { selected ->
-                    selectedCategories.clear()
-                    selectedCategories.addAll(selected)
-                    updateCategoryButtonText()
-                }
-            }
-        }
-
     // ViewPager2 관련 변수
     private lateinit var stepAdapter: RecipeEditStepAdapter
     private var currentStepImagePosition: Int = -1
@@ -75,6 +64,7 @@ class RecipeEditActivity : AppCompatActivity() {
         }
 
         setupLaunchers()
+        setupCategorySelectionResultListener()
         setupClickListeners()
         setupViewPager()
         loadRecipeData()
@@ -186,10 +176,9 @@ class RecipeEditActivity : AppCompatActivity() {
         binding.btnSave.setOnClickListener { saveChanges() }
 
         binding.btnSelectCategory.setOnClickListener {
-            val intent = Intent(this, CategorySelectionActivity::class.java).apply {
-                putStringArrayListExtra(CategorySelectionActivity.EXTRA_SELECTED_CATEGORIES, ArrayList(selectedCategories))
-            }
-            categorySelectionLauncher.launch(intent)
+            CategorySelection
+                .newInstance(selectedCategories)
+                .show(supportFragmentManager, CategorySelection.TAG)
         }
 
         binding.ivRepresentativePhoto.setOnClickListener {
@@ -207,6 +196,19 @@ class RecipeEditActivity : AppCompatActivity() {
         }
         binding.ivNextStep.setOnClickListener {
             binding.viewPagerSteps.currentItem += 1
+        }
+    }
+
+    private fun setupCategorySelectionResultListener() {
+        supportFragmentManager.setFragmentResultListener(
+            CategorySelection.REQUEST_KEY,
+            this
+        ) { _, bundle ->
+            bundle.getStringArrayList(CategorySelection.RESULT_SELECTED_CATEGORIES)?.let { selected ->
+                selectedCategories.clear()
+                selectedCategories.addAll(selected)
+                updateCategoryButtonText()
+            }
         }
     }
 

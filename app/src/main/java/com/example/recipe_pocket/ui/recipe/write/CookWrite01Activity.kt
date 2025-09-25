@@ -2,7 +2,6 @@ package com.example.recipe_pocket.ui.recipe.write
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -10,7 +9,6 @@ import android.view.WindowManager
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -39,17 +37,6 @@ class CookWrite01Activity : AppCompatActivity() {
         }
     }
 
-    // [추가] 카테고리 선택 결과를 처리할 ActivityResultLauncher
-    private val categorySelectionLauncher: ActivityResultLauncher<Intent> =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                result.data?.getStringArrayListExtra(CategorySelectionActivity.EXTRA_SELECTED_CATEGORIES)?.let { selected ->
-                    recipeData.category = selected
-                    updateCategoryButtonText()
-                }
-            }
-        }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = CookWrite01Binding.inflate(layoutInflater)
@@ -58,6 +45,7 @@ class CookWrite01Activity : AppCompatActivity() {
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         setupWindowInsets()
+        setupCategorySelectionResultListener()
         setupClickListeners()
         updateServingsText()
         updateCookingTimeText()
@@ -94,10 +82,9 @@ class CookWrite01Activity : AppCompatActivity() {
 
         // [추가] 카테고리 선택 버튼 클릭 리스너
         binding.btnSelectCategory.setOnClickListener {
-            val intent = Intent(this, CategorySelectionActivity::class.java).apply {
-                putStringArrayListExtra(CategorySelectionActivity.EXTRA_SELECTED_CATEGORIES, ArrayList(recipeData.category))
-            }
-            categorySelectionLauncher.launch(intent)
+            CategorySelection
+                .newInstance(recipeData.category)
+                .show(supportFragmentManager, CategorySelection.TAG)
         }
 
         binding.btnServingsMinus.setOnClickListener {
@@ -124,6 +111,18 @@ class CookWrite01Activity : AppCompatActivity() {
                 return@setOnClickListener
             }
             goToNextStep()
+        }
+    }
+
+    private fun setupCategorySelectionResultListener() {
+        supportFragmentManager.setFragmentResultListener(
+            CategorySelection.REQUEST_KEY,
+            this
+        ) { _, bundle ->
+            bundle.getStringArrayList(CategorySelection.RESULT_SELECTED_CATEGORIES)?.let { selected ->
+                recipeData.category = selected
+                updateCategoryButtonText()
+            }
         }
     }
 

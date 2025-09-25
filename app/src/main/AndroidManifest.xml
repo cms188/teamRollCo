@@ -93,8 +93,6 @@
         <activity
             android:name=".ui.review.MyReviewsActivity"
             android:exported="false" />
-        <activity android:name=".ui.recipe.write.CategorySelectionActivity"
-            android:exported="false" />
         <activity
             android:name=".ui.tip.CookTipWriteActivity"
             android:exported="false"
