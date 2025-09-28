@@ -10,7 +10,7 @@
     <!-- 툴바 -->
     <include
         android:id="@+id/toolbar"
-        layout="@layout/toolbar_basic" />
+        layout="@layout/tool_bar_basic_lagacy" />
 
     <ScrollView
         android:layout_width="match_parent"

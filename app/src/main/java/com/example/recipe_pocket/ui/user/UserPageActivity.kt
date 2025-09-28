@@ -106,9 +106,9 @@ class UserPageActivity : AppCompatActivity() {
         // 프로필 섹션
         profileImageView = findViewById(R.id.imageView_profile)
         nicknameTextView = findViewById(R.id.textView_authorName)
-        badgeTextView = findViewById(R.id.textView_badge_title)
+        badgeTextView = findViewById(R.id.textView_badge)
         editInfoTextView = findViewById(R.id.textView_editInfo)
-        badgeCardView = findViewById(R.id.layout_badge)
+        badgeCardView = findViewById(R.id.cardView_badge)
 
         // 통계 섹션
         myRecipesLayout = findViewById(R.id.layout_myRecipes)
@@ -128,7 +128,7 @@ class UserPageActivity : AppCompatActivity() {
 
 
         // 하단 네비게이션
-        bottomNavigationView = findViewById(R.id.bottom_navigation_view)
+        bottomNavigationView = findViewById(R.id.bottom_navigation)
     }
 
     private fun setupToolbar() {

@@ -30,6 +30,7 @@ class WeatherMainActivity : AppCompatActivity() {
     private lateinit var binding: WeatherBinding
     private lateinit var recipeAdapter: RecipeAdapter
     private val firestore = FirebaseFirestore.getInstance()
+    private lateinit var btnback: ImageView
 
     // Activity 결과를 처리하기 위한 런처들
     private val locationResultLauncher = registerForActivityResult(
@@ -62,6 +63,11 @@ class WeatherMainActivity : AppCompatActivity() {
 
         initializeUI()
         startLocationActivity()
+
+        btnback = findViewById(R.id.iv_back_button)
+        btnback.setOnClickListener {
+            finish()
+        }
     }
 
     private fun initializeUI() {

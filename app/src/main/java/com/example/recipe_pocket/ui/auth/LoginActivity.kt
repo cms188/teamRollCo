@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -40,6 +41,7 @@ import com.navercorp.nid.profile.NidProfileCallback
 import com.navercorp.nid.profile.data.NidProfileResponse
 import com.kakao.sdk.common.util.Utility
 import com.google.android.material.button.MaterialButton
+import utils.ToolbarUtils
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
@@ -69,6 +71,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var editFindEmail: EditText
     private lateinit var btnVerifyEmail: MaterialButton
     private lateinit var btnCancelFind: MaterialButton
+    private var findpass = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,7 +119,7 @@ class LoginActivity : AppCompatActivity() {
     private fun setupListeners() {
         val loginButton: MaterialButton = findViewById(R.id.btnLogin)
         val registerButton: TextView = findViewById(R.id.btnRegister)
-        val backButton: ImageView = findViewById(R.id.iv_back_button_login)
+        val backButton = findViewById<ImageView>(R.id.back_button)
         val editFindEmail: EditText = findViewById(R.id.editFindEmail)
         val btnVerifyEmail: Button = findViewById(R.id.btnVerifyEmail)
         val btnFindPassword: TextView = findViewById(R.id.find_Password)
@@ -199,6 +202,10 @@ class LoginActivity : AppCompatActivity() {
             val signInIntent = googleSignInClient.signInIntent
             startActivityForResult(signInIntent, RC_SIGN_IN)
         }
+
+        ivNaverLogin.setOnClickListener {
+            startNaverLogin()
+        }
     }
 
     private fun showFindPasswordModal() {
@@ -247,14 +254,6 @@ class LoginActivity : AppCompatActivity() {
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
-
-        ivGoogleLogin.setOnClickListener {
-            val signInIntent = googleSignInClient.signInIntent
-            startActivityForResult(signInIntent, RC_SIGN_IN)
-        }
-        ivNaverLogin.setOnClickListener {
-            startNaverLogin()
-        }
     }
 
     private fun loginUser() {

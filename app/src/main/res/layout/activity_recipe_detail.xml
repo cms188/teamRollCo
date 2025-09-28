@@ -10,7 +10,7 @@
     <!-- 툴바 -->
     <include
         android:id="@+id/toolbar"
-        layout="@layout/toolbar_basic" />
+        layout="@layout/tool_bar_basic_lagacy" />
 
     <!-- 배경 이미지 -->
     <FrameLayout
@@ -595,7 +595,6 @@
             android:text="요리하기"
             android:textColor="@color/white"
             android:textSize="14sp"
-            android:visibility="gone"
             app:cornerRadius="16dp"
             app:rippleColor="@color/primary_variant"
             tools:visibility="visible"

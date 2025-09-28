@@ -21,7 +21,7 @@ class ReviewAdapter(
     inner class ReviewViewHolder(private val binding: CardRecipeReviewBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(review: Review) {
             binding.textViewAuthorName.text = review.userNickname ?: "사용자"
-            binding.textViewRatingScore.text = String.format("%.1f", review.rating)
+            //binding.textViewRatingScore.text = String.format("%.1f", review.rating)
             binding.textViewReviewComent.text = review.comment
 
             if (!review.userProfileUrl.isNullOrEmpty()) {

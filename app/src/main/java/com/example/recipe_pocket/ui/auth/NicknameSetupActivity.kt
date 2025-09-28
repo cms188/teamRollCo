@@ -72,7 +72,7 @@ class NicknameSetupActivity : AppCompatActivity() {
         // UI 요소들 연결
         val nicknameTitle = findViewById<TextInputLayout>(R.id.nicknameInputLayout)
         val nicknameInput = findViewById<EditText>(R.id.nicknameEditText)
-        val saveButton = findViewById<Button>(R.id.btnChangeNickname)
+        val saveButton = findViewById<Button>(R.id.saveNicknameButton)
 
         // 모드에 따라 UI 텍스트 변경
         if (currentMode == MODE_UPDATE) {

@@ -3,6 +3,7 @@ package com.example.recipe_pocket.ui.category
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -11,10 +12,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.recipe_pocket.CategoryPageActivity
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.databinding.ActivityAllCategoriesBinding
+import utils.ToolbarUtils
 
 class AllCategoriesActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAllCategoriesBinding
+    private lateinit var btnback: ImageButton
 
     private val categoryItems = listOf(
         CategoryItem("한식", R.drawable.cate1_01, "한식"),
@@ -32,9 +35,15 @@ class AllCategoriesActivity : AppCompatActivity() {
         binding = ActivityAllCategoriesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        ToolbarUtils.setupTransparentToolbar(this, "비밀번호 변경")
+
         setupWindowInsets()
-        setupToolbar()
         setupCategoryGrid()
+
+        btnback = findViewById(R.id.back_button)
+        btnback.setOnClickListener {
+            finish()
+        }
     }
 
     private fun setupWindowInsets() {
@@ -48,13 +57,6 @@ class AllCategoriesActivity : AppCompatActivity() {
             }
             WindowInsetsCompat.CONSUMED
         }
-    }
-
-    private fun setupToolbar() {
-        binding.toolbarContainer.toolbarTitle.text = "전체 카테고리"
-        binding.toolbarContainer.btnEditRecipeToolbar.visibility = View.INVISIBLE
-        binding.toolbarContainer.btnDeleteRecipeToolbar.visibility = View.INVISIBLE
-        binding.toolbarContainer.backButton.setOnClickListener { finish() }
     }
 
     private fun setupCategoryGrid() {
