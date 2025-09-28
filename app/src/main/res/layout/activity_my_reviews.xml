@@ -4,60 +4,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:orientation="vertical">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/top_bar_layout"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="#FAFAFA">
-        <ImageView
-            android:id="@+id/iv_back_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_arrow_back"
-            android:padding="16dp"
-            android:contentDescription="뒤로가기"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:tint="@color/black" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="내가 쓴 리뷰"
-            android:textSize="18sp"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- 툴바 -->
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_basic" />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_my_reviews"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:padding="8dp"
-            tools:listitem="@layout/card_recipe_review"/>
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone"/>
+            tools:listitem="@layout/card_recipe_review" />
+
         <TextView
             android:id="@+id/tv_no_reviews"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="작성한 리뷰가 없습니다."
-            android:visibility="gone"/>
+            android:fontFamily="@font/notosans_regular"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="작성한 리뷰가 없어요."
+            android:textColor="@color/text_hint"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/primary"
+            android:visibility="gone"
+            tools:visibility="visible" />
     </FrameLayout>
 </LinearLayout>

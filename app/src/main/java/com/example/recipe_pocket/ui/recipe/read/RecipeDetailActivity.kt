@@ -65,11 +65,12 @@ class RecipeDetailActivity : AppCompatActivity() {
     private var isTabSelectionInProgress = false
     private val isLayoutReady = AtomicBoolean(false)
 
-    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            // onResume에서 처리
+    private val resultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // onResume에서 처리
+            }
         }
-    }
 
     private companion object {
         const val TOOLBAR_HEIGHT_DP = 56
@@ -110,35 +111,67 @@ class RecipeDetailActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
+        // 기본 탭 설정
         binding.btnPageSummary.isChecked = true
         currentTab = 0
 
-        binding.toolbar.toolbarTitle.text = ""
-        binding.toolbar.backButton.setOnClickListener { finish() }
-        setupToolbarWindowInsets()
+        // 툴바 초기 설정
+        utils.ToolbarUtils.setupTransparentToolbar(
+            this, "", showEditButton = true, showDeleteButton = true,
+            onEditClicked = {
+                // 수정 버튼 클릭 시 처리
+                val intent =
+                    Intent(this, RecipeEditActivity::class.java).putExtra("RECIPE_ID", recipeId)
+                resultLauncher.launch(intent)
+            },
+            onDeleteClicked = {
+                // 삭제 버튼 클릭 시 처리
+                showDeleteConfirmationDialog()
+            }
+        )
 
+        // 리사이클러뷰 설정
         binding.recyclerViewReviews.apply {
             adapter = reviewAdapter
             layoutManager = LinearLayoutManager(this@RecipeDetailActivity)
             isNestedScrollingEnabled = false
         }
 
+        // 스크롤 리스너 설정 - 스티키 탭 표시/숨김
         binding.nestedScrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
-            val toolbarHeight = binding.toolbar.root.height
+            val toolbarHeight = binding.toolbar.toolbar.height
             val triggerPoint = binding.originalTabContainer.bottom - toolbarHeight
 
             if (scrollY >= triggerPoint) {
                 if (binding.stickyTabContainer.visibility != View.VISIBLE) {
                     binding.stickyTabContainer.visibility = View.VISIBLE
                     binding.originalTabContainer.visibility = View.INVISIBLE
-                    binding.toolbar.root.setBackgroundColor(ContextCompat.getColor(this, R.color.cream))
+                    binding.toolbar.toolbar.setBackgroundColor(
+                        ContextCompat.getColor(
+                            this,
+                            R.color.white
+                        )
+                    )
                     binding.stickyTabContainer.bringToFront()
+
+                    // 그라데이션 View 표시 (스티키 탭 바로 위)
+                    binding.root.findViewById<View>(R.id.gradient_sticky_overlay)?.visibility =
+                        View.VISIBLE
                 }
             } else {
                 if (binding.stickyTabContainer.visibility == View.VISIBLE) {
                     binding.stickyTabContainer.visibility = View.GONE
                     binding.originalTabContainer.visibility = View.VISIBLE
-                    binding.toolbar.root.setBackgroundColor(ContextCompat.getColor(this, android.R.color.transparent))
+                    binding.toolbar.toolbar.setBackgroundColor(
+                        ContextCompat.getColor(
+                            this,
+                            android.R.color.transparent
+                        )
+                    )
+
+                    // 그라데이션 View 숨김
+                    binding.root.findViewById<View>(R.id.gradient_sticky_overlay)?.visibility =
+                        View.GONE
                 }
             }
         }
@@ -161,18 +194,25 @@ class RecipeDetailActivity : AppCompatActivity() {
                     loadReviews(recipe.id!!)
                     setupInteractionButtons(recipe)
                 } else {
-                    Toast.makeText(this@RecipeDetailActivity, "레시피를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@RecipeDetailActivity, "레시피를 찾을 수 없습니다.", Toast.LENGTH_SHORT)
+                        .show()
                     finish()
                 }
             }.onFailure {
-                Toast.makeText(this@RecipeDetailActivity, "데이터 로딩 실패: ${it.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this@RecipeDetailActivity,
+                    "데이터 로딩 실패: ${it.message}",
+                    Toast.LENGTH_LONG
+                ).show()
                 finish()
             }
         }
     }
 
+    // 조회수 증가 처리
     private fun incrementViewCount(recipe: Recipe) {
         val currentUser = auth.currentUser ?: return // 비로그인 사용자는 조회수 증가 안 함
+
         // 사용자가 이 레시피를 조회한 적이 있는지 확인
         val hasViewed = recipe.viewedBy?.contains(currentUser.uid) == true
         saveToRecentlyViewed(recipe)

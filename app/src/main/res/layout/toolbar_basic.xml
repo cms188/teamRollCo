@@ -6,69 +6,111 @@
     android:layout_height="56dp"
     android:background="#00FFFFFF"
     android:elevation="4dp"
-    app:contentInsetStart="0dp"
-    app:contentInsetEnd="0dp">
+    app:contentInsetEnd="0dp"
+    app:contentInsetStart="0dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/transparent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
 
-        <!-- 뒤로가기 버튼 -->
-        <ImageButton
-            android:id="@+id/back_button"
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/back_button_card"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginStart="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_arrow_back"
-            android:contentDescription="뒤로가기"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            android:outlineAmbientShadowColor="@color/transparent"
+            android:outlineSpotShadowColor="@color/transparent"
+            app:cardBackgroundColor="@color/transparent"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            tools:targetApi="28">
+
+            <!-- 뒤로가기 버튼 -->
+            <ImageButton
+                android:id="@+id/back_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="뒤로가기"
+                android:scaleX="0.8"
+                android:scaleY="0.8"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="@color/text_primary" />
+        </androidx.cardview.widget.CardView>
 
         <!-- 화면 이름 -->
         <TextView
             android:id="@+id/toolbar_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/notosans_regular"
+            android:gravity="center"
+            android:includeFontPadding="false"
             android:text=""
-            android:textSize="18sp"
-            android:textColor="@color/black20"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
-        <LinearLayout
-            android:id="@+id/edit_delete_container_toolbar"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
+        <Space
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/edit_button_card"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:outlineAmbientShadowColor="@color/transparent"
+            android:outlineSpotShadowColor="@color/transparent"
             android:visibility="gone"
-            tools:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:cardBackgroundColor="@color/transparent"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            tools:targetApi="28"
+            tools:visibility="gone">
 
+            <!-- 뒤로가기 버튼 -->
             <ImageButton
-                android:id="@+id/btn_edit_recipe_toolbar"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_edit"
+                android:id="@+id/edit_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:paddingHorizontal="1dp"/>
+                android:contentDescription="수정"
+                android:src="@drawable/ic_pen"
+                app:tint="@color/text_primary" />
+        </androidx.cardview.widget.CardView>
 
+        <androidx.cardview.widget.CardView
+            android:id="@+id/delete_button_card"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:outlineAmbientShadowColor="@color/transparent"
+            android:outlineSpotShadowColor="@color/transparent"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/transparent"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            tools:targetApi="28"
+            tools:visibility="gone">
+
+            <!-- 뒤로가기 버튼 -->
             <ImageButton
-                android:id="@+id/btn_delete_recipe_toolbar"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_delete"
+                android:id="@+id/delete_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:alpha="0.7"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:paddingHorizontal="5dp"
-                android:layout_marginEnd="8dp"/>
-        </LinearLayout>
+                android:contentDescription="삭제"
+                android:src="@drawable/ic_trash"
+                app:tint="@color/error" />
+        </androidx.cardview.widget.CardView>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 </androidx.appcompat.widget.Toolbar>

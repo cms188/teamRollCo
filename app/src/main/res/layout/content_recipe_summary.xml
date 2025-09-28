@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:orientation="vertical"
     android:paddingTop="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:orientation="vertical"
         android:paddingHorizontal="24dp">
 
@@ -17,53 +21,56 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="작성자"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_brown"/>
+            android:textColor="@color/text_brown"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            app:cardBackgroundColor="@color/white_card"
             app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/white_card">
+            app:cardElevation="2dp">
+
             <LinearLayout
                 android:id="@+id/author_info_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="0dp"/>
+                android:padding="0dp" />
         </androidx.cardview.widget.CardView>
 
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="간단 소개"
-            android:textSize="16sp"
-            android:textStyle="bold"
             android:textColor="@color/text_brown"
-            android:layout_marginTop="16dp"/>
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            app:cardBackgroundColor="@color/white_card"
             app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/white_card">
+            app:cardElevation="2dp">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp">
+
                 <TextView
                     android:id="@+id/tv_recipe_simple_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/black40"
                     android:lineSpacingExtra="4dp"
-                    tools:text="레시피에 대한 간단한 요약이 여기에 표시됩니다."/>
+                    android:textColor="@color/black40"
+                    tools:text="레시피에 대한 간단한 요약이 여기에 표시됩니다." />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -71,69 +78,57 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="재료"
-            android:textSize="16sp"
-            android:textStyle="bold"
             android:textColor="@color/text_brown"
-            android:layout_marginTop="16dp"/>
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            app:cardBackgroundColor="@color/white_card"
             app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/white_card">
+            app:cardElevation="2dp">
+
             <LinearLayout
                 android:id="@+id/ingredients_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"/>
+                android:paddingVertical="8dp" />
         </androidx.cardview.widget.CardView>
 
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="조리도구"
-            android:textSize="16sp"
-            android:textStyle="bold"
             android:textColor="@color/text_brown"
-            android:layout_marginTop="16dp"/>
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="@color/white_card"
             app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/white_card">
+            app:cardElevation="2dp">
+
             <LinearLayout
                 android:id="@+id/tools_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"/>
+                android:paddingVertical="8dp" />
         </androidx.cardview.widget.CardView>
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_start_cooking"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:text="요리하기"
-        android:backgroundTint="@color/orange"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="32dp"
-        android:layout_marginHorizontal="16dp"
-        app:cornerRadius="16dp"
-        android:includeFontPadding="false"
-        android:gravity="center"/>
 </LinearLayout>

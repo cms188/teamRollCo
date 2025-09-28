@@ -4,125 +4,166 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="8dp"
-    android:layout_marginVertical="4dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="2dp"
-    app:cardBackgroundColor="@android:color/white"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground">
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardBackgroundColor="@android:color/white"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp"
+    app:cardUseCompatPadding="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="14dp">
 
-        <!-- 상단 영역 (프로필, 이름, 날짜) -->
+        <!-- 상단 프로필 영역 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginBottom="12dp"
             android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
+            android:orientation="horizontal">
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imageView_profile"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                tools:src="@drawable/bg_author_profile"/>
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="12dp"
+                app:civ_border_color="@color/soft_divider"
+                app:civ_border_width="1dp"
+                tools:src="@drawable/bg_author_profile" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="16dp">
+                android:orientation="vertical">
+
                 <TextView
                     android:id="@+id/textView_authorName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="@font/notosans_bold"
+                    android:includeFontPadding="false"
                     android:text="작성자"
-                    android:textSize="16sp"
-                    android:textColor="@color/black20"
-                    android:fontFamily="@font/notosans_bold"/>
-                <TextView
-                    android:id="@+id/textView_reviewDate"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp" />
+
+                <!-- 별점 표시 -->
+                <LinearLayout
+                    android:id="@+id/layout_rating_stars"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2025.01.01"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_sub"
-                    android:layout_marginTop="4dp" />
-            </LinearLayout>
-        </LinearLayout>
+                    android:layout_marginBottom="12dp"
+                    android:orientation="horizontal">
 
-        <!-- 별점, 평점 숫자 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
-            <LinearLayout
-                android:id="@+id/layout_rating"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <ImageView android:id="@+id/star1" android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="2dp"/>
-                <ImageView android:id="@+id/star2" android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="2dp"/>
-                <ImageView android:id="@+id/star3" android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="2dp"/>
-                <ImageView android:id="@+id/star4" android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="2dp"/>
-                <ImageView android:id="@+id/star5" android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="2dp"/>
+                    <ImageView
+                        android:id="@+id/star1"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginEnd="3dp"
+                        android:src="@drawable/ic_star_fill" />
+
+                    <ImageView
+                        android:id="@+id/star2"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginEnd="3dp"
+                        android:src="@drawable/ic_star_fill" />
+
+                    <ImageView
+                        android:id="@+id/star3"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginEnd="3dp"
+                        android:src="@drawable/ic_star_fill" />
+
+                    <ImageView
+                        android:id="@+id/star4"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginEnd="3dp"
+                        android:src="@drawable/ic_star_fill" />
+
+                    <ImageView
+                        android:id="@+id/star5"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_star_empty"
+                        app:tint="@color/text_hint" />
+                </LinearLayout>
             </LinearLayout>
+
+            <!-- 평점 표시 -->
             <TextView
-                android:id="@+id/textView_ratingScore"
+                android:id="@+id/textView_reviewDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="5.0"
-                android:textSize="16sp"
-                android:textColor="@color/black20"
-                android:fontFamily="@font/notosans_bold"
-                android:layout_marginStart="8dp" />
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/notosans_regular"
+                android:includeFontPadding="false"
+                android:text="2025.01.01"
+                android:textColor="@color/text_hint"
+                android:textSize="12sp" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_recipe_title_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="레시피"
-            android:textSize="12sp"
-            android:textColor="@color/text_sub"
-            android:fontFamily="@font/notosans_medium"
-            android:layout_marginBottom="4dp"
-            android:visibility="gone"
-            tools:visibility="visible"/>
 
-        <TextView
-            android:id="@+id/tv_recipe_title_value"
+        <!-- 레시피 제목 (조건부 표시) -->
+        <LinearLayout
+            android:id="@+id/recipe_title_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="@color/black40"
-            android:fontFamily="@font/notosans_bold"
             android:layout_marginBottom="10dp"
-            android:background="@drawable/bg_gray_rounded_light"
-            android:padding="8dp"
+            android:orientation="vertical"
             android:visibility="gone"
-            tools:visibility="visible"
-            tools:text="맛있는 김치찌개"/>
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/tv_recipe_title_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_marginBottom="6dp"
+                android:fontFamily="@font/notosans_medium"
+                android:includeFontPadding="false"
+                android:text="리뷰한 레시피"
+                android:textColor="@color/text_hint"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tv_recipe_title_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_title_badge"
+                android:fontFamily="@font/notosans_bold"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:textColor="@color/primary"
+                android:textSize="12sp"
+                tools:text="맛있는 김치찌개" />
+        </LinearLayout>
 
         <!-- 리뷰 내용 -->
         <TextView
             android:id="@+id/textView_reviewComent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="정말 맛있는 레시피에요!"
-            android:textColor="@color/black20"
+            android:ellipsize="end"
             android:fontFamily="@font/notosans_regular"
-            android:textSize="14sp"
-            android:lineSpacingExtra="2dp"/>
+            android:includeFontPadding="false"
+            android:lineSpacingExtra="4dp"
+            android:maxLines="4"
+            android:paddingHorizontal="6dp"
+            android:paddingBottom="12dp"
+            android:text="정말 맛있는 레시피에요! 가족들이 너무 좋아해서 자주 만들게 될 것 같습니다."
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

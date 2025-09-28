@@ -53,8 +53,11 @@ class FollowListActivity : AppCompatActivity() {
      * 상단 바 타이틀 설정 및 뒤로가기 버튼 리스너 설정
      */
     private fun setupUI() {
-        binding.tvFollowTitle.text = if (mode == "followers") "팔로워" else "팔로잉"
-        binding.ivBackButton.setOnClickListener { finish() }
+        if (mode == "followers") {
+            utils.ToolbarUtils.setupTransparentToolbar(this, "팔로워")
+        } else {
+            utils.ToolbarUtils.setupTransparentToolbar(this, "팔로잉")
+        }
     }
 
     /**
@@ -85,7 +88,11 @@ class FollowListActivity : AppCompatActivity() {
             .addOnSuccessListener { documents ->
                 if (documents.isEmpty) {
                     binding.progressBar.visibility = View.GONE
-                    binding.tvEmptyList.text = if (mode == "followers") "팔로워가 없습니다." else "팔로잉하는 사용자가 없습니다."
+                    binding.tvEmptyList.text = when (mode) {
+                        "followers" -> "아직 팔로워가 없어요.\n다른 사용자들과 소통해보세요!"
+                        "following" -> "아직 팔로우하는 사용자가 없어요.\n관심있는 사용자를 팔로우해보세요!"
+                        else -> "목록이 비어있어요."
+                    }
                     binding.tvEmptyList.visibility = View.VISIBLE
                     return@addOnSuccessListener
                 }
@@ -96,10 +103,15 @@ class FollowListActivity : AppCompatActivity() {
 
             }.addOnFailureListener {
                 binding.progressBar.visibility = View.GONE
-                binding.tvEmptyList.text = "목록을 불러오는데 실패했습니다."
+                binding.tvEmptyList.text = when (mode) {
+                    "followers" -> "팔로워 목록을 불러올 수 없어요."
+                    "following" -> "팔로잉 목록을 불러올 수 없어요."
+                    else -> "목록을 불러오는데 실패했어요."
+                }
                 binding.tvEmptyList.visibility = View.VISIBLE
             }
     }
+
 
     /**
      * ID 목록을 기반으로 각 사용자의 상세 정보(닉네임, 프로필 사진 등)를 가져옴
@@ -110,7 +122,8 @@ class FollowListActivity : AppCompatActivity() {
             try {
                 // 현재 로그인한 유저가 팔로우하는 사람들 목록을 미리 가져와서 Set으로 만듦 (빠른 조회를 위해)
                 val myFollowingSet = currentUser?.uid?.let { uid ->
-                    db.collection("Users").document(uid).collection("following").get().await().documents.map { it.id }.toSet()
+                    db.collection("Users").document(uid).collection("following").get()
+                        .await().documents.map { it.id }.toSet()
                 } ?: emptySet()
 
                 // 각 ID에 해당하는 사용자 정보를 가져와 UserAdapter에서 사용할 데이터 클래스로 변환
@@ -137,7 +150,7 @@ class FollowListActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     binding.progressBar.visibility = View.GONE
-                    binding.tvEmptyList.text = "사용자 정보를 가져오는데 실패했습니다."
+                    binding.tvEmptyList.text = "사용자 정보를 가져오는데 실패했어요."
                     binding.tvEmptyList.visibility = View.VISIBLE
                 }
             }
@@ -155,8 +168,11 @@ class FollowListActivity : AppCompatActivity() {
         if (currentUser.uid == user.id) return // 자기 자신은 팔로우/언팔로우 불가
 
         // Firestore 문서 참조 경로 설정
-        val myFollowingRef = db.collection("Users").document(currentUser.uid).collection("following").document(user.id)
-        val targetFollowerRef = db.collection("Users").document(user.id).collection("followers").document(currentUser.uid)
+        val myFollowingRef =
+            db.collection("Users").document(currentUser.uid).collection("following")
+                .document(user.id)
+        val targetFollowerRef = db.collection("Users").document(user.id).collection("followers")
+            .document(currentUser.uid)
         val myUserDocRef = db.collection("Users").document(currentUser.uid)
         val targetUserDocRef = db.collection("Users").document(user.id)
 
@@ -169,7 +185,10 @@ class FollowListActivity : AppCompatActivity() {
                 transaction.update(targetUserDocRef, "followerCount", FieldValue.increment(-1))
             } else { // 팔로우하지 않을 경우 -> 팔로우
                 transaction.set(myFollowingRef, mapOf("followedAt" to FieldValue.serverTimestamp()))
-                transaction.set(targetFollowerRef, mapOf("followedAt" to FieldValue.serverTimestamp()))
+                transaction.set(
+                    targetFollowerRef,
+                    mapOf("followedAt" to FieldValue.serverTimestamp())
+                )
                 transaction.update(myUserDocRef, "followingCount", FieldValue.increment(1))
                 transaction.update(targetUserDocRef, "followerCount", FieldValue.increment(1))
             }

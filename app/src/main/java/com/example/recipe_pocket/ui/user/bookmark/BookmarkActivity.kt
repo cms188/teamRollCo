@@ -31,8 +31,8 @@ class BookmarkActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // UI 관련 설정은 onCreate에서 한 번만 수행
+        utils.ToolbarUtils.setupTransparentToolbar(this, "")
         setupRecyclerView()
-        setupBackButton()
         setupBottomNavigation()
     }
 
@@ -40,7 +40,7 @@ class BookmarkActivity : AppCompatActivity() {
         super.onResume()
         // 데이터 로딩과 UI 상태 업데이트는 onResume에서 수행
         loadBookmarkedRecipes()
-        binding.bottomNavigationView.menu.findItem(R.id.fragment_another).isChecked = true
+        binding.bottomNavigationView.bottomNavigation.menu.findItem(R.id.fragment_another).isChecked = true
     }
 
     private fun setupRecyclerView() {
@@ -48,13 +48,6 @@ class BookmarkActivity : AppCompatActivity() {
         binding.recyclerViewBookmarks.apply {
             adapter = recipeAdapter
             layoutManager = LinearLayoutManager(this@BookmarkActivity)
-        }
-    }
-
-    private fun setupBackButton() {
-        binding.ivBackButton.setOnClickListener {
-            // 현재 액티비티를 종료하면 이전 화면(MainActivity 등)으로 돌아감
-            finish()
         }
     }
 
@@ -97,9 +90,9 @@ class BookmarkActivity : AppCompatActivity() {
         }
     }
     private fun setupBottomNavigation() {
-        binding.bottomNavigationView.setOnItemReselectedListener { /* 아무것도 하지 않음 */ }
+        binding.bottomNavigationView.bottomNavigation.setOnItemReselectedListener { /* 아무것도 하지 않음 */ }
 
-        binding.bottomNavigationView.setOnItemSelectedListener { item ->
+        binding.bottomNavigationView.bottomNavigation.setOnItemSelectedListener { item ->
             if (item.itemId == R.id.fragment_another) {
                 return@setOnItemSelectedListener true
             }

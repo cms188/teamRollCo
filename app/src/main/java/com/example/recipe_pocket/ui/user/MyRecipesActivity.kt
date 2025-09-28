@@ -29,8 +29,8 @@ class MyRecipesActivity : AppCompatActivity() {
         binding = ActivityMyRecipesBinding.inflate(layoutInflater) // 바인딩 클래스 이름 변경
         setContentView(binding.root)
 
+        utils.ToolbarUtils.setupTransparentToolbar(this, "내 레시피")
         setupRecyclerView()
-        setupBackButton()
         loadMyRecipes()
         setupBottomNavigation()
     }
@@ -40,12 +40,6 @@ class MyRecipesActivity : AppCompatActivity() {
         binding.recyclerViewBookmarks.apply { // ID는 activity_bookmark.xml과 동일
             adapter = recipeAdapter
             layoutManager = LinearLayoutManager(this@MyRecipesActivity)
-        }
-    }
-
-    private fun setupBackButton() {
-        binding.ivBackButton.setOnClickListener {
-            finish()
         }
     }
 
@@ -86,9 +80,9 @@ class MyRecipesActivity : AppCompatActivity() {
 
     private fun setupBottomNavigation() {
         // activity_my_recipes.xml의 BottomNavigationView ID가 bottom_navigation_view인지 확인
-        binding.bottomNavigationView.setOnItemReselectedListener { /* 아무것도 하지 않음 */ }
+        binding.bottomNavigationView.bottomNavigation.setOnItemReselectedListener { /* 아무것도 하지 않음 */ }
 
-        binding.bottomNavigationView.setOnItemSelectedListener { item ->
+        binding.bottomNavigationView.bottomNavigation.setOnItemSelectedListener { item ->
             val intent = when (item.itemId) {
                 R.id.fragment_home -> Intent(this, MainActivity::class.java)
                 R.id.fragment_search -> Intent(this, SearchResult::class.java)

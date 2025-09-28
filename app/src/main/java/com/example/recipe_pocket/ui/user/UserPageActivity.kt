@@ -35,6 +35,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import utils.ToolbarUtils
 
 class UserPageActivity : AppCompatActivity() {
 
@@ -86,7 +87,7 @@ class UserPageActivity : AppCompatActivity() {
         initializeViews()
 
         // 툴바 설정
-        setupToolbar()
+        ToolbarUtils.setupTransparentToolbar(this, "MY")
 
         // 클릭 리스너 설정
         setupClickListeners()
@@ -105,9 +106,9 @@ class UserPageActivity : AppCompatActivity() {
         // 프로필 섹션
         profileImageView = findViewById(R.id.imageView_profile)
         nicknameTextView = findViewById(R.id.textView_authorName)
-        badgeTextView = findViewById(R.id.textView_badge)
+        badgeTextView = findViewById(R.id.textView_badge_title)
         editInfoTextView = findViewById(R.id.textView_editInfo)
-        badgeCardView = findViewById(R.id.cardView_badge)
+        badgeCardView = findViewById(R.id.layout_badge)
 
         // 통계 섹션
         myRecipesLayout = findViewById(R.id.layout_myRecipes)
@@ -165,10 +166,6 @@ class UserPageActivity : AppCompatActivity() {
     private fun dpToPx(dp: Int): Int {
         return (dp * resources.displayMetrics.density).toInt()
     }
-
-    /**
-     * Firestore에서 현재 로그인된 사용자의 데이터를 불러와 UI에 적용하는 함수
-     */
     private fun loadUserData() {
         val currentUser = auth.currentUser
         if (currentUser == null) {

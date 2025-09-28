@@ -57,6 +57,8 @@ class NicknameSetupActivity : AppCompatActivity() {
         var backButton = toolbar.findViewById<ImageButton>(R.id.back_button)
         backButton.setOnClickListener { finish() }
 
+        utils.ToolbarUtils.setupTransparentToolbar(this, "")
+
         // Intent로부터 실행 모드를 받아오고 전달된 값이 없으면 기본값(MODE_SETUP) 사용
         currentMode = intent.getStringExtra(EXTRA_MODE) ?: MODE_SETUP
 

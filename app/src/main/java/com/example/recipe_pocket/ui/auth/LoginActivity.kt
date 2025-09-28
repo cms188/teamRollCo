@@ -6,9 +6,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -23,7 +23,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.example.recipe_pocket.databinding.ActivityLoginBinding
 import com.example.recipe_pocket.ui.main.MainActivity
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.OAuthProvider
@@ -40,9 +39,9 @@ import com.navercorp.nid.oauth.OAuthLoginCallback
 import com.navercorp.nid.profile.NidProfileCallback
 import com.navercorp.nid.profile.data.NidProfileResponse
 import com.kakao.sdk.common.util.Utility
+import com.google.android.material.button.MaterialButton
 
 class LoginActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityLoginBinding
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var auth: FirebaseAuth
     private val RC_SIGN_IN = 1001
@@ -65,12 +64,17 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    var findpass: Boolean = false //뒤로가기 버튼 두가지 기능을 위한 Boolean
+    // 모달 관련 뷰들
+    private lateinit var modalOverlay: LinearLayout
+    private lateinit var editFindEmail: EditText
+    private lateinit var btnVerifyEmail: MaterialButton
+    private lateinit var btnCancelFind: MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_login)
+
         Log.d("KAKAO", "android_key_hash = ${Utility.getKeyHash(this)}")
         //https://developer.android.com/develop/ui/views/layout/edge-to-edge?hl=ko#kotlin
         //동작 모드 또는 버튼 모드에서 시각적 겹침을 방지
@@ -80,15 +84,37 @@ class LoginActivity : AppCompatActivity() {
                 leftMargin = insets.left
                 bottomMargin = insets.bottom
                 rightMargin = insets.right
-                topMargin = insets.top //상단도 마찬가지로 겹침 방지. 꼭 필요한 것은 아님
+                topMargin = insets.top
             }
-            // Return CONSUMED if you don't want the window insets to keep passing
-            // down to descendant views.
             WindowInsetsCompat.CONSUMED
         }
-        auth = FirebaseAuth.getInstance() // Firebase 인증 인스턴스 초기화
 
-        val loginButton: Button = findViewById(R.id.btnLogin)
+        // Firebase 인증 인스턴스 초기화
+        auth = FirebaseAuth.getInstance()
+
+        // 툴바 설정
+        utils.ToolbarUtils.setupTransparentToolbar(this, "", navigateToMainActivity = true)
+
+        // 뷰 초기화
+        initViews()
+
+        // 리스너 설정
+        setupListeners()
+
+        // Google 로그인 설정
+        setupGoogleSignIn()
+    }
+
+    private fun initViews() {
+        // 모달 관련 뷰들
+        modalOverlay = findViewById(R.id.modal_overlay)
+        editFindEmail = findViewById(R.id.editFindEmail)
+        btnVerifyEmail = findViewById(R.id.btnVerifyEmail)
+        btnCancelFind = findViewById(R.id.btnCancelFind)
+    }
+
+    private fun setupListeners() {
+        val loginButton: MaterialButton = findViewById(R.id.btnLogin)
         val registerButton: TextView = findViewById(R.id.btnRegister)
         val backButton: ImageView = findViewById(R.id.iv_back_button_login)
         val editFindEmail: EditText = findViewById(R.id.editFindEmail)
@@ -132,53 +158,91 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        // 비밀번호 찾기 버튼 - 모달 열기
         btnFindPassword.setOnClickListener {
-            editEmail.visibility = View.GONE
-            editPassword.visibility = View.GONE
-            loginButton.visibility = View.GONE
-            registerButton.visibility = View.GONE
-            btnFindPassword.visibility = View.GONE
-
-            editFindEmail.visibility = View.VISIBLE
-            btnVerifyEmail.visibility = View.VISIBLE
-            findpass = true
+            showFindPasswordModal()
         }
 
+        // 모달 취소 버튼
+        btnCancelFind.setOnClickListener {
+            hideFindPasswordModal()
+        }
+
+        // 모달 오버레이 클릭 시 닫기
+        modalOverlay.setOnClickListener {
+            hideFindPasswordModal()
+        }
+
+        // 모달 컨테이너 클릭 시 이벤트 전파 방지
+        findViewById<LinearLayout>(R.id.FindPasswordContainer).setOnClickListener { }
+
+        // 이메일 인증 버튼
         btnVerifyEmail.setOnClickListener {
             val email = editFindEmail.text.toString().trim()
 
+            if (email.isEmpty()) {
+                Toast.makeText(this, "이메일을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             checkIfEmailExists(email) { exists ->
                 if (exists) {
-                    FirebaseAuth.getInstance().sendPasswordResetEmail(email)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                Toast.makeText(this, "비밀번호 재설정 이메일을 보냈습니다.", Toast.LENGTH_SHORT)
-                                    .show()
-                                editFindEmail.visibility = View.GONE
-                                btnVerifyEmail.visibility = View.GONE
-
-                                editEmail.visibility = View.VISIBLE
-                                editEmail.setText(email)
-                                editPassword.visibility = View.VISIBLE
-                                loginButton.visibility = View.VISIBLE
-                                registerButton.visibility = View.VISIBLE
-                                btnFindPassword.visibility = View.VISIBLE
-                            } else {
-                                Toast.makeText(
-                                    this,
-                                    "오류 : ${task.exception?.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
+                    sendPasswordResetEmail(email)
                 } else {
                     Toast.makeText(this, "등록되지 않은 이메일입니다.", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
+        // Google 로그인
+        ivGoogleLogin.setOnClickListener {
+            val signInIntent = googleSignInClient.signInIntent
+            startActivityForResult(signInIntent, RC_SIGN_IN)
+        }
+    }
+
+    private fun showFindPasswordModal() {
+        modalOverlay.visibility = View.VISIBLE
+        editFindEmail.text.clear() // 입력 필드 초기화
+
+        // 애니메이션 효과
+        modalOverlay.alpha = 0f
+        modalOverlay.animate()
+            .alpha(1f)
+            .setDuration(200)
+            .start()
+    }
+
+    private fun hideFindPasswordModal() {
+        modalOverlay.animate()
+            .alpha(0f)
+            .setDuration(200)
+            .withEndAction {
+                modalOverlay.visibility = View.GONE
+                editFindEmail.text.clear() // 입력 내용 초기화
+            }
+            .start()
+    }
+
+    private fun sendPasswordResetEmail(email: String) {
+        FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "비밀번호 재설정 이메일을 보냈습니다.", Toast.LENGTH_SHORT).show()
+                    hideFindPasswordModal()
+
+                    // 이메일 필드에 이메일 미리 입력
+                    val emailField = findViewById<EditText>(R.id.editEmail)
+                    emailField.setText(email)
+                } else {
+                    Toast.makeText(this, "오류 : ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+    private fun setupGoogleSignIn() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id)) // res/values/strings.xml에 있음
+            .requestIdToken(getString(R.string.default_web_client_id))  // res/values/strings.xml에 있음
             .requestEmail()
             .build()
 
@@ -300,7 +364,8 @@ class LoginActivity : AppCompatActivity() {
                     }
                 } else {
                     Log.e("GOOGLE_LOGIN", "❌ signInWithCredential:failure", task.exception)
-                    Toast.makeText(this, "로그인 실패: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "로그인 실패: ${task.exception?.message}", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
     }
@@ -591,11 +656,3 @@ class LoginActivity : AppCompatActivity() {
         finish()
     }
 }
-
-
-
-
-
-
-
-
