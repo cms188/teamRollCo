@@ -271,12 +271,12 @@ class MainActivity : AppCompatActivity() {
         val quizCard = binding.quizCard
         quizCard.btnQuizO.setOnClickListener { handleQuizAnswer(true) }
         quizCard.btnQuizX.setOnClickListener { handleQuizAnswer(false) }
-        quizCard.btnQuizRefresh.setOnClickListener { loadNewQuiz() }
+        quizCard.btnQuizRefresh.setOnClickListener { loadNewQuiz(currentQuiz) } // 현재 퀴즈를 제외하도록 전달
     }
 
-    private fun loadNewQuiz() {
+    private fun loadNewQuiz(quizToExclude: Quiz? = null) { // 제외할 퀴즈를 인자로 받음
         lifecycleScope.launch {
-            ContentLoader.loadRandomQuiz().fold(
+            ContentLoader.loadRandomQuiz(quizToExclude).fold( // 인자를 전달하여 호출
                 onSuccess = { quiz ->
                     currentQuiz = quiz
                     updateQuizUI()
