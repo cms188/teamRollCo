@@ -93,8 +93,7 @@
                         android:id="@+id/star5"
                         android:layout_width="18dp"
                         android:layout_height="18dp"
-                        android:src="@drawable/ic_star_empty"
-                        app:tint="@color/text_hint" />
+                        android:src="@drawable/ic_star_empty" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -119,7 +118,6 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
             android:orientation="vertical"
-            android:visibility="gone"
             tools:visibility="visible">
 
             <TextView

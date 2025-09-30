@@ -299,6 +299,10 @@ class RecipeDetailActivity : AppCompatActivity() {
             view.findViewById<TextView>(R.id.tool_name).text = tool
             summaryBinding.toolsContainer.addView(view)
         }
+        summaryBinding.btnStartCooking.setOnClickListener {
+            val intent = Intent(this, RecipeReadActivity::class.java).apply { putExtra("RECIPE_ID", recipeId) }
+            resultLauncher.launch(intent)
+        }
         summaryContainer.addView(summaryBinding.root)
     }
 
@@ -348,10 +352,6 @@ class RecipeDetailActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             toggleBookmark()
-        }
-        binding.btnStartCooking.setOnClickListener {
-            val intent = Intent(this, RecipeReadActivity::class.java).apply { putExtra("RECIPE_ID", recipeId) }
-            resultLauncher.launch(intent)
         }
         updateLikeButton(recipe.isLiked)
         binding.btnLike.setOnClickListener {
