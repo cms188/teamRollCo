@@ -2,6 +2,7 @@ package com.example.recipe_pocket.ui.recipe.write
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import android.view.WindowManager
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -80,7 +82,7 @@ class CookWrite01Activity : AppCompatActivity() {
             pickImageLauncher.launch(intent)
         }
 
-        // [추가] 카테고리 선택 버튼 클릭 리스너
+        // 카테고리 선택 버튼 클릭 리스너
         binding.btnSelectCategory.setOnClickListener {
             CategorySelection
                 .newInstance(recipeData.category)
@@ -106,6 +108,10 @@ class CookWrite01Activity : AppCompatActivity() {
         }
 
         binding.btnNext.setOnClickListener {
+            if (recipeData.thumbnailUrl.isNullOrBlank()) {
+                Toast.makeText(this, "대표 사진을 등록해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             if (binding.etRecipeTitle.text.toString().isBlank()) {
                 Toast.makeText(this, "레시피 제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -169,7 +175,7 @@ class CookWrite01Activity : AppCompatActivity() {
         binding.tvCookingTimeMinute.text = "$cookingMinute 분"
     }
 
-    // [추가] 선택된 카테고리에 따라 버튼 텍스트 업데이트
+    // 선택된 카테고리에 따라 버튼 텍스트 업데이트
     private fun updateCategoryButtonText() {
         if (recipeData.category.isEmpty()) {
             binding.btnSelectCategory.text = "카테고리를 선택해주세요"

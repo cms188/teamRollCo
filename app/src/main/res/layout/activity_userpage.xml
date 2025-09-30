@@ -280,7 +280,8 @@
                             android:id="@+id/layout_bookmark"
                             style="@style/UserPageMenuButton">
                             <ImageView style="@style/UserPageMenuIcon"
-                                android:src="@drawable/ic_bookmark" />
+                                android:src="@drawable/ic_bookmark"
+                                app:tint="@color/orange"/>
                             <TextView style="@style/UserPageMenuText"
                                 android:text="북마크"
                                 android:textColor="@color/text_secondary"/>
@@ -292,7 +293,8 @@
                             android:id="@+id/layout_liked_recipes"
                             style="@style/UserPageMenuButton">
                             <ImageView style="@style/UserPageMenuIcon"
-                                android:src="@drawable/ic_like" />
+                                android:src="@drawable/ic_like_filled"
+                                app:tint="#FF5252"/>
                             <TextView style="@style/UserPageMenuText"
                                 android:text="좋아요"
                                 android:textColor="@color/text_secondary"/>
@@ -304,7 +306,8 @@
                             android:id="@+id/layout_reviewManage"
                             style="@style/UserPageMenuButton">
                             <ImageView style="@style/UserPageMenuIcon"
-                                android:src="@drawable/ic_review" />
+                                android:src="@drawable/ic_review"
+                                app:tint="@color/orange" />
                             <TextView style="@style/UserPageMenuText"
                                 android:text="리뷰 관리"
                                 android:textColor="@color/text_secondary"/>
@@ -325,7 +328,8 @@
                             android:id="@+id/layout_my_tips"
                             style="@style/UserPageMenuButton">
                             <ImageView style="@style/UserPageMenuIcon"
-                                android:src="@drawable/ic_pen" />
+                                android:src="@drawable/ic_pen"
+                                app:tint="@color/black40"/>
                             <TextView style="@style/UserPageMenuText"
                                 android:text="내가 쓴 팁"
                                 android:textColor="@color/text_secondary"/>
@@ -337,7 +341,8 @@
                             android:id="@+id/layout_liked_tips"
                             style="@style/UserPageMenuButton">
                             <ImageView style="@style/UserPageMenuIcon"
-                                android:src="@drawable/ic_thumb_up" />
+                                android:src="@drawable/ic_thumb_up"
+                                app:tint="@color/black40"/>
                             <TextView style="@style/UserPageMenuText"
                                 android:text="좋아요한 팁"
                                 android:textColor="@color/text_secondary"
@@ -350,7 +355,8 @@
                             android:id="@+id/layout_recentRecipe"
                             style="@style/UserPageMenuButton">
                             <ImageView style="@style/UserPageMenuIcon"
-                                android:src="@drawable/ic_clock" />
+                                android:src="@drawable/ic_clock"
+                                app:tint="@color/black40"/>
                             <TextView style="@style/UserPageMenuText"
                                 android:text="최근 본 레시피"
                                 android:textColor="@color/text_secondary"/>
@@ -447,7 +453,7 @@
                         android:gravity="center_vertical"
                         android:clickable="true"
                         android:focusable="true"
-                        android:background="?android:attr/selectableItemBackground">
+                        android:background="?attr/selectableItemBackground">
 
                         <TextView
                             android:layout_width="0dp"

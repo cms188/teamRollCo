@@ -469,7 +469,7 @@
             android:background="@drawable/bg_main_circle_white"
             android:src="@drawable/ic_notification"
             android:contentDescription="알림"
-            android:padding="8dp"
+            android:padding="7dp"
             android:scaleType="fitCenter"
             app:tint="@android:color/black"
             android:elevation="4dp"

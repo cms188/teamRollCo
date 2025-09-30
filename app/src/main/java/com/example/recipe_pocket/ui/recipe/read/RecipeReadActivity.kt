@@ -78,9 +78,6 @@ class RecipeReadActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         // 앱으로 돌아왔을 때, 실행 중인 플로팅 타이머 서비스가 있다면 중지
-        stopService(Intent(this, FloatingTimerService::class.java).apply {
-            action = FloatingTimerService.ACTION_STOP
-        })
     }
 
     private fun processIntent(intent: Intent?) {
@@ -135,6 +132,10 @@ class RecipeReadActivity : AppCompatActivity() {
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         if (isTimerRunningForFloating) {
+            // 다른 타이머가 떠있을 수 있으므로, 현재 액티비티를 나가기 전에 기존 플로팅 타이머 서비스를 중지.
+            stopService(Intent(this, FloatingTimerService::class.java).apply {
+                action = FloatingTimerService.ACTION_STOP
+            })
             if (checkOverlayPermission(showDialog = true)) {
                 launchFloatingTimer()
             }
@@ -143,6 +144,10 @@ class RecipeReadActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         if (isTimerRunningForFloating) {
+            // 다른 타이머가 떠있을 수 있으므로, 현재 액티비티를 나가기 전에 기존 플로팅 타이머 서비스를 중지.
+            stopService(Intent(this, FloatingTimerService::class.java).apply {
+                action = FloatingTimerService.ACTION_STOP
+            })
             if (checkOverlayPermission(showDialog = true)) {
                 launchFloatingTimer()
                 super.onBackPressed()

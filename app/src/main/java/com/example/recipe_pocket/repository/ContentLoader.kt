@@ -28,13 +28,24 @@ object ContentLoader {
     }
 
     // 퀴즈 1개를 랜덤으로 불러옴
-    suspend fun loadRandomQuiz(): Result<Quiz?> {
+    suspend fun loadRandomQuiz(quizToExclude: Quiz? = null): Result<Quiz?> {
         return try {
             val snapshot = db.collection("quizzes").get().await()
             if (snapshot.isEmpty) return Result.success(null)
 
             val quizzes = snapshot.toObjects(Quiz::class.java)
-            Result.success(quizzes.random())
+            if (quizzes.size <= 1) return Result.success(quizzes.firstOrNull())
+
+            // 제외할 퀴즈가 있다면 필터링
+            val availableQuizzes = if (quizToExclude != null) {
+                quizzes.filter { it.question != quizToExclude.question }
+            } else {
+                quizzes
+            }
+
+            // 필터링 후에도 퀴즈가 남아있으면 랜덤 선택, 아니면 전체에서 랜덤 선택
+            Result.success(if (availableQuizzes.isNotEmpty()) availableQuizzes.random() else quizzes.random())
+
         } catch (e: Exception) {
             Result.failure(e)
         }
