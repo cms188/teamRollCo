@@ -14,15 +14,19 @@ import com.example.recipe_pocket.databinding.ActivityMyRecipesBinding // 바인�
 import com.example.recipe_pocket.ui.auth.LoginActivity
 import com.example.recipe_pocket.ui.main.MainActivity
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
-import com.example.recipe_pocket.ui.recipe.write.CookWrite01Activity
+import com.example.recipe_pocket.ui.main.WriteChoiceDialogFragment
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 
 class MyRecipesActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMyRecipesBinding // 바인딩 클래스 이름 변경
     private lateinit var recipeAdapter: RecipeAdapter
+
+    private val bottomNavigationView: BottomNavigationView
+        get() = binding.bottomNavigationView.bottomNavigation
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,22 +83,27 @@ class MyRecipesActivity : AppCompatActivity() {
     }
 
     private fun setupBottomNavigation() {
-        // activity_my_recipes.xml의 BottomNavigationView ID가 bottom_navigation_view인지 확인
-        binding.bottomNavigationView.bottomNavigation.setOnItemReselectedListener { /* 아무것도 하지 않음 */ }
+        bottomNavigationView.setOnItemReselectedListener { /* no-op */ }
 
-        binding.bottomNavigationView.bottomNavigation.setOnItemSelectedListener { item ->
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            val currentUser = Firebase.auth.currentUser
+
+            if (item.itemId == R.id.fragment_favorite) {
+                if (currentUser != null) {
+                    WriteChoiceDialogFragment().show(supportFragmentManager, WriteChoiceDialogFragment.TAG)
+                } else {
+                    startActivity(Intent(this, LoginActivity::class.java))
+                }
+                return@setOnItemSelectedListener true
+            }
+
             val intent = when (item.itemId) {
                 R.id.fragment_home -> Intent(this, MainActivity::class.java)
                 R.id.fragment_search -> Intent(this, SearchResult::class.java)
                 R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
-                R.id.fragment_settings -> Intent(this, UserPageActivity::class.java)
-                R.id.fragment_favorite -> {
-                    if (Firebase.auth.currentUser != null) {
-                        startActivity(Intent(this, CookWrite01Activity::class.java))
-                    } else {
-                        startActivity(Intent(this, LoginActivity::class.java))
-                    }
-                    return@setOnItemSelectedListener true
+                R.id.fragment_settings -> {
+                    if (currentUser != null) Intent(this, UserPageActivity::class.java)
+                    else Intent(this, LoginActivity::class.java)
                 }
                 else -> null
             }
@@ -104,6 +113,7 @@ class MyRecipesActivity : AppCompatActivity() {
                 startActivity(it)
                 overridePendingTransition(0, 0)
             }
+
             true
         }
     }

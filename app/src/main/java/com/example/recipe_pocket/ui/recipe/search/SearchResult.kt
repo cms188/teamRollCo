@@ -24,10 +24,11 @@ import com.example.recipe_pocket.databinding.SearchResultBinding
 import com.example.recipe_pocket.repository.RecipeLoader
 import com.example.recipe_pocket.ui.auth.LoginActivity
 import com.example.recipe_pocket.ui.main.MainActivity
-import com.example.recipe_pocket.ui.recipe.write.CookWrite01Activity
+import com.example.recipe_pocket.ui.main.WriteChoiceDialogFragment
 import com.example.recipe_pocket.ui.user.UserPageActivity
 import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.google.android.material.chip.Chip
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import java.util.*
@@ -46,6 +47,9 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
     private var currentFilter = SearchFilter.default()
 
     private var isSuggestionViewVisible = false
+
+    private val bottomNavigationView: BottomNavigationView
+        get() = binding.bottomNavigationView.bottomNavigation
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,7 +79,7 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
 
     override fun onResume() {
         super.onResume()
-        binding.bottomNavigationView.menu.findItem(R.id.fragment_search).isChecked = true
+        bottomNavigationView.menu.findItem(R.id.fragment_search).isChecked = true
     }
 
     // OnFilterAppliedListener 인터페이스의 메소드 구현
@@ -423,21 +427,27 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
     }
 
     private fun setupBottomNavigation() {
-        binding.bottomNavigationView.setOnItemReselectedListener { /* 아무것도 하지 않음 */ }
+        bottomNavigationView.setOnItemReselectedListener { /* no-op */ }
 
-        binding.bottomNavigationView.setOnItemSelectedListener { item ->
+        bottomNavigationView.setOnItemSelectedListener { item ->
             if (item.itemId == R.id.fragment_search) {
                 return@setOnItemSelectedListener true
             }
 
             val currentUser = FirebaseAuth.getInstance().currentUser
+
+            if (item.itemId == R.id.fragment_favorite) {
+                if (currentUser != null) {
+                    WriteChoiceDialogFragment().show(supportFragmentManager, WriteChoiceDialogFragment.TAG)
+                } else {
+                    startActivity(Intent(this, LoginActivity::class.java))
+                }
+                return@setOnItemSelectedListener true
+            }
+
             val intent = when (item.itemId) {
                 R.id.fragment_home -> Intent(this, MainActivity::class.java)
                 R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
-                R.id.fragment_favorite -> {
-                    if (currentUser != null) Intent(this, CookWrite01Activity::class.java)
-                    else Intent(this, LoginActivity::class.java)
-                }
                 R.id.fragment_settings -> {
                     if (currentUser != null) Intent(this, UserPageActivity::class.java)
                     else Intent(this, LoginActivity::class.java)
@@ -446,14 +456,11 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
             }
 
             intent?.let {
-                if (item.itemId == R.id.fragment_favorite || item.itemId == R.id.fragment_settings) {
-                    startActivity(it)
-                } else {
-                    it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    startActivity(it)
-                    overridePendingTransition(0, 0)
-                }
+                it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                startActivity(it)
+                overridePendingTransition(0, 0)
             }
+
             true
         }
     }

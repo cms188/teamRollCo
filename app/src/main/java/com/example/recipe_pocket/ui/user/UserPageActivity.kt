@@ -25,11 +25,11 @@ import com.example.recipe_pocket.ui.auth.EditProfileActivity
 import com.example.recipe_pocket.ui.auth.LoginActivity
 import com.example.recipe_pocket.ui.main.MainActivity
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
-import com.example.recipe_pocket.ui.recipe.write.CookWrite01Activity
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.ui.review.MyReviewsActivity
 import com.example.recipe_pocket.ui.tip.LikedTipsActivity
 import com.example.recipe_pocket.ui.tip.MyTipsActivity
+import com.example.recipe_pocket.ui.main.WriteChoiceDialogFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -283,18 +283,12 @@ class UserPageActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * 갤러리를 열어 이미지를 선택하는 함수
-     */
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
         pickImageLauncher.launch(intent)
     }
 
-    /**
-     * 선택한 이미지를 Firebase Storage에 업로드하는 함수
-     */
     private fun uploadProfilePicture(imageUri: Uri) {
         val currentUser = auth.currentUser ?: return
         val storageRef = storage.reference.child("profile_pictures/${currentUser.uid}")
@@ -311,10 +305,6 @@ class UserPageActivity : AppCompatActivity() {
                 Toast.makeText(this, "업로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
-
-    /**
-     * Storage에 업로드된 이미지 URL을 Firestore 사용자 문서에 저장하는 함수
-     */
     private fun updateProfileUrlInFirestore(url: String) {
         val currentUser = auth.currentUser ?: return
 
@@ -335,10 +325,6 @@ class UserPageActivity : AppCompatActivity() {
             }
     }
 
-    /**
-     * 팔로워/팔로잉 목록 액티비티를 여는 함수
-     * @param mode "followers" 또는 "following"을 전달하여 모드를 구분
-     */
     private fun openFollowList(mode: String) {
         val intent = Intent(this, FollowListActivity::class.java).apply {
             putExtra("USER_ID", auth.currentUser?.uid)
@@ -346,13 +332,8 @@ class UserPageActivity : AppCompatActivity() {
         }
         startActivity(intent)
     }
-
-    /**
-     * 하단 네비게이션 메뉴의 동작을 설정하는 함수
-     */
     private fun setupBottomNavigation() {
         bottomNavigationView.setOnItemReselectedListener {
-            // 이미 선택된 아이템을 다시 선택했을 때는 아무것도 하지 않음
         }
 
         bottomNavigationView.setOnItemSelectedListener { item ->
@@ -366,7 +347,7 @@ class UserPageActivity : AppCompatActivity() {
                 R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
                 R.id.fragment_favorite -> {
                     if (auth.currentUser != null) {
-                        startActivity(Intent(this, CookWrite01Activity::class.java))
+                        WriteChoiceDialogFragment().show(supportFragmentManager, WriteChoiceDialogFragment.TAG)
                     } else {
                         startActivity(Intent(this, LoginActivity::class.java))
                     }

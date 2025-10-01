@@ -238,14 +238,11 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <include
         android:id="@+id/bottom_navigation_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:itemIconSize="25dp"
-        app:labelVisibilityMode="unlabeled"
-        app:menu="@menu/menu_bottom_nav"
+        layout="@layout/navigation_bottom"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
