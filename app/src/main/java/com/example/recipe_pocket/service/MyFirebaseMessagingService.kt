@@ -11,6 +11,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.recipe_pocket.R
+import com.example.recipe_pocket.data.NotificationType
+import com.example.recipe_pocket.ui.user.NotificationPrefsManager
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
@@ -33,25 +35,52 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         sendRegistrationToServer(token)
     }
 
-    // FCM 메시지를 수신했을 때 호출됩니다. (앱이 포그라운드에 있을 때)
+    // FCM 메시지를 수신했을 때 호출됩니다.
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
         Log.d(TAG, "FCM 메시지 수신: From: ${remoteMessage.from}")
 
-        // 알림 페이로드가 있는지 확인
-        remoteMessage.notification?.let {
-            Log.d(TAG, "알림 제목: ${it.title}")
-            Log.d(TAG, "알림 본문: ${it.body}")
-            showNotification(it.title, it.body)
+        // 데이터 메시지가 있는지 확인 (서버에서 'data' 페이로드로 보내야 함)
+        if (remoteMessage.data.isNotEmpty()) {
+            Log.d(TAG, "데이터 메시지 페이로드: " + remoteMessage.data)
+
+            val title = remoteMessage.data["title"]
+            val body = remoteMessage.data["body"]
+            val typeString = remoteMessage.data["type"] // 서버에서 알림 종류(예: LIKE, REVIEW)를 보내줘야 함
+
+            if (title.isNullOrBlank() || body.isNullOrBlank() || typeString.isNullOrBlank()) {
+                Log.w(TAG, "데이터 메시지에 title, body, or type이 누락되었습니다.")
+                return
+            }
+
+            try {
+                val notificationType = NotificationType.valueOf(typeString.uppercase())
+
+                // 사용자가 해당 종류의 알림을 받도록 설정했는지 확인
+                if (NotificationPrefsManager.isNotificationEnabled(this, notificationType)) {
+                    Log.d(TAG, "${notificationType.name} 타입 알림이 활성화되어 있어 알림을 표시합니다.")
+                    showNotification(title, body)
+                } else {
+                    Log.d(TAG, "${notificationType.name} 타입 알림이 비활성화되어 있어 알림을 표시하지 않습니다.")
+                }
+            } catch (e: IllegalArgumentException) {
+                Log.e(TAG, "알 수 없는 알림 타입입니다: $typeString", e)
+            }
+
+        } else if (remoteMessage.notification != null) {
+            // 데이터 메시지가 아닌 알림 메시지인 경우 (기존 방식, 설정 적용 불가)
+            Log.d(TAG, "알림 메시지 수신: ${remoteMessage.notification?.body}")
+            showNotification(remoteMessage.notification?.title, remoteMessage.notification?.body)
         }
     }
+
 
     // 수신한 메시지를 실제 기기 알림으로 표시하는 함수
     private fun showNotification(title: String?, body: String?) {
         createNotificationChannel()
 
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_stat_name) // 알림 아이콘 (아래에서 추가 설명)
+            .setSmallIcon(R.drawable.ic_stat_name) // 알림 아이콘
             .setContentTitle(title)
             .setContentText(body)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

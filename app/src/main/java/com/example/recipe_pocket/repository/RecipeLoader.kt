@@ -20,6 +20,42 @@ object RecipeLoader {
     private val db: FirebaseFirestore = Firebase.firestore
     private val auth = Firebase.auth
 
+    // 사용자의 알레르기 키워드 목록을 가져오는 함수
+    private suspend fun getUserAllergyKeywords(): List<String>? {
+        val userId = Firebase.auth.currentUser?.uid ?: return null
+        return try {
+            val document = db.collection("Users").document(userId).get().await()
+            // Firestore에서 'allergyKeywords' 필드를 List<String>으로 가져옴
+            document.get("allergyKeywords") as? List<String>
+        } catch (e: Exception) {
+            Log.e("RecipeLoader", "알레르기 키워드 로딩 실패", e)
+            null
+        }
+    }
+
+    // 알레르기 키워드를 기반으로 레시피 목록을 필터링하는 함수
+    private suspend fun filterRecipesByAllergies(recipes: List<Recipe>): List<Recipe> {
+        // 사용자 알레르기 키워드 가져오기
+        val allergyKeywords = getUserAllergyKeywords()
+        // 키워드가 없거나 비어있으면 원본 목록 반환
+        if (allergyKeywords.isNullOrEmpty()) {
+            return recipes
+        }
+
+        // 레시피 목록에서 알레르기 재료가 포함된 레시피를 제외
+        return recipes.filterNot { recipe ->
+            // 레시피의 재료 목록(ingredients)을 확인
+            recipe.ingredients?.any { ingredient ->
+                val ingredientName = ingredient.name ?: ""
+                // 등록된 알레르기 키워드 중 하나라도 재료 이름에 포함되는지 확인 (대소문자 무시)
+                allergyKeywords.any { keyword ->
+                    ingredientName.contains(keyword, ignoreCase = true)
+                }
+            } == true
+        }
+    }
+
+
     suspend fun enrichRecipeWithAuthor(document: DocumentSnapshot): Recipe? {
         val recipe = document.toObject(Recipe::class.java) ?: return null
         recipe.id = document.id
@@ -72,7 +108,8 @@ object RecipeLoader {
                     async { enrichRecipeWithAuthor(doc) }
                 }.awaitAll().filterNotNull()
             }
-            Result.success(recipes)
+            val filteredRecipes = filterRecipesByAllergies(recipes)
+            Result.success(filteredRecipes)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -93,7 +130,8 @@ object RecipeLoader {
                     async { enrichRecipeWithAuthor(doc) }
                 }.awaitAll().filterNotNull()
             }
-            Result.success(recipes)
+            val filteredRecipes = filterRecipesByAllergies(recipes)
+            Result.success(filteredRecipes)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -150,7 +188,8 @@ object RecipeLoader {
                     async { enrichRecipeWithAuthor(doc) }
                 }.awaitAll().filterNotNull()
             }
-            Result.success(recipes)
+            val filteredRecipes = filterRecipesByAllergies(recipes)
+            Result.success(filteredRecipes)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -183,7 +222,8 @@ object RecipeLoader {
                     async { enrichRecipeWithAuthor(doc) }
                 }.awaitAll().filterNotNull()
             }
-            Result.success(recipes)
+            val filteredRecipes = filterRecipesByAllergies(recipes)
+            Result.success(filteredRecipes)
         } catch (e: Exception) {
             Result.failure(Exception("검색 중 오류 발생: ${e.message}", e))
         }
@@ -254,7 +294,8 @@ object RecipeLoader {
                 }.awaitAll().filterNotNull()
             }
 
-            Result.success(recipes)
+            val filteredRecipes = filterRecipesByAllergies(recipes)
+            Result.success(filteredRecipes)
         } catch (e: Exception) {
             Result.failure(Exception("카테고리별 레시피 로드 중 오류 발생: ${e.message}", e))
         }
@@ -273,7 +314,8 @@ object RecipeLoader {
                 }.awaitAll().filterNotNull()
             }
 
-            Result.success(recipes)
+            val filteredRecipes = filterRecipesByAllergies(recipes)
+            Result.success(filteredRecipes)
         } catch (e: Exception) {
             Result.failure(Exception("전체 레시피 로드 중 오류 발생: ${e.message}", e))
         }
