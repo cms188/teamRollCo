@@ -34,6 +34,7 @@ class BookmarkActivity : AppCompatActivity() {
         utils.ToolbarUtils.setupTransparentToolbar(this, "")
         setupRecyclerView()
         setupBottomNavigation()
+        utils.ToolbarUtils.setupTransparentToolbar(this, "북마크")
     }
 
     override fun onResume() {

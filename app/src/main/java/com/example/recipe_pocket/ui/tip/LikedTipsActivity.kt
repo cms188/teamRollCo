@@ -25,6 +25,7 @@ class LikedTipsActivity : AppCompatActivity() {
         setupToolbar()
         setupRecyclerView()
         loadLikedTips()
+        utils.ToolbarUtils.setupTransparentToolbar(this, "좋아요한 팁")
     }
 
     override fun onResume() {
@@ -33,7 +34,7 @@ class LikedTipsActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        binding.ivBackButton.setOnClickListener { finish() }
+        //binding.ivBackButton.setOnClickListener { finish() }
     }
 
     private fun setupRecyclerView() {

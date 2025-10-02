@@ -1,5 +1,6 @@
 package com.example.recipe_pocket.ui.review
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.data.Review
 import com.example.recipe_pocket.databinding.CardRecipeReviewBinding
+import com.example.recipe_pocket.ui.recipe.read.RecipeDetailActivity
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -20,9 +22,17 @@ class ReviewAdapter(
 
     inner class ReviewViewHolder(private val binding: CardRecipeReviewBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(review: Review) {
+            val context = binding.root.context
             binding.textViewAuthorName.text = review.userNickname ?: "사용자"
             //binding.textViewRatingScore.text = String.format("%.1f", review.rating)
             binding.textViewReviewComent.text = review.comment
+
+            binding.tvRecipeTitleValue.setOnClickListener {
+                val intent = Intent(context, RecipeDetailActivity::class.java).apply {
+                    putExtra("RECIPE_ID", review.recipeId)
+                }
+                context.startActivity(intent)
+            }
 
             if (!review.userProfileUrl.isNullOrEmpty()) {
                 Glide.with(binding.root.context).load(review.userProfileUrl).into(binding.imageViewProfile)

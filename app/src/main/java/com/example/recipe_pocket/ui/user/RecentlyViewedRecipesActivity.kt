@@ -32,8 +32,8 @@ class RecentlyViewedRecipesActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupRecyclerView()
-        setupBackButton()
         setupBottomNavigation()
+        utils.ToolbarUtils.setupTransparentToolbar(this, "최근 본 레시피")
     }
 
     override fun onResume() {
@@ -47,12 +47,6 @@ class RecentlyViewedRecipesActivity : AppCompatActivity() {
         binding.recyclerViewRecent.apply {
             adapter = recipeAdapter
             layoutManager = LinearLayoutManager(this@RecentlyViewedRecipesActivity)
-        }
-    }
-
-    private fun setupBackButton() {
-        binding.ivBackButton.setOnClickListener {
-            finish()
         }
     }
 

@@ -23,6 +23,7 @@ class MyTipsActivity : AppCompatActivity() {
         setupToolbar()
         setupRecyclerView()
         loadMyTips()
+        utils.ToolbarUtils.setupTransparentToolbar(this, "내가 쓴 팁")
     }
 
     override fun onResume() {
@@ -31,7 +32,7 @@ class MyTipsActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        binding.ivBackButton.setOnClickListener { finish() }
+        //binding.ivBackButton.setOnClickListener { finish() }
     }
 
     private fun setupRecyclerView() {
