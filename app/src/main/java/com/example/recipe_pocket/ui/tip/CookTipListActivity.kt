@@ -3,7 +3,11 @@ package com.example.recipe_pocket.ui.tip
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.recipe_pocket.databinding.ActivityCookTipListBinding
@@ -23,10 +27,25 @@ class CookTipListActivity : AppCompatActivity() {
         setupToolbar()
         setupRecyclerView()
         loadTips()
+        setupWindowInsets()
+        utils.ToolbarUtils.setupTransparentToolbar(this, "요리 Tip")
+    }
+
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = insets.top
+                leftMargin = insets.left
+                bottomMargin = insets.bottom
+                rightMargin = insets.right
+            }
+            WindowInsetsCompat.CONSUMED
+        }
     }
 
     private fun setupToolbar() {
-        binding.ivBackButton.setOnClickListener { finish() }
+        //binding.ivBackButton.setOnClickListener { finish() }
     }
 
     private fun setupRecyclerView() {

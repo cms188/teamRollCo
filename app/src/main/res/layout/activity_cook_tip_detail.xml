@@ -7,7 +7,7 @@
     android:background="@color/white">
 
     <!-- 상단 툴바 -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!--<androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbar_layout"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -32,7 +32,11 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_basic" />
 
     <!-- 하단 댓글 입력창 -->
     <LinearLayout
@@ -106,7 +110,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar_layout"
+        android:layout_below="@id/toolbar"
         android:layout_above="@id/comment_input_container">
         <LinearLayout
             android:layout_width="match_parent"
