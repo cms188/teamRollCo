@@ -61,6 +61,8 @@ class UserPageActivity : AppCompatActivity() {
     private lateinit var myTipsLayout: LinearLayout
     private lateinit var likedTipsLayout: LinearLayout
     private lateinit var recentRecipeLayout: LinearLayout
+    private lateinit var allergySettingsLayout: LinearLayout
+    private lateinit var notificationSettingsLayout: LinearLayout // 알림 설정 레이아웃 추가
 
     // TextViews for counts
     private lateinit var recipeCountTextView: TextView
@@ -125,6 +127,8 @@ class UserPageActivity : AppCompatActivity() {
         myTipsLayout = findViewById(R.id.layout_my_tips)
         likedTipsLayout = findViewById(R.id.layout_liked_tips)
         recentRecipeLayout = findViewById(R.id.layout_recentRecipe)
+        allergySettingsLayout = findViewById(R.id.layout_allergy_settings)
+        notificationSettingsLayout = findViewById(R.id.layout_notification_settings) // 알림 설정 레이아웃 초기화
 
 
         // 하단 네비게이션
@@ -249,8 +253,6 @@ class UserPageActivity : AppCompatActivity() {
             openFollowList("following")
         }
 
-        // -----------------------
-
         // 북마크 클릭
         bookmarkLayout.setOnClickListener {
             startActivity(Intent(this, BookmarkActivity::class.java))
@@ -276,10 +278,19 @@ class UserPageActivity : AppCompatActivity() {
             startActivity(Intent(this, LikedTipsActivity::class.java))
         }
 
-
         // 최근 본 레시피 클릭
         recentRecipeLayout.setOnClickListener {
             startActivity(Intent(this, RecentlyViewedRecipesActivity::class.java))
+        }
+
+        // 알레르기 설정 클릭
+        allergySettingsLayout.setOnClickListener {
+            startActivity(Intent(this, AllergySettingsActivity::class.java))
+        }
+
+        // 알림 설정 클릭
+        notificationSettingsLayout.setOnClickListener {
+            startActivity(Intent(this, NotificationSettingsActivity::class.java))
         }
     }
 

@@ -111,6 +111,8 @@
             android:exported="false" />
         <activity android:name=".ChangePasswordActivity"/>
         <activity android:name=".ui.user.RecentlyViewedRecipesActivity"/>
+        <activity android:name=".ui.user.AllergySettingsActivity"/>
+        <activity android:name=".ui.user.NotificationSettingsActivity"/>
 
         <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
