@@ -27,6 +27,11 @@ class LikedTipsActivity : AppCompatActivity() {
         loadLikedTips()
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadLikedTips()
+    }
+
     private fun setupToolbar() {
         binding.ivBackButton.setOnClickListener { finish() }
     }

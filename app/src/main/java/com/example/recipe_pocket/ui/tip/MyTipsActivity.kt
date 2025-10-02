@@ -25,6 +25,11 @@ class MyTipsActivity : AppCompatActivity() {
         loadMyTips()
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadMyTips()
+    }
+
     private fun setupToolbar() {
         binding.ivBackButton.setOnClickListener { finish() }
     }
