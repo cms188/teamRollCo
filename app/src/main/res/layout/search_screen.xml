@@ -331,12 +331,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <include
         android:id="@+id/bottom_navigation_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:menu="@menu/menu_bottom_nav"
-        app:labelVisibilityMode="unlabeled"
-        app:itemIconSize="25dp"/>
+        layout="@layout/navigation_bottom" />
 </LinearLayout>

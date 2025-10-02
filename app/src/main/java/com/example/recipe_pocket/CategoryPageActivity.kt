@@ -24,10 +24,11 @@ import com.example.recipe_pocket.ui.recipe.search.CreationPeriod
 import com.example.recipe_pocket.ui.recipe.search.FilterBottomSheetFragment
 import com.example.recipe_pocket.ui.recipe.search.SearchFilter
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
-import com.example.recipe_pocket.ui.recipe.write.CookWrite01Activity
+import com.example.recipe_pocket.ui.main.WriteChoiceDialogFragment
 import com.example.recipe_pocket.ui.user.UserPageActivity
 import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -62,6 +63,9 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
     // 카테고리 태그 뷰들
     private val categoryTags = mutableMapOf<String, TextView>()
 
+    private val bottomNavigationView: BottomNavigationView
+        get() = binding.bottomNavigationView.bottomNavigation
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = CategoryPageBinding.inflate(layoutInflater)
@@ -83,7 +87,7 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
 
     override fun onResume() {
         super.onResume()
-        binding.bottomNavigationView.menu.findItem(R.id.fragment_home).isChecked = true
+        bottomNavigationView.menu.findItem(R.id.fragment_home).isChecked = true
     }
 
 
@@ -355,48 +359,45 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
     }
 
     private fun setupBottomNavigation() {
-        binding.bottomNavigationView.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.fragment_home -> {
-                    startActivity(Intent(this, MainActivity::class.java))
-                    finish()
-                    true
+        bottomNavigationView.setOnItemReselectedListener { /* no-op */ }
+
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            val currentUser = FirebaseAuth.getInstance().currentUser
+
+            if (item.itemId == R.id.fragment_favorite) {
+                if (currentUser != null) {
+                    WriteChoiceDialogFragment().show(supportFragmentManager, WriteChoiceDialogFragment.TAG)
+                } else {
+                    startActivity(Intent(this, LoginActivity::class.java))
                 }
-                R.id.fragment_search -> {
-                    startActivity(Intent(this, SearchResult::class.java))
-                    finish()
-                    true
-                }
-                R.id.fragment_favorite -> {
-                    val currentUser = FirebaseAuth.getInstance().currentUser
-                    if (currentUser != null) {
-                        startActivity(Intent(this, CookWrite01Activity::class.java))
-                    } else {
-                        startActivity(Intent(this, LoginActivity::class.java))
-                    }
-                    true
-                }
+                return@setOnItemSelectedListener true
+            }
+
+            val intent = when (item.itemId) {
+                R.id.fragment_home -> Intent(this, MainActivity::class.java)
+                R.id.fragment_search -> Intent(this, SearchResult::class.java)
                 R.id.fragment_another -> {
-                    val currentUser = FirebaseAuth.getInstance().currentUser
                     if (currentUser != null) {
-                        startActivity(Intent(this, BookmarkActivity::class.java))
+                        Intent(this, BookmarkActivity::class.java)
                     } else {
                         Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
-                        startActivity(Intent(this, LoginActivity::class.java))
+                        Intent(this, LoginActivity::class.java)
                     }
-                    true
                 }
                 R.id.fragment_settings -> {
-                    val currentUser = FirebaseAuth.getInstance().currentUser
-                    if (currentUser != null) {
-                        startActivity(Intent(this, UserPageActivity::class.java))
-                    } else {
-                        startActivity(Intent(this, LoginActivity::class.java))
-                    }
-                    true
+                    if (currentUser != null) Intent(this, UserPageActivity::class.java)
+                    else Intent(this, LoginActivity::class.java)
                 }
-                else -> false
+                else -> null
             }
+
+            intent?.let {
+                it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                startActivity(it)
+                overridePendingTransition(0, 0)
+            }
+
+            true
         }
     }
 }

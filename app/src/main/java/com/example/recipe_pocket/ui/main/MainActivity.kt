@@ -35,6 +35,7 @@ import com.example.recipe_pocket.ui.category.AllCategoriesActivity
 import com.example.recipe_pocket.ui.user.UserPageActivity
 import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.example.recipe_pocket.weather.WeatherMainActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
@@ -53,6 +54,9 @@ class MainActivity : AppCompatActivity() {
 
     private var notificationListener: ListenerRegistration? = null
     private var newNotificationCount = 0 // 새로운 알림 개수를 저장할 변수
+
+    private val bottomNavigationView: BottomNavigationView
+        get() = binding.bottomNavigationView.bottomNavigation
 
     // 알림 권한 요청을 위한 ActivityResultLauncher 선언
     private val requestPermissionLauncher =
@@ -98,7 +102,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadAllData()
-        binding.bottomNavigationView.menu.findItem(R.id.fragment_home).isChecked = true
+        bottomNavigationView.menu.findItem(R.id.fragment_home).isChecked = true
         setupNotificationListener()
     }
 
@@ -350,21 +354,22 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun setupBottomNavigation() {
-        binding.bottomNavigationView.setOnItemReselectedListener { /* 아무것도 하지 않음 */ }
+        bottomNavigationView.setOnItemReselectedListener { /* no-op */ }
 
-        binding.bottomNavigationView.setOnItemSelectedListener { item ->
+        bottomNavigationView.setOnItemSelectedListener { item ->
             if (item.itemId == R.id.fragment_home) {
                 return@setOnItemSelectedListener true
             }
 
             val currentUser = FirebaseAuth.getInstance().currentUser
+
             if (item.itemId == R.id.fragment_favorite) {
                 if (currentUser != null) {
                     WriteChoiceDialogFragment().show(supportFragmentManager, WriteChoiceDialogFragment.TAG)
                 } else {
                     startActivity(Intent(this, LoginActivity::class.java))
                 }
-                return@setOnItemSelectedListener false
+                return@setOnItemSelectedListener true
             }
 
             val intent = when (item.itemId) {
@@ -378,14 +383,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             intent?.let {
-                if (item.itemId == R.id.fragment_favorite || item.itemId == R.id.fragment_settings) {
-                    startActivity(it)
-                } else {
-                    it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    startActivity(it)
-                    overridePendingTransition(0, 0)
-                }
+                it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                startActivity(it)
+                overridePendingTransition(0, 0)
             }
+
             true
         }
     }

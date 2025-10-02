@@ -14,17 +14,21 @@ import com.example.recipe_pocket.repository.RecipeLoader
 import com.example.recipe_pocket.ui.auth.LoginActivity
 import com.example.recipe_pocket.ui.main.MainActivity
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
-import com.example.recipe_pocket.ui.recipe.write.CookWrite01Activity
+import com.example.recipe_pocket.ui.main.WriteChoiceDialogFragment
 import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 
 class RecentlyViewedRecipesActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRecentBinding
     private lateinit var recipeAdapter: RecipeAdapter
+
+    private val bottomNavigationView: BottomNavigationView
+        get() = binding.bottomNavigationView.bottomNavigation
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +43,7 @@ class RecentlyViewedRecipesActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadRecentlyViewedRecipes()
-        binding.bottomNavigationView.menu.findItem(R.id.fragment_settings).isChecked = true
+        bottomNavigationView.menu.findItem(R.id.fragment_settings).isChecked = true
     }
 
     private fun setupRecyclerView() {
@@ -107,21 +111,27 @@ class RecentlyViewedRecipesActivity : AppCompatActivity() {
     }
 
     private fun setupBottomNavigation() {
-        binding.bottomNavigationView.setOnItemReselectedListener { /* 아무것도 하지 않음 */ }
+        bottomNavigationView.setOnItemReselectedListener { /* no-op */ }
 
-        binding.bottomNavigationView.setOnItemSelectedListener { item ->
+        bottomNavigationView.setOnItemSelectedListener { item ->
             if (item.itemId == R.id.fragment_settings) {
                 return@setOnItemSelectedListener true
             }
 
             val currentUser = FirebaseAuth.getInstance().currentUser
+
+            if (item.itemId == R.id.fragment_favorite) {
+                if (currentUser != null) {
+                    WriteChoiceDialogFragment().show(supportFragmentManager, WriteChoiceDialogFragment.TAG)
+                } else {
+                    startActivity(Intent(this, LoginActivity::class.java))
+                }
+                return@setOnItemSelectedListener true
+            }
+
             val intent = when (item.itemId) {
                 R.id.fragment_home -> Intent(this, MainActivity::class.java)
                 R.id.fragment_search -> Intent(this, SearchResult::class.java)
-                R.id.fragment_favorite -> {
-                    if (currentUser != null) Intent(this, CookWrite01Activity::class.java)
-                    else Intent(this, LoginActivity::class.java)
-                }
                 R.id.fragment_another -> {
                     if (currentUser != null) Intent(this, BookmarkActivity::class.java)
                     else Intent(this, LoginActivity::class.java)
@@ -130,14 +140,11 @@ class RecentlyViewedRecipesActivity : AppCompatActivity() {
             }
 
             intent?.let {
-                if (item.itemId == R.id.fragment_favorite || item.itemId == R.id.fragment_another) {
-                    startActivity(it)
-                } else {
-                    it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    startActivity(it)
-                    overridePendingTransition(0, 0)
-                }
+                it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                startActivity(it)
+                overridePendingTransition(0, 0)
             }
+
             true
         }
     }

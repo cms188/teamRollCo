@@ -13,17 +13,21 @@ import com.example.recipe_pocket.databinding.ActivityBookmarkBinding
 import com.example.recipe_pocket.ui.auth.LoginActivity
 import com.example.recipe_pocket.ui.main.MainActivity
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
-import com.example.recipe_pocket.ui.recipe.write.CookWrite01Activity
+import com.example.recipe_pocket.ui.main.WriteChoiceDialogFragment
 import com.example.recipe_pocket.ui.user.UserPageActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 
 class BookmarkActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityBookmarkBinding
     private lateinit var recipeAdapter: RecipeAdapter
+
+    private val bottomNavigationView: BottomNavigationView
+        get() = binding.bottomNavigationView.bottomNavigation
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +45,7 @@ class BookmarkActivity : AppCompatActivity() {
         super.onResume()
         // 데이터 로딩과 UI 상태 업데이트는 onResume에서 수행
         loadBookmarkedRecipes()
-        binding.bottomNavigationView.bottomNavigation.menu.findItem(R.id.fragment_another).isChecked = true
+        bottomNavigationView.menu.findItem(R.id.fragment_another).isChecked = true
     }
 
     private fun setupRecyclerView() {
@@ -91,21 +95,27 @@ class BookmarkActivity : AppCompatActivity() {
         }
     }
     private fun setupBottomNavigation() {
-        binding.bottomNavigationView.bottomNavigation.setOnItemReselectedListener { /* 아무것도 하지 않음 */ }
+        bottomNavigationView.setOnItemReselectedListener { /* no-op */ }
 
-        binding.bottomNavigationView.bottomNavigation.setOnItemSelectedListener { item ->
+        bottomNavigationView.setOnItemSelectedListener { item ->
             if (item.itemId == R.id.fragment_another) {
                 return@setOnItemSelectedListener true
             }
 
             val currentUser = FirebaseAuth.getInstance().currentUser
+
+            if (item.itemId == R.id.fragment_favorite) {
+                if (currentUser != null) {
+                    WriteChoiceDialogFragment().show(supportFragmentManager, WriteChoiceDialogFragment.TAG)
+                } else {
+                    startActivity(Intent(this, LoginActivity::class.java))
+                }
+                return@setOnItemSelectedListener true
+            }
+
             val intent = when (item.itemId) {
                 R.id.fragment_home -> Intent(this, MainActivity::class.java)
                 R.id.fragment_search -> Intent(this, SearchResult::class.java)
-                R.id.fragment_favorite -> {
-                    if (currentUser != null) Intent(this, CookWrite01Activity::class.java)
-                    else Intent(this, LoginActivity::class.java)
-                }
                 R.id.fragment_settings -> {
                     if (currentUser != null) Intent(this, UserPageActivity::class.java)
                     else Intent(this, LoginActivity::class.java)
@@ -114,14 +124,11 @@ class BookmarkActivity : AppCompatActivity() {
             }
 
             intent?.let {
-                if (item.itemId == R.id.fragment_favorite || item.itemId == R.id.fragment_settings) {
-                    startActivity(it)
-                } else {
-                    it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    startActivity(it)
-                    overridePendingTransition(0, 0)
-                }
+                it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                startActivity(it)
+                overridePendingTransition(0, 0)
             }
+
             true
         }
     }
