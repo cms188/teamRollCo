@@ -35,7 +35,7 @@ class AllCategoriesActivity : AppCompatActivity() {
         binding = ActivityAllCategoriesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        ToolbarUtils.setupTransparentToolbar(this, "비밀번호 변경")
+        ToolbarUtils.setupTransparentToolbar(this, "전체 카테고리")
 
         setupWindowInsets()
         setupCategoryGrid()
