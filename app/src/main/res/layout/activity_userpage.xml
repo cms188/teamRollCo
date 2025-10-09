@@ -293,8 +293,8 @@
                             android:id="@+id/layout_liked_recipes"
                             style="@style/UserPageMenuButton">
                             <ImageView style="@style/UserPageMenuIcon"
-                                android:src="@drawable/ic_like_filled"
-                                app:tint="#FF5252"/>
+                                android:src="@drawable/ic_like"
+                                app:tint="#F46659"/>
                             <TextView style="@style/UserPageMenuText"
                                 android:text="좋아요"
                                 android:textColor="@color/text_secondary"/>
@@ -306,7 +306,7 @@
                             android:id="@+id/layout_reviewManage"
                             style="@style/UserPageMenuButton">
                             <ImageView style="@style/UserPageMenuIcon"
-                                android:src="@drawable/ic_review"
+                                android:src="@drawable/ic_review_outline"
                                 app:tint="@color/orange" />
                             <TextView style="@style/UserPageMenuText"
                                 android:text="리뷰 관리"
@@ -329,7 +329,7 @@
                             style="@style/UserPageMenuButton">
                             <ImageView style="@style/UserPageMenuIcon"
                                 android:src="@drawable/ic_pen"
-                                app:tint="@color/black40"/>
+                                app:tint="@color/orange"/>
                             <TextView style="@style/UserPageMenuText"
                                 android:text="내가 쓴 팁"
                                 android:textColor="@color/text_secondary"/>
@@ -341,8 +341,8 @@
                             android:id="@+id/layout_liked_tips"
                             style="@style/UserPageMenuButton">
                             <ImageView style="@style/UserPageMenuIcon"
-                                android:src="@drawable/ic_thumb_up"
-                                app:tint="@color/black40"/>
+                                android:src="@drawable/ic_thumb_up_outline"
+                                app:tint="#F46659"/>
                             <TextView style="@style/UserPageMenuText"
                                 android:text="좋아요한 팁"
                                 android:textColor="@color/text_secondary"
@@ -356,7 +356,7 @@
                             style="@style/UserPageMenuButton">
                             <ImageView style="@style/UserPageMenuIcon"
                                 android:src="@drawable/ic_clock"
-                                app:tint="@color/black40"/>
+                                app:tint="@color/orange"/>
                             <TextView style="@style/UserPageMenuText"
                                 android:text="최근 본 레시피"
                                 android:textColor="@color/text_secondary"/>
@@ -419,7 +419,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="알레르기 설정"
+                            android:text="알레르기"
                             android:textSize="16sp"
                             android:textColor="@color/black20"
                             android:fontFamily="@font/notosans_medium"
@@ -459,7 +459,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="알림 설정"
+                            android:text="푸시 알림"
                             android:textSize="16sp"
                             android:textColor="@color/black20"
                             android:fontFamily="@font/notosans_medium"

@@ -5,16 +5,13 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.children
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.example.recipe_pocket.R
@@ -30,7 +27,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.util.UUID
+import java.util.*
 
 class RecipeEditActivity : AppCompatActivity() {
 
@@ -41,15 +38,18 @@ class RecipeEditActivity : AppCompatActivity() {
     private var originalRecipe: Recipe? = null
     private var selectedCategories: MutableList<String> = mutableListOf()
 
-    // 이미지 URI와 런처 관리
     private var thumbnailUri: Uri? = null
     private lateinit var thumbnailLauncher: ActivityResultLauncher<Intent>
     private lateinit var stepImageLauncher: ActivityResultLauncher<Intent>
 
-    // ViewPager2 관련 변수
     private lateinit var stepAdapter: RecipeEditStepAdapter
     private var currentStepImagePosition: Int = -1
     private val newStepImageUris = mutableMapOf<Int, Uri>()
+
+    private lateinit var ingredientAdapter: IngredientAdapter
+    private lateinit var toolAdapter: ToolAdapter
+    private val ingredientsList = mutableListOf<Ingredient>()
+    private val toolsList = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,9 +66,126 @@ class RecipeEditActivity : AppCompatActivity() {
         setupLaunchers()
         setupCategorySelectionResultListener()
         setupClickListeners()
+        setupRecyclerViews()
         setupViewPager()
         loadRecipeData()
     }
+
+    private fun setupRecyclerViews() {
+        ingredientAdapter = IngredientAdapter(this, ingredientsList)
+        binding.rvIngredients.apply {
+            layoutManager = LinearLayoutManager(this@RecipeEditActivity)
+            adapter = ingredientAdapter
+            itemAnimator = null
+        }
+
+        toolAdapter = ToolAdapter(toolsList)
+        binding.rvTools.apply {
+            layoutManager = LinearLayoutManager(this@RecipeEditActivity)
+            adapter = toolAdapter
+            itemAnimator = null
+        }
+    }
+
+    private fun populateUi(recipe: Recipe) {
+        selectedCategories.clear()
+        recipe.categoryList?.let { selectedCategories.addAll(it) }
+        updateCategoryButtonText()
+
+        if (!recipe.thumbnailUrl.isNullOrEmpty()) {
+            Glide.with(this).load(recipe.thumbnailUrl).into(binding.ivRepresentativePhoto)
+        }
+        binding.etRecipeTitle.setText(recipe.title)
+        binding.etRecipeDescription.setText(recipe.simpleDescription)
+
+        ingredientsList.clear()
+        recipe.ingredients?.let { ingredientsList.addAll(it) }
+        ingredientsList.add(Ingredient())
+        ingredientAdapter.notifyDataSetChanged()
+
+        toolsList.clear()
+        recipe.tools?.let { toolsList.addAll(it) }
+        toolsList.add("")
+        toolAdapter.notifyDataSetChanged()
+
+        recipe.steps?.let {
+            stepAdapter.setSteps(it)
+            if (it.isNotEmpty()) {
+                binding.tvStepIndicator.text = "1 / ${it.size}"
+            } else {
+                binding.tvStepIndicator.text = "0 / 0"
+            }
+            updateArrowVisibility(0)
+        }
+    }
+
+    private fun saveChanges() {
+        binding.btnSave.isEnabled = false
+        binding.btnSave.text = "저장 중..."
+
+        lifecycleScope.launch {
+            try {
+                val thumbnailUrl = if (thumbnailUri != null) {
+                    uploadImage(thumbnailUri, "recipe_images/${UUID.randomUUID()}").await()
+                } else {
+                    originalRecipe?.thumbnailUrl
+                }
+
+                val currentStepsData = stepAdapter.collectAllStepsData()
+                val stepImageUploadTasks = currentStepsData.mapIndexed { index, step ->
+                    val newUri = newStepImageUris[index]
+                    if (newUri != null) {
+                        uploadImage(newUri, "recipe_images/${UUID.randomUUID()}")
+                    } else {
+                        Tasks.forResult(step.imageUrl)
+                    }
+                }
+                val stepImageUrls = Tasks.whenAllSuccess<String?>(stepImageUploadTasks).await()
+
+                val ingredients = ingredientsList.filter { !it.name.isNullOrBlank() }
+                    .map { Ingredient(it.name, it.amount, null) }
+                val tools = toolsList.filter { it.isNotBlank() }
+
+                val steps = currentStepsData.mapIndexed { index, stepData ->
+                    mapOf(
+                        "stepNumber" to (index + 1),
+                        "title" to stepData.title,
+                        "description" to stepData.description,
+                        "imageUrl" to (stepImageUrls.getOrNull(index) ?: ""),
+                        "time" to stepData.time,
+                        "useTimer" to stepData.useTimer
+                    )
+                }.toList()
+
+                val updatedData = mapOf(
+                    "title" to binding.etRecipeTitle.text.toString(),
+                    "simpleDescription" to binding.etRecipeDescription.text.toString(),
+                    "category" to selectedCategories,
+                    "thumbnailUrl" to (thumbnailUrl ?: ""),
+                    "ingredients" to ingredients.map { mapOf("name" to it.name, "amount" to it.amount) },
+                    "tools" to tools,
+                    "steps" to steps,
+                    "updatedAt" to Timestamp.now()
+                )
+
+                db.collection("Recipes").document(recipeId!!).update(updatedData).await()
+
+                Toast.makeText(this@RecipeEditActivity, "레시피가 수정되었습니다.", Toast.LENGTH_SHORT).show()
+                setResult(Activity.RESULT_OK, Intent())
+                finish()
+
+            } catch (e: Exception) {
+                Toast.makeText(this@RecipeEditActivity, "저장 실패: ${e.message}", Toast.LENGTH_LONG).show()
+            } finally {
+                binding.btnSave.isEnabled = true
+                binding.btnSave.text = "수정완료"
+            }
+        }
+    }
+
+    // =================================================================================
+    // 아래 코드는 수정할 필요 없이 그대로 두시면 됩니다.
+    // =================================================================================
 
     private fun setupLaunchers() {
         thumbnailLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -135,26 +252,6 @@ class RecipeEditActivity : AppCompatActivity() {
         }
     }
 
-    private fun populateUi(recipe: Recipe) {
-        selectedCategories.clear()
-        recipe.categoryList?.let { selectedCategories.addAll(it) }
-        updateCategoryButtonText()
-
-        if (!recipe.thumbnailUrl.isNullOrEmpty()) {
-            Glide.with(this).load(recipe.thumbnailUrl).into(binding.ivRepresentativePhoto)
-        }
-        binding.etRecipeTitle.setText(recipe.title)
-        binding.etRecipeDescription.setText(recipe.simpleDescription)
-
-        recipe.ingredients?.forEach { addIngredientRow(it) }
-        recipe.tools?.forEach { addToolRow(it) }
-        recipe.steps?.let {
-            stepAdapter.setSteps(it)
-            binding.tvStepIndicator.text = "1 / ${it.size}"
-            updateArrowVisibility(0)
-        }
-    }
-
     private fun updateCategoryButtonText() {
         if (selectedCategories.isEmpty()) {
             binding.btnSelectCategory.text = "카테고리를 선택해주세요"
@@ -185,8 +282,7 @@ class RecipeEditActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
             thumbnailLauncher.launch(intent)
         }
-        binding.buttonAddIngredient.setOnClickListener { addIngredientRow(null) }
-        binding.buttonAddTool.setOnClickListener { addToolRow(null) }
+
         binding.buttonAddStep.setOnClickListener {
             stepAdapter.addStep()
             binding.viewPagerSteps.currentItem = stepAdapter.itemCount - 1
@@ -208,108 +304,6 @@ class RecipeEditActivity : AppCompatActivity() {
                 selectedCategories.clear()
                 selectedCategories.addAll(selected)
                 updateCategoryButtonText()
-            }
-        }
-    }
-
-    private fun addIngredientRow(ingredient: Ingredient?) {
-        val itemBinding = com.example.recipe_pocket.databinding.ItemIngredientBinding.inflate(layoutInflater, binding.ingredientsContainer, false)
-        val unitItems = resources.getStringArray(R.array.ingredient_units)
-        val unitAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, unitItems)
-        itemBinding.unitAutocompleteTextview.setAdapter(unitAdapter)
-
-        ingredient?.let {
-            itemBinding.a1.setText(it.name)
-            itemBinding.a2.setText(it.amount)
-            itemBinding.unitAutocompleteTextview.setText(it.unit, false)
-        }
-        itemBinding.deleteMaterial.setOnClickListener {
-            binding.ingredientsContainer.removeView(itemBinding.root)
-        }
-        binding.ingredientsContainer.addView(itemBinding.root)
-    }
-
-    private fun addToolRow(tool: String?) {
-        val itemBinding = com.example.recipe_pocket.databinding.ItemToolBinding.inflate(layoutInflater, binding.toolsContainer, false)
-        tool?.let { itemBinding.b1.setText(it) }
-        itemBinding.buttonDelete.setOnClickListener {
-            binding.toolsContainer.removeView(itemBinding.root)
-        }
-        binding.toolsContainer.addView(itemBinding.root)
-    }
-
-    private fun saveChanges() {
-        binding.btnSave.isEnabled = false
-        binding.btnSave.text = "저장 중..."
-
-        lifecycleScope.launch {
-            try {
-                val thumbnailUrl = if (thumbnailUri != null) {
-                    uploadImage(thumbnailUri, "recipe_images/${UUID.randomUUID()}").await()
-                } else {
-                    originalRecipe?.thumbnailUrl
-                }
-
-                val currentStepsData = stepAdapter.collectAllStepsData()
-                val stepImageUploadTasks = currentStepsData.mapIndexed { index, step ->
-                    val newUri = newStepImageUris[index]
-                    if (newUri != null) {
-                        uploadImage(newUri, "recipe_images/${UUID.randomUUID()}")
-                    } else {
-                        Tasks.forResult(step.imageUrl)
-                    }
-                }
-                val stepImageUrls = Tasks.whenAllSuccess<String?>(stepImageUploadTasks).await()
-
-                val ingredients = binding.ingredientsContainer.children.mapNotNull {
-                    val name = it.findViewById<EditText>(R.id.a1).text.toString()
-                    if (name.isBlank()) return@mapNotNull null
-                    Ingredient(
-                        name,
-                        it.findViewById<EditText>(R.id.a2).text.toString(),
-                        it.findViewById<AutoCompleteTextView>(R.id.unit_autocomplete_textview).text.toString()
-                    )
-                }.toList()
-
-                val tools = binding.toolsContainer.children.mapNotNull {
-                    val name = it.findViewById<EditText>(R.id.b1).text.toString()
-                    if (name.isBlank()) return@mapNotNull null
-                    name
-                }.toList()
-
-                val steps = currentStepsData.mapIndexed { index, stepData ->
-                    mapOf(
-                        "stepNumber" to (index + 1),
-                        "title" to stepData.title,
-                        "description" to stepData.description,
-                        "imageUrl" to (stepImageUrls.getOrNull(index) ?: ""),
-                        "time" to stepData.time,
-                        "useTimer" to stepData.useTimer
-                    )
-                }.toList()
-
-                val updatedData = mapOf(
-                    "title" to binding.etRecipeTitle.text.toString(),
-                    "simpleDescription" to binding.etRecipeDescription.text.toString(),
-                    "category" to selectedCategories,
-                    "thumbnailUrl" to (thumbnailUrl ?: ""),
-                    "ingredients" to ingredients.map { mapOf("name" to it.name, "amount" to it.amount, "unit" to it.unit) },
-                    "tools" to tools,
-                    "steps" to steps,
-                    "updatedAt" to Timestamp.now()
-                )
-
-                db.collection("Recipes").document(recipeId!!).update(updatedData).await()
-
-                Toast.makeText(this@RecipeEditActivity, "레시피가 수정되었습니다.", Toast.LENGTH_SHORT).show()
-                setResult(Activity.RESULT_OK, Intent())
-                finish()
-
-            } catch (e: Exception) {
-                Toast.makeText(this@RecipeEditActivity, "저장 실패: ${e.message}", Toast.LENGTH_LONG).show()
-            } finally {
-                binding.btnSave.isEnabled = true
-                binding.btnSave.text = "수정완료"
             }
         }
     }

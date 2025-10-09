@@ -5,34 +5,39 @@ import android.os.Build
 import android.os.Bundle
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
-import com.example.recipe_pocket.R
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.recipe_pocket.data.Ingredient
 import com.example.recipe_pocket.data.RecipeData
 import com.example.recipe_pocket.databinding.CookWrite02Binding
-import com.example.recipe_pocket.databinding.ItemIngredientBinding
-import com.example.recipe_pocket.databinding.ItemToolBinding
 
 class CookWrite02Activity : AppCompatActivity() {
 
     private lateinit var binding: CookWrite02Binding
     private var recipeData: RecipeData? = null
 
+    private lateinit var ingredientAdapter: IngredientAdapter
+    private lateinit var toolAdapter: ToolAdapter
+    private val ingredientsList = mutableListOf<Ingredient>()
+    private val toolsList = mutableListOf<String>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = CookWrite02Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        setupWindowInsets()
+        loadInitialData()
+        setupRecyclerViews()
+        setupClickListeners()
+    }
 
-        // Edge-to-edge 처리
+    private fun setupWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.CookWrite02Layout) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
@@ -42,7 +47,9 @@ class CookWrite02Activity : AppCompatActivity() {
             }
             WindowInsetsCompat.CONSUMED
         }
+    }
 
+    private fun loadInitialData() {
         recipeData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getSerializableExtra("recipe_data", RecipeData::class.java)
         } else {
@@ -56,65 +63,51 @@ class CookWrite02Activity : AppCompatActivity() {
             return
         }
 
-        setupClickListeners()
-        addIngredientRow()
-        addToolRow()
+        ingredientsList.clear()
+        if (recipeData!!.ingredients.isNotEmpty()) {
+            ingredientsList.addAll(recipeData!!.ingredients)
+        }
+        ingredientsList.add(Ingredient())
+
+        toolsList.clear()
+        if (recipeData!!.tools.isNotEmpty()) {
+            toolsList.addAll(recipeData!!.tools)
+        }
+        toolsList.add("")
     }
 
-    // ... (setupClickListeners, addIngredientRow, addToolRow, goToNextStep 로직은 이전과 동일)
+    private fun setupRecyclerViews() {
+        ingredientAdapter = IngredientAdapter(this, ingredientsList)
+        binding.rvIngredients.apply {
+            layoutManager = LinearLayoutManager(this@CookWrite02Activity)
+            adapter = ingredientAdapter
+            itemAnimator = null
+        }
+
+        toolAdapter = ToolAdapter(toolsList)
+        binding.rvTools.apply {
+            layoutManager = LinearLayoutManager(this@CookWrite02Activity)
+            adapter = toolAdapter
+            itemAnimator = null
+        }
+    }
+
     private fun setupClickListeners() {
         binding.ivBack.setOnClickListener { finish() }
         binding.btnTempSave.setOnClickListener {
             Toast.makeText(this, "임시저장 기능은 아직 지원되지 않습니다.", Toast.LENGTH_SHORT).show()
         }
-        binding.buttonAddIngredient.setOnClickListener { addIngredientRow() }
-        binding.buttonAddTool.setOnClickListener { addToolRow() }
         binding.btnNext.setOnClickListener { goToNextStep() }
     }
 
-    private fun addIngredientRow() {
-        val itemBinding = ItemIngredientBinding.inflate(layoutInflater, binding.ingredientsContainer, false)
-        val unitItems = resources.getStringArray(R.array.ingredient_units)
-        val unitAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, unitItems)
-        itemBinding.unitAutocompleteTextview.setAdapter(unitAdapter)
-        itemBinding.deleteMaterial.setOnClickListener {
-            binding.ingredientsContainer.removeView(itemBinding.root)
-        }
-        binding.ingredientsContainer.addView(itemBinding.root)
-    }
-
-    private fun addToolRow() {
-        val itemBinding = ItemToolBinding.inflate(layoutInflater, binding.toolsContainer, false)
-        itemBinding.buttonDelete.setOnClickListener {
-            binding.toolsContainer.removeView(itemBinding.root)
-        }
-        binding.toolsContainer.addView(itemBinding.root)
-    }
-
     private fun goToNextStep() {
-        val ingredients = mutableListOf<Ingredient>()
-        for (i in 0 until binding.ingredientsContainer.childCount) {
-            val view = binding.ingredientsContainer.getChildAt(i)
-            val name = view.findViewById<EditText>(R.id.a1).text.toString()
-            val amount = view.findViewById<EditText>(R.id.a2).text.toString()
-            val unit = view.findViewById<AutoCompleteTextView>(R.id.unit_autocomplete_textview).text.toString()
-            if (name.isNotBlank()) {
-                ingredients.add(Ingredient(name, amount, unit))
-            }
-        }
-
-        val tools = mutableListOf<String>()
-        for (i in 0 until binding.toolsContainer.childCount) {
-            val view = binding.toolsContainer.getChildAt(i)
-            val name = view.findViewById<EditText>(R.id.b1).text.toString()
-            if (name.isNotBlank()) {
-                tools.add(name)
-            }
-        }
+        val finalIngredients = ingredientsList.filter { !it.name.isNullOrBlank() }
+        val finalTools = toolsList.filter { it.isNotBlank() }
 
         recipeData?.let {
-            it.ingredients = ingredients
-            it.tools = tools
+            // [수정] 단위(unit) 필드를 null로 저장
+            it.ingredients = finalIngredients.map { ing -> Ingredient(ing.name, ing.amount, null) }
+            it.tools = finalTools
             val intent = Intent(this, CookWrite03Activity::class.java).apply {
                 putExtra("recipe_data", it)
             }

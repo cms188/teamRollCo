@@ -40,6 +40,7 @@ import com.example.recipe_pocket.ui.user.bookmark.BookmarkManager
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
@@ -209,28 +210,56 @@ class RecipeDetailActivity : AppCompatActivity() {
         }
     }
 
-    // 조회수 증가 처리
+    // [수정] 조회수 증가 로직 전체 변경
     private fun incrementViewCount(recipe: Recipe) {
         val currentUser = auth.currentUser ?: return // 비로그인 사용자는 조회수 증가 안 함
+        val userId = currentUser.uid
+        val recipeRef = firestore.collection("Recipes").document(recipe.id!!)
 
-        // 사용자가 이 레시피를 조회한 적이 있는지 확인
-        val hasViewed = recipe.viewedBy?.contains(currentUser.uid) == true
+        // 최근 본 레시피 목록에는 항상 저장
         saveToRecentlyViewed(recipe)
 
-        if (!hasViewed) {
-            val recipeRef = firestore.collection("Recipes").document(recipe.id!!)
-            recipeRef.update(
-                "viewCount", FieldValue.increment(1),
-                "viewedBy", FieldValue.arrayUnion(currentUser.uid)
-            ).addOnSuccessListener {
+        firestore.runTransaction { transaction ->
+            val snapshot = transaction.get(recipeRef)
+            // [수정] viewedBy 배열 대신 viewTimestamps 맵 사용
+            val viewTimestamps = snapshot.get("viewTimestamps") as? MutableMap<String, Timestamp> ?: mutableMapOf()
+            val lastViewedTimestamp = viewTimestamps[userId]
+
+            // 24시간 전 시간 계산
+            val twentyFourHoursAgo = Timestamp(Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000))
+
+            // 마지막으로 본 시간이 24시간 이전이거나, 본 기록이 없는 경우에만 조회수 증가
+            if (lastViewedTimestamp == null || lastViewedTimestamp.toDate().before(twentyFourHoursAgo.toDate())) {
+                // 1. 레시피 문서의 총 조회수(viewCount)와 마지막 조회시간 맵 업데이트
+                transaction.update(recipeRef, "viewCount", FieldValue.increment(1))
+                viewTimestamps[userId] = Timestamp.now()
+                transaction.update(recipeRef, "viewTimestamps", viewTimestamps)
+
+                // 2. 24시간 인기글 집계를 위한 별도 문서 생성
+                val statsRef = firestore.collection("recipeViewStats").document()
+                val viewStat = hashMapOf(
+                    "recipeId" to recipe.id,
+                    "userId" to userId,
+                    "viewedAt" to FieldValue.serverTimestamp()
+                )
+                transaction.set(statsRef, viewStat)
+
+                return@runTransaction true // 조회수 증가가 일어났음을 의미
+            }
+
+            return@runTransaction false // 조회수 증가가 일어나지 않았음을 의미
+        }.addOnSuccessListener { didIncrement ->
+            if (didIncrement) {
                 Log.d("ViewCount", "조회수 증가 성공")
                 // 로컬 데이터 및 UI 즉시 업데이트
                 val newViewCount = (recipe.viewCount ?: 0) + 1
                 currentRecipe?.viewCount = newViewCount
                 binding.tvViewCount.text = "조회수 ${"%,d".format(newViewCount)}"
-            }.addOnFailureListener { e ->
-                Log.w("ViewCount", "조회수 증가 실패", e)
+            } else {
+                Log.d("ViewCount", "24시간 이내에 이미 조회하여 조회수 유지.")
             }
+        }.addOnFailureListener { e ->
+            Log.w("ViewCount", "조회수 트랜잭션 실패", e)
         }
     }
 
