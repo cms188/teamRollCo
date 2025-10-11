@@ -1,43 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="match_parent"
-android:layout_height="50dp"
-android:layout_gravity="center"
-android:layout_margin="5dp"
-android:background="@drawable/bg_search_bar_orange_border"
-android:orientation="horizontal">
-
-<!-- 재료 입력칸 -->
-<LinearLayout
-    android:id="@+id/frameb"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
-    android:layout_weight="1"
-    android:background="@drawable/bg_search_bar_orange_border"
-    android:elevation="4dp"
-    android:orientation="horizontal">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="4dp">
 
     <EditText
-        android:id="@+id/b1"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="5dp"
-        android:hint="재료를 입력해주세요"
-        android:textColor="@color/black"
-        android:background="@drawable/bg_main_rounded_top_white"
-        android:textColorHint="#CCCCCC"
-        android:textSize="16dp"
+        android:id="@+id/et_tool_name"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_gray_rounded_light"
+        android:hint="조리도구"
+        android:inputType="text"
         android:maxLines="1"
-        android:singleLine="true"/>
+        android:paddingHorizontal="16dp"
+        android:textColorHint="@color/text_secondary"
+        android:textSize="14sp" />
 
-</LinearLayout>
-
-<ImageButton
-    android:id="@+id/button_delete"
-    android:layout_width="40dp"
-    android:layout_height="40dp"
-    android:src="@drawable/ic_close"
-    android:background="@color/white"
-    android:layout_margin="5dp"/>
+    <ImageButton
+        android:id="@+id/btn_delete_tool"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="삭제"
+        android:src="@drawable/ic_close"
+        app:tint="@color/text_secondary" />
 </LinearLayout>

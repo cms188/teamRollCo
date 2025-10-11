@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="ingredient_units">
-        <item>g</item>
-        <item>ml</item>
         <item>개</item>
-        <item>마리</item>
-        <item>술</item>
+        <item>g</item>
+        <item>kg</item>
+        <item>ml</item>
+        <item>L</item>
+        <item>T</item>
+        <item>t</item>
         <item>컵</item>
-        <item>통</item>
+        <item>직접 입력</item>
     </string-array>
 </resources>

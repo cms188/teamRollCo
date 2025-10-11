@@ -128,6 +128,10 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.review.PhotoViewActivity"
+            android:theme="@style/Theme.AppCompat.Transparent.NoActionBar" />
+
         <service
             android:name=".service.VoiceRecognitionService"
             android:enabled="true"

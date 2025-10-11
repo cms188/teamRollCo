@@ -21,11 +21,11 @@ data class RecipeData(
     var steps: List<RecipeStep_write> = emptyList()
 ) : Serializable
 
-// Ingredient 클래스 (변경 없음)
+// Ingredient 클래스
 data class Ingredient(
-    val name: String? = null,
-    val amount: String? = null,
-    val unit: String? = null
+    var name: String? = null,
+    var amount: String? = null,
+    var unit: String? = null
 ) : Serializable {
     constructor() : this(null, null, null)
 }

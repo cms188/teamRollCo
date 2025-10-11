@@ -4,12 +4,14 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.data.Review
 import com.example.recipe_pocket.databinding.CardRecipeReviewBinding
 import com.example.recipe_pocket.ui.recipe.read.RecipeDetailActivity
+import com.example.recipe_pocket.ui.user.UserFeedActivity
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -24,7 +26,6 @@ class ReviewAdapter(
         fun bind(review: Review) {
             val context = binding.root.context
             binding.textViewAuthorName.text = review.userNickname ?: "사용자"
-            //binding.textViewRatingScore.text = String.format("%.1f", review.rating)
             binding.textViewReviewComent.text = review.comment
 
             binding.tvRecipeTitleValue.setOnClickListener {
@@ -54,6 +55,25 @@ class ReviewAdapter(
             } else {
                 binding.tvRecipeTitleLabel.visibility = View.GONE
                 binding.tvRecipeTitleValue.visibility = View.GONE
+            }
+
+            if (review.imageUrls.isNullOrEmpty()) {
+                binding.rvReviewPhotos.visibility = View.GONE
+            } else {
+                binding.rvReviewPhotos.visibility = View.VISIBLE
+                binding.rvReviewPhotos.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+                binding.rvReviewPhotos.adapter = ReviewImageDisplayAdapter(review.imageUrls)
+            }
+
+            if (!review.userId.isNullOrBlank()) {
+                val profileClickListener = View.OnClickListener {
+                    val intent = Intent(context, UserFeedActivity::class.java).apply {
+                        putExtra(UserFeedActivity.EXTRA_USER_ID, review.userId)
+                    }
+                    context.startActivity(intent)
+                }
+                binding.imageViewProfile.setOnClickListener(profileClickListener)
+                binding.textViewAuthorName.setOnClickListener(profileClickListener)
             }
 
             onItemClick?.let {

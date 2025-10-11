@@ -3,6 +3,7 @@ package com.example.recipe_pocket.repository
 import android.util.Log
 import com.example.recipe_pocket.data.Recipe
 import com.example.recipe_pocket.data.User
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -14,6 +15,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
 import java.text.Normalizer
+import java.util.Calendar
 
 object RecipeLoader {
 
@@ -110,6 +112,91 @@ object RecipeLoader {
             }
             val filteredRecipes = filterRecipesByAllergies(recipes)
             Result.success(filteredRecipes)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // [수정] 24시간 내 조회수 기반 인기 레시피 로드 + 5개 보장 로직
+    suspend fun loadPopularRecipesByRecentViews(count: Int): Result<List<Recipe>> {
+        return try {
+            val calendar = Calendar.getInstance()
+            calendar.add(Calendar.HOUR, -24)
+            val twentyFourHoursAgo = Timestamp(calendar.time)
+
+            val statsSnapshot = db.collection("recipeViewStats")
+                .whereGreaterThan("viewedAt", twentyFourHoursAgo)
+                .get()
+                .await()
+
+            if (statsSnapshot.isEmpty) {
+                return loadMultipleRandomRecipesWithAuthor(count)
+            }
+
+            val viewCounts = statsSnapshot.documents
+                .mapNotNull { it.getString("recipeId") }
+                .groupingBy { it }
+                .eachCount()
+
+            val topRecipeIds = viewCounts.entries
+                .sortedByDescending { it.value }
+                .take(count)
+                .map { it.key }
+
+            if (topRecipeIds.isEmpty()) {
+                return loadMultipleRandomRecipesWithAuthor(count)
+            }
+
+            val recipesSnapshot = db.collection("Recipes")
+                .whereIn(com.google.firebase.firestore.FieldPath.documentId(), topRecipeIds)
+                .get()
+                .await()
+
+            val popularRecipes = coroutineScope {
+                recipesSnapshot.documents.map { doc ->
+                    async { enrichRecipeWithAuthor(doc) }
+                }.awaitAll().filterNotNull()
+            }
+
+            val sortedPopularRecipes = popularRecipes.sortedByDescending { recipe ->
+                viewCounts[recipe.id] ?: 0
+            }
+
+            var finalRecipes = sortedPopularRecipes
+            val remainingCount = count - finalRecipes.size
+            if (remainingCount > 0) {
+                val existingIds = finalRecipes.map { it.id }.toSet()
+                val randomFillerResult = loadMultipleRandomRecipesWithExclusion(remainingCount, existingIds)
+                randomFillerResult.onSuccess { fillerRecipes ->
+                    finalRecipes = finalRecipes + fillerRecipes
+                }
+            }
+
+            val filteredRecipes = filterRecipesByAllergies(finalRecipes)
+            Result.success(filteredRecipes)
+
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    // [추가] 특정 ID를 제외하고 랜덤 레시피를 가져오는 함수
+    private suspend fun loadMultipleRandomRecipesWithExclusion(count: Int, excludedIds: Set<String?>): Result<List<Recipe>> {
+        return try {
+            val recipeQueryResult = db.collection("Recipes").get().await()
+            if (recipeQueryResult.isEmpty) return Result.success(emptyList())
+
+            val availableDocuments = recipeQueryResult.documents.filterNot { excludedIds.contains(it.id) }
+            val recipesToFetchCount = minOf(count, availableDocuments.size)
+            val randomDocuments = availableDocuments.shuffled().take(recipesToFetchCount)
+
+            val recipes = coroutineScope {
+                randomDocuments.map { doc ->
+                    async { enrichRecipeWithAuthor(doc) }
+                }.awaitAll().filterNotNull()
+            }
+            // 이 함수 내부에서는 알레르기 필터링을 하지 않음 (상위 함수에서 최종적으로 처리)
+            Result.success(recipes)
         } catch (e: Exception) {
             Result.failure(e)
         }
