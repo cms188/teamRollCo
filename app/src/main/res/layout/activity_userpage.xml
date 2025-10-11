@@ -294,7 +294,7 @@
                             style="@style/UserPageMenuButton">
                             <ImageView style="@style/UserPageMenuIcon"
                                 android:src="@drawable/ic_like"
-                                app:tint="#F46659"/>
+                                app:tint="@color/orange"/>
                             <TextView style="@style/UserPageMenuText"
                                 android:text="좋아요"
                                 android:textColor="@color/text_secondary"/>
@@ -342,7 +342,7 @@
                             style="@style/UserPageMenuButton">
                             <ImageView style="@style/UserPageMenuIcon"
                                 android:src="@drawable/ic_thumb_up_outline"
-                                app:tint="#F46659"/>
+                                app:tint="@color/orange"/>
                             <TextView style="@style/UserPageMenuText"
                                 android:text="좋아요한 팁"
                                 android:textColor="@color/text_secondary"
