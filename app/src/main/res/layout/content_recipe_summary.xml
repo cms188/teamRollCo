@@ -131,7 +131,7 @@
 
     </LinearLayout>
 
-    <Button
+   <!-- <Button
         android:id="@+id/btn_start_cooking"
         android:layout_width="match_parent"
         android:layout_height="60dp"
@@ -145,6 +145,6 @@
         android:layout_marginHorizontal="16dp"
         app:cornerRadius="16dp"
         android:includeFontPadding="false"
-        android:gravity="center"/>
+        android:gravity="center"/>-->
 </LinearLayout>
 
