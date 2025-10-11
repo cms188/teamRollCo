@@ -108,7 +108,7 @@
                             android:includeFontPadding="false"
                             android:textColor="@color/text_sub"
                             android:textSize="13sp"
-                            tools:text="2025.01.01" />
+                            tools:text="2024.01.01" />
 
                         <!-- 구분선 -->
                         <View
@@ -126,7 +126,7 @@
                             android:includeFontPadding="false"
                             android:textColor="@color/text_sub"
                             android:textSize="13sp"
-                            tools:text="조회수 0" />
+                            tools:text="조회수 1,234" />
                     </LinearLayout>
 
                     <!-- 통계 -->
@@ -225,7 +225,7 @@
                                     android:layout_height="wrap_content"
                                     android:fontFamily="@font/notosans_bold"
                                     android:includeFontPadding="false"
-                                    android:text="쉬움"
+                                    android:text="보통"
                                     android:textColor="@color/text_primary"
                                     android:textSize="14sp" />
 
@@ -271,7 +271,7 @@
                                     android:layout_height="wrap_content"
                                     android:fontFamily="@font/notosans_bold"
                                     android:includeFontPadding="false"
-                                    android:text="0.0"
+                                    android:text="4.5"
                                     android:textColor="@color/text_primary"
                                     android:textSize="14sp" />
 
@@ -361,7 +361,7 @@
                                         android:layout_height="wrap_content"
                                         android:fontFamily="@font/notosans_medium"
                                         android:includeFontPadding="false"
-                                        android:text="0"
+                                        android:text="1,234"
                                         android:textColor="@color/text_sub"
                                         android:textSize="12sp" />
                                 </LinearLayout>
@@ -478,7 +478,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="24dp"
-                    android:paddingBottom="32dp">
+                    android:paddingBottom="100dp">
 
                     <!-- 요약 내용 -->
                     <LinearLayout
@@ -496,7 +496,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:visibility="gone">
+                        android:visibility="visible">
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/recyclerView_reviews"
@@ -573,7 +573,7 @@
     </androidx.cardview.widget.CardView>
 
 
-    <!--&lt;!&ndash; 요리하기 버튼 &ndash;&gt;
+    <!-- 요리하기 버튼 -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -600,6 +600,6 @@
             tools:visibility="visible"
             tools:targetApi="28" />
 
-    </FrameLayout>-->
+    </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
