@@ -2,21 +2,15 @@ package com.example.recipe_pocket.ui.recipe.write
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.data.RecipeData
 import com.example.recipe_pocket.databinding.CookWrite01Binding
@@ -46,7 +40,13 @@ class CookWrite01Activity : AppCompatActivity() {
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
-        setupWindowInsets()
+        utils.ToolbarUtils.setupWriteToolbar(this, "",
+            onTempSaveClicked = {
+                Toast.makeText(this, "임시저장 기능은 아직 지원되지 않습니다.", Toast.LENGTH_SHORT).show()
+            },
+            onSaveClicked = { }
+        )
+
         setupCategorySelectionResultListener()
         setupClickListeners()
         updateServingsText()
@@ -54,27 +54,7 @@ class CookWrite01Activity : AppCompatActivity() {
         updateCategoryButtonText() // 초기 텍스트 설정
     }
 
-    private fun setupWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.CookWrite01Layout) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = insets.left
-                bottomMargin = insets.bottom
-                rightMargin = insets.right
-            }
-            WindowInsetsCompat.CONSUMED
-        }
-    }
-
     private fun setupClickListeners() {
-        binding.ivBack.setOnClickListener {
-            finish()
-        }
-
-        binding.btnTempSave.setOnClickListener {
-            Toast.makeText(this, "임시저장 기능은 아직 지원되지 않습니다.", Toast.LENGTH_SHORT).show()
-        }
-
         binding.ivRepresentativePhoto.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK).apply {
                 type = "image/*"

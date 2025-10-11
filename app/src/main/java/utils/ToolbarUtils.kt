@@ -17,6 +17,7 @@ import com.example.recipe_pocket.ui.main.MainActivity
 
 object ToolbarUtils {
 
+    // 기본 툴바
     fun setupTransparentToolbar(
         activity: Activity,
         title: String = "",
@@ -27,6 +28,30 @@ object ToolbarUtils {
         onEditClicked: (() -> Unit)? = null,
         onDeleteClicked: (() -> Unit)? = null
     ) {
+        setupCommonToolbar(activity, title, onBackPressed, navigateToMainActivity)
+        setupActionButtons(activity, showEditButton, showDeleteButton, onEditClicked, onDeleteClicked)
+    }
+
+    // 글쓰기 툴바
+    fun setupWriteToolbar(
+        activity: Activity,
+        title: String = "",
+        onBackPressed: (() -> Unit)? = null,
+        navigateToMainActivity: Boolean = false,
+        onTempSaveClicked: (() -> Unit)? = null,
+        onSaveClicked: (() -> Unit)? = null
+    ) {
+        setupCommonToolbar(activity, title, onBackPressed, navigateToMainActivity)
+        setupWriteButtons(activity, onTempSaveClicked, onSaveClicked)
+    }
+
+    // 공통 툴바 설정
+    private fun setupCommonToolbar(
+        activity: Activity,
+        title: String,
+        onBackPressed: (() -> Unit)?,
+        navigateToMainActivity: Boolean
+    ) {
         // 상태바 색
         activity.window.statusBarColor = Color.TRANSPARENT
         // 상태표시줄 텍스트 색상 (어두운 배경이면 false, 밝은 배경이면 true)
@@ -34,13 +59,10 @@ object ToolbarUtils {
 
         // 툴바 표시 텍스트 설정
         val toolbarTitle = activity.findViewById<TextView>(R.id.toolbar_title)
-        toolbarTitle.text = title
+        toolbarTitle?.text = title
 
         // 뒤로가기 버튼 설정
         setupBackButton(activity, onBackPressed, navigateToMainActivity)
-
-        // 수정/삭제 버튼 설정
-        setupActionButtons(activity, showEditButton, showDeleteButton, onEditClicked, onDeleteClicked)
 
         // 툴바 상태바 높이만큼 보정
         val toolbar = activity.findViewById<Toolbar>(R.id.toolbar)
@@ -54,8 +76,8 @@ object ToolbarUtils {
         }
     }
 
-    // 스크롤 리스너 설정 메서드
-    private fun setupScrollListener(activity: Activity, scrollView: androidx.core.widget.NestedScrollView) {
+    // 스크롤 리스너 설정 (배경 페이드 효과)
+    fun setupScrollListener(activity: Activity, scrollView: androidx.core.widget.NestedScrollView) {
         val backButtonCard = activity.findViewById<androidx.cardview.widget.CardView>(R.id.back_button_card)
 
         scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
@@ -78,14 +100,17 @@ object ToolbarUtils {
         }
     }
 
-    // 뒤로가기 버튼 설정 메서드
-    private fun setupBackButton(activity: Activity, onBackPressed: (() -> Unit)? = null, navigateToMainActivity: Boolean = false) {
+    // 뒤로가기 버튼
+    private fun setupBackButton(
+        activity: Activity,
+        onBackPressed: (() -> Unit)?,
+        navigateToMainActivity: Boolean
+    ) {
         val backButton = activity.findViewById<ImageButton>(R.id.back_button)
         backButton?.setOnClickListener {
             when {
                 onBackPressed != null -> onBackPressed.invoke()
                 navigateToMainActivity -> {
-                    // MainActivity로 이동
                     val intent = Intent(activity, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     activity.startActivity(intent)
@@ -95,7 +120,7 @@ object ToolbarUtils {
         }
     }
 
-    // 액션 버튼들(수정/삭제) 설정 메서드
+    // 기본 액션 버튼들 설정 (수정/삭제)
     private fun setupActionButtons(
         activity: Activity,
         showEditButton: Boolean,
@@ -103,7 +128,7 @@ object ToolbarUtils {
         onEditClicked: (() -> Unit)?,
         onDeleteClicked: (() -> Unit)?
     ) {
-        // 수정 버튼 설정
+        // 수정 버튼
         val editButtonCard = activity.findViewById<androidx.cardview.widget.CardView>(R.id.edit_button_card)
         val editButton = activity.findViewById<ImageButton>(R.id.edit_button)
 
@@ -114,7 +139,7 @@ object ToolbarUtils {
             editButtonCard?.visibility = View.GONE
         }
 
-        // 삭제 버튼 설정
+        // 삭제 버튼
         val deleteButtonCard = activity.findViewById<androidx.cardview.widget.CardView>(R.id.delete_button_card)
         val deleteButton = activity.findViewById<ImageButton>(R.id.delete_button)
 
@@ -124,5 +149,20 @@ object ToolbarUtils {
         } else {
             deleteButtonCard?.visibility = View.GONE
         }
+    }
+
+    // 작성 버튼들 설정 (임시저장/등록)
+    private fun setupWriteButtons(
+        activity: Activity,
+        onTempSaveClicked: (() -> Unit)?,
+        onSaveClicked: (() -> Unit)?
+    ) {
+        // 임시저장 버튼
+        val tempSaveButton = activity.findViewById<TextView>(R.id.btn_temp_save)
+        tempSaveButton?.setOnClickListener { onTempSaveClicked?.invoke() }
+
+        // 등록 버튼
+        val saveButton = activity.findViewById<TextView>(R.id.btn_save)
+        saveButton?.setOnClickListener { onSaveClicked?.invoke() }
     }
 }
