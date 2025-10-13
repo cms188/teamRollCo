@@ -1,4 +1,4 @@
-package com.example.recipe_pocket.ai
+    package com.example.recipe_pocket.ai
 
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -18,7 +18,8 @@ data class PromptFeedback(val blockReason: String?)
 
 // Retrofit 서비스 인터페이스
 interface GeminiApiService {
-    @POST("v1beta/models/gemini-2.5-flash-lite:generateContent")
+    //@POST("v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent") //Lite 대비 정확하지만 느림
+    @POST("v1beta/models/gemini-2.5-flash-lite-preview-09-2025:generateContent") //빠르지만 부정확함
     suspend fun generateContent(
         @Query("key") apiKey: String,
         @Body request: GeminiRequest

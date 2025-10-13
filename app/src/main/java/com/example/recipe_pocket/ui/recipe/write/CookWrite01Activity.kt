@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.WindowManager
 import android.widget.NumberPicker
 import android.widget.TextView
@@ -11,6 +12,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.data.RecipeData
 import com.example.recipe_pocket.databinding.CookWrite01Binding
@@ -29,6 +31,7 @@ class CookWrite01Activity : AppCompatActivity() {
             result.data?.data?.let {
                 recipeData.thumbnailUrl = it.toString()
                 binding.ivRepresentativePhoto.setImageURI(it)
+                binding.ivRepresentativePhoto.visibility = View.VISIBLE
             }
         }
     }
@@ -55,7 +58,7 @@ class CookWrite01Activity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        binding.ivRepresentativePhoto.setOnClickListener {
+        binding.representativePhotoFrameLayout.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK).apply {
                 type = "image/*"
             }
