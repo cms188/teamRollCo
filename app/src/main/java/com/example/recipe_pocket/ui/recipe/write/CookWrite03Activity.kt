@@ -11,6 +11,7 @@ import android.view.WindowManager
 import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -55,23 +56,26 @@ class CookWrite03Activity : AppCompatActivity() {
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.CookWrite03Layout) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = insets.left
-                bottomMargin = insets.bottom
-                rightMargin = insets.right
-            }
-            WindowInsetsCompat.CONSUMED
-        }
-
         (intent.getSerializableExtra("recipe_data") as? RecipeData)?.let {
             viewModel.setInitialRecipeData(it)
         }
 
+        setupToolbar()
         setupViewPager()
         setupClickListeners()
         observeViewModel()
+    }
+
+    private fun setupToolbar() {
+        utils.ToolbarUtils.setupWriteToolbar(
+            this, "조리 과정",
+            onTempSaveClicked = {
+                Toast.makeText(this, "임시저장 기능은 아직 지원되지 않습니다.", Toast.LENGTH_SHORT).show()
+            },
+            onSaveClicked = {
+                saveRecipe()
+            }
+        )
     }
 
     private fun setupViewPager() {
@@ -97,10 +101,6 @@ class CookWrite03Activity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        binding.ivBack.setOnClickListener { finish() }
-        binding.btnTempSave.setOnClickListener {
-            Toast.makeText(this, "임시저장 기능은 아직 지원되지 않습니다.", Toast.LENGTH_SHORT).show()
-        }
         binding.ivPrevStep.setOnClickListener {
             binding.viewPagerSteps.currentItem -= 1
         }
@@ -113,15 +113,13 @@ class CookWrite03Activity : AppCompatActivity() {
                 viewModel.removeStepAt(binding.viewPagerSteps.currentItem)
             }
         }
-        binding.btnSave.setOnClickListener {
-            saveRecipe()
-        }
     }
+
 
     private fun updateIndicators(currentPage: Int) {
         val size = viewModel.steps.value?.size ?: 0
-        val container = binding.topBarContainer.findViewById<LinearLayout>(R.id.step_indicator_container)
-        val scrollView = binding.topBarContainer.findViewById<HorizontalScrollView>(R.id.step_indicator_scroll_view)
+        val container = binding.stepIndicatorContainer
+        val scrollView = binding.stepIndicatorScrollView
 
         container.removeAllViews()
         var currentStepView: View? = null
@@ -179,36 +177,33 @@ class CookWrite03Activity : AppCompatActivity() {
             return
         }
 
-        binding.btnSave.isEnabled = false
-        binding.btnSave.text = "태그 생성 중..."
+        val saveButton = findViewById<TextView>(R.id.btn_save)
+        saveButton.isEnabled = false
+        saveButton.text = "태그 생성 중..."
 
-        // AI 태그 생성을 위해 레시피 정보를 조합
         val recipeContentForAI = """
             - 레시피 제목: ${recipeData.title}
             - 간단한 설명: ${recipeData.description}
             - 주요 재료: ${recipeData.ingredients.joinToString(", ") { it.name ?: "" }}
         """.trimIndent()
 
-        // 코루틴을 사용하여 비동기로 API 호출
         lifecycleScope.launch {
             val tagResult = AITagGenerator.generateTags(recipeContentForAI)
 
             tagResult.onSuccess { generatedTags ->
-                // 태그 생성 성공 시, 이미지 업로드 및 최종 저장 단계로 진행
                 uploadRecipeAndSave(recipeData, generatedTags)
             }.onFailure { exception ->
-                // 태그 생성 실패 시, 사용자에게 알림
                 Log.e("AITagGenerator", "태그 생성 실패", exception)
                 Toast.makeText(this@CookWrite03Activity, "AI 태그 생성에 실패했습니다. 레시피는 태그 없이 저장됩니다.", Toast.LENGTH_LONG).show()
-                // 실패하더라도 레시피 저장은 계속 진행 (태그는 비어있음)
                 uploadRecipeAndSave(recipeData, emptySet())
             }
         }
     }
 
     private fun uploadRecipeAndSave(data: RecipeData, tags: Set<String>) {
-        binding.btnSave.isEnabled = false
-        binding.btnSave.text = "저장 중..."
+        val saveButton = findViewById<TextView>(R.id.btn_save)
+        saveButton.isEnabled = false
+        saveButton.text = "저장 중..."
 
         val thumbnailUploadTask = uploadImage(data.thumbnailUrl)
 
@@ -244,19 +239,16 @@ class CookWrite03Activity : AppCompatActivity() {
 
                 db.collection("Recipes").add(firestoreMap)
                     .addOnSuccessListener {
-                        // 레시피 저장 성공 후, 사용자 문서 업데이트
                         val userRef = db.collection("Users").document(auth.currentUser!!.uid)
                         userRef.update("recipeCount", FieldValue.increment(1))
                             .addOnSuccessListener {
                                 Log.d("RecipeSave", "recipeCount 업데이트 성공")
-                                // 칭호 획득 조건 확인
                                 checkAndGrantTitle(userRef)
                             }
                             .addOnFailureListener { e ->
                                 Log.w("RecipeSave", "recipeCount 업데이트 실패", e)
                             }
 
-                        // 메인 화면으로 이동
                         val intent = Intent(this, MainActivity::class.java).apply {
                             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         }
@@ -264,49 +256,38 @@ class CookWrite03Activity : AppCompatActivity() {
                     }
                     .addOnFailureListener { e ->
                         Toast.makeText(this, "데이터 저장 실패: ${e.message}", Toast.LENGTH_SHORT).show()
-                        binding.btnSave.isEnabled = true
-                        binding.btnSave.text = "저장"
+                        saveButton.isEnabled = true
+                        saveButton.text = "등록"
                     }
             }.addOnFailureListener { e ->
                 Toast.makeText(this, "단계 이미지 업로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
-                binding.btnSave.isEnabled = true
-                binding.btnSave.text = "저장"
+                saveButton.isEnabled = true
+                saveButton.text = "등록"
             }
         }.addOnFailureListener { e ->
             Toast.makeText(this, "대표 이미지 업로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
-            binding.btnSave.isEnabled = true
-            binding.btnSave.text = "저장"
+            saveButton.isEnabled = true
+            saveButton.text = "등록"
         }
     }
 
-    /**
-     * 칭호 획득 조건을 확인하고, 조건 충족 시 칭호를 부여하는 함수
-     * @param userRef 현재 사용자의 Firestore 문서 참조
-     */
     private fun checkAndGrantTitle(userRef: DocumentReference) {
         userRef.get().addOnSuccessListener { document ->
             if (document.exists()) {
                 val currentCount = document.getLong("recipeCount") ?: 0
                 var newTitle: String? = null
 
-                // =======================================================
-                // ▼▼▼ 칭호 조건과 종류는 여기에서 수정합니다 ▼▼▼
-                // =======================================================
                 when (currentCount) {
                     3L -> newTitle = "새싹 요리사"
                     10L -> newTitle = "우리집 요리사"
                     25L -> newTitle = "요리 장인"
                     50L -> newTitle = "레시피 마스터"
                 }
-                // =======================================================
 
                 if (newTitle != null) {
-                    // 획득한 칭호 목록(unlockedTitles)에 중복되지 않게 추가
                     userRef.update("unlockedTitles", FieldValue.arrayUnion(newTitle))
                         .addOnSuccessListener {
                             Toast.makeText(applicationContext, "'$newTitle' 칭호를 획득했습니다!", Toast.LENGTH_LONG).show()
-
-                            // 칭호 획득 알림 생성
                             lifecycleScope.launch {
                                 auth.currentUser?.uid?.let { userId ->
                                     NotificationHandler.createTitleNotification(userId, newTitle)

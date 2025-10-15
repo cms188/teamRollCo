@@ -28,25 +28,17 @@ class NotificationActivity : AppCompatActivity() {
 
     private val auth = Firebase.auth
     private val db = Firebase.firestore
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityNotificationBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setupToolbar()
         setupRecyclerViews()
+        utils.ToolbarUtils.setupTransparentToolbar(this, "알림 목록")
     }
 
     override fun onResume() {
         super.onResume()
         loadNotifications()
-    }
-
-    private fun setupToolbar() {
-        binding.ivBackButton.setOnClickListener {
-            setResult(Activity.RESULT_OK)
-            finish()
-        }
     }
 
     override fun onBackPressed() {

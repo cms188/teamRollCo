@@ -8,58 +8,16 @@
     android:background="@color/white">
 
     <!-- 상단 고정 툴바 부분 -->
-    <LinearLayout
-        android:id="@+id/top_bar_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:background="@color/search_color" />
-
-        <LinearLayout
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="@drawable/bg_search_top"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp">
-
-            <ImageView
-                android:id="@+id/iv_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_arrow_back" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/btn_temp_save"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/bg_gray_rounded"
-                android:gravity="center"
-                android:paddingHorizontal="12dp"
-                android:text="임시저장"
-                android:textColor="#333333"
-                android:textSize="14sp" />
-        </LinearLayout>
-    </LinearLayout>
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_write" />
 
     <!-- 스크롤 가능한 메인 컨텐츠 -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/btn_next_container"
-        android:layout_below="@id/top_bar_container"
+        android:layout_below="@id/toolbar"
         android:fillViewport="true">
 
         <LinearLayout

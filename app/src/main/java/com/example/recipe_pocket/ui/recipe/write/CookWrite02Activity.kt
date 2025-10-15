@@ -31,22 +31,9 @@ class CookWrite02Activity : AppCompatActivity() {
         setContentView(binding.root)
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        setupWindowInsets()
         loadInitialData()
         setupRecyclerViews()
-        setupClickListeners()
-    }
-
-    private fun setupWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.CookWrite02Layout) { v, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = insets.left
-                bottomMargin = insets.bottom
-                rightMargin = insets.right
-            }
-            WindowInsetsCompat.CONSUMED
-        }
+        setupToolbarAndListeners()
     }
 
     private fun loadInitialData() {
@@ -92,11 +79,14 @@ class CookWrite02Activity : AppCompatActivity() {
         }
     }
 
-    private fun setupClickListeners() {
-        binding.ivBack.setOnClickListener { finish() }
-        binding.btnTempSave.setOnClickListener {
-            Toast.makeText(this, "임시저장 기능은 아직 지원되지 않습니다.", Toast.LENGTH_SHORT).show()
-        }
+    private fun setupToolbarAndListeners() {
+        utils.ToolbarUtils.setupWriteToolbar(this, "",
+            onTempSaveClicked = {
+                Toast.makeText(this, "임시저장 기능은 아직 지원되지 않습니다.", Toast.LENGTH_SHORT).show()
+            },
+            onSaveClicked = { }
+        )
+
         binding.btnNext.setOnClickListener { goToNextStep() }
     }
 
@@ -105,7 +95,6 @@ class CookWrite02Activity : AppCompatActivity() {
         val finalTools = toolsList.filter { it.isNotBlank() }
 
         recipeData?.let {
-            // [수정] 단위(unit) 필드를 null로 저장
             it.ingredients = finalIngredients.map { ing -> Ingredient(ing.name, ing.amount, null) }
             it.tools = finalTools
             val intent = Intent(this, CookWrite03Activity::class.java).apply {
