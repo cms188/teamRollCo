@@ -116,20 +116,10 @@ class RecipeDetailActivity : AppCompatActivity() {
         binding.btnPageSummary.isChecked = true
         currentTab = 0
 
-        // 툴바 초기 설정
-        utils.ToolbarUtils.setupTransparentToolbar(
-            this, "", showEditButton = true, showDeleteButton = true,
-            onEditClicked = {
-                // 수정 버튼 클릭 시 처리
-                val intent =
-                    Intent(this, RecipeEditActivity::class.java).putExtra("RECIPE_ID", recipeId)
-                resultLauncher.launch(intent)
-            },
-            onDeleteClicked = {
-                // 삭제 버튼 클릭 시 처리
-                showDeleteConfirmationDialog()
-            }
-        )
+        // 툴바 설정
+        binding.toolbar.toolbarTitle.text = ""
+        binding.toolbar.backButton.setOnClickListener { finish() }
+
 
         // 리사이클러뷰 설정
         binding.recyclerViewReviews.apply {
@@ -210,7 +200,6 @@ class RecipeDetailActivity : AppCompatActivity() {
         }
     }
 
-    // [수정] 조회수 증가 로직 전체 변경
     private fun incrementViewCount(recipe: Recipe) {
         val currentUser = auth.currentUser ?: return // 비로그인 사용자는 조회수 증가 안 함
         val userId = currentUser.uid
@@ -221,7 +210,6 @@ class RecipeDetailActivity : AppCompatActivity() {
 
         firestore.runTransaction { transaction ->
             val snapshot = transaction.get(recipeRef)
-            // [수정] viewedBy 배열 대신 viewTimestamps 맵 사용
             val viewTimestamps = snapshot.get("viewTimestamps") as? MutableMap<String, Timestamp> ?: mutableMapOf()
             val lastViewedTimestamp = viewTimestamps[userId]
 
@@ -361,16 +349,14 @@ class RecipeDetailActivity : AppCompatActivity() {
 
     private fun setupInteractionButtons(recipe: Recipe) {
         val currentUser = auth.currentUser
-        val editDeleteContainer = binding.toolbar.root.findViewById<LinearLayout>(R.id.edit_delete_container_toolbar)
-        val btnEditRecipe = binding.toolbar.root.findViewById<View>(R.id.btn_edit_recipe_toolbar)
-        val btnDeleteRecipe = binding.toolbar.root.findViewById<View>(R.id.btn_delete_recipe_toolbar)
+        val editDeleteContainer = binding.toolbar.editDeleteContainerToolbar
         if (currentUser != null && currentUser.uid == recipe.userId) {
             editDeleteContainer.visibility = View.VISIBLE
-            btnEditRecipe.setOnClickListener {
+            binding.toolbar.btnEditRecipeToolbar.setOnClickListener {
                 val intent = Intent(this, RecipeEditActivity::class.java).putExtra("RECIPE_ID", recipeId)
                 resultLauncher.launch(intent)
             }
-            btnDeleteRecipe.setOnClickListener { showDeleteConfirmationDialog() }
+            binding.toolbar.btnDeleteRecipeToolbar.setOnClickListener { showDeleteConfirmationDialog() }
         } else {
             editDeleteContainer.visibility = View.GONE
         }

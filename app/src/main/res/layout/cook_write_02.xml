@@ -46,13 +46,11 @@
                         android:layout_marginBottom="12dp"
                         android:text="재료" />
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv_ingredients"
+                    <LinearLayout
+                        android:id="@+id/ingredients_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false"
-                        tools:itemCount="3"
-                        tools:listitem="@layout/item_ingredient" />
+                        android:orientation="vertical" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -76,13 +74,11 @@
                         android:layout_marginBottom="12dp"
                         android:text="조리 도구" />
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv_tools"
+                    <LinearLayout
+                        android:id="@+id/tools_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false"
-                        tools:itemCount="2"
-                        tools:listitem="@layout/item_tool" />
+                        android:orientation="vertical" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
