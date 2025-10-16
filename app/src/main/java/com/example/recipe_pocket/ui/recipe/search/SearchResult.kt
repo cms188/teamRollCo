@@ -102,7 +102,7 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
     }
 
     private fun setupBackButton() {
-        binding.ivBackButton.setOnClickListener {
+        binding.backButton.setOnClickListener {
             finish()
         }
     }

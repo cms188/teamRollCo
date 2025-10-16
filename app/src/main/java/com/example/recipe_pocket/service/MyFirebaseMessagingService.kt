@@ -40,7 +40,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         super.onMessageReceived(remoteMessage)
         Log.d(TAG, "FCM 메시지 수신: From: ${remoteMessage.from}")
 
-        // 데이터 메시지가 있는지 확인 (서버에서 'data' 페이로드로 보내야 함)
+        // 1. 전체 알림 설정이 꺼져 있으면, 어떤 종류의 알림이든 무시하고 즉시 종료합니다.
+        if (!NotificationPrefsManager.isAllNotificationsEnabled(this)) {
+            Log.d(TAG, "전체 알림이 비활성화되어 있어 모든 푸시 알림을 무시합니다.")
+            return
+        }
+
+        // 2. data 페이로드가 있는지 확인 (서버는 반드시 data 페이로드로 보내야 합니다)
         if (remoteMessage.data.isNotEmpty()) {
             Log.d(TAG, "데이터 메시지 페이로드: " + remoteMessage.data)
 
@@ -48,28 +54,34 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             val body = remoteMessage.data["body"]
             val typeString = remoteMessage.data["type"] // 서버에서 알림 종류(예: LIKE, REVIEW)를 보내줘야 함
 
-            if (title.isNullOrBlank() || body.isNullOrBlank() || typeString.isNullOrBlank()) {
-                Log.w(TAG, "데이터 메시지에 title, body, or type이 누락되었습니다.")
+            if (title.isNullOrBlank() || body.isNullOrBlank()) {
+                Log.w(TAG, "데이터 메시지에 title 또는 body가 누락되었습니다.")
                 return
             }
 
+            // 3. 알림 타입('type')이 없는 경우, 개별 설정을 확인할 수 없으므로 알림을 표시합니다.
+            if (typeString.isNullOrBlank()) {
+                Log.d(TAG, "메시지에 'type'이 없어 개별 설정을 건너뛰고 알림을 표시합니다.")
+                showNotification(title, body)
+                return
+            }
+
+            // 4. 알림 타입이 있는 경우, 해당 타입의 개별 설정을 확인합니다.
             try {
                 val notificationType = NotificationType.valueOf(typeString.uppercase())
 
-                // 사용자가 해당 종류의 알림을 받도록 설정했는지 확인
                 if (NotificationPrefsManager.isNotificationEnabled(this, notificationType)) {
-                    Log.d(TAG, "${notificationType.name} 타입 알림이 활성화되어 있어 알림을 표시합니다.")
+                    Log.d(TAG, "'${notificationType.name}' 타입 알림이 활성화되어 있어 알림을 표시합니다.")
                     showNotification(title, body)
                 } else {
-                    Log.d(TAG, "${notificationType.name} 타입 알림이 비활성화되어 있어 알림을 표시하지 않습니다.")
+                    Log.d(TAG, "'${notificationType.name}' 타입 알림이 비활성화되어 있어 알림을 표시하지 않습니다.")
                 }
             } catch (e: IllegalArgumentException) {
                 Log.e(TAG, "알 수 없는 알림 타입입니다: $typeString", e)
             }
 
         } else if (remoteMessage.notification != null) {
-            // 데이터 메시지가 아닌 알림 메시지인 경우 (기존 방식, 설정 적용 불가)
-            Log.d(TAG, "알림 메시지 수신: ${remoteMessage.notification?.body}")
+            Log.w(TAG, "알림 메시지 수신: ${remoteMessage.notification?.body}. 'data' 페이로드를 사용해야 설정이 적용됩니다.")
             showNotification(remoteMessage.notification?.title, remoteMessage.notification?.body)
         }
     }
@@ -120,7 +132,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val currentUser = Firebase.auth.currentUser
         if (currentUser != null) {
             val userDocRef = Firebase.firestore.collection("Users").document(currentUser.uid)
-            // 여러 기기에서 로그인할 수 있으므로, 토큰을 배열에 추가/관리하는 것이 좋습니다.
             userDocRef.update("fcmTokens", FieldValue.arrayUnion(token))
                 .addOnSuccessListener { Log.d(TAG, "FCM 토큰이 Firestore에 성공적으로 업데이트되었습니다.") }
                 .addOnFailureListener { e -> Log.w(TAG, "FCM 토큰 업데이트 실패", e) }

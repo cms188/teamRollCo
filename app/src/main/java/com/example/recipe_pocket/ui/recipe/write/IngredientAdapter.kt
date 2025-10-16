@@ -28,7 +28,6 @@ class IngredientAdapter(
             binding.etIngredientName.setText(ingredient.name)
             binding.etIngredientAmount.setText(ingredient.amount)
 
-            // [핵심 수정 1] 포커스 리스너로 자동 추가 로직 변경
             binding.etIngredientName.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
                 if (hasFocus && adapterPosition == ingredients.size - 1) {
                     ingredients.add(Ingredient())
@@ -37,18 +36,17 @@ class IngredientAdapter(
                 }
             }
 
-            // [핵심 수정 2] 삭제는 X 버튼으로만
+            // 삭제는 X 버튼으로만
             binding.btnDeleteIngredient.setOnClickListener {
-                if (adapterPosition != RecyclerView.NO_POSITION) {
+                if (adapterPosition != RecyclerView.NO_POSITION && ingredients.size > 1) {
                     ingredients.removeAt(adapterPosition)
                     notifyItemRemoved(adapterPosition)
-                    notifyItemRangeChanged(adapterPosition, ingredients.size)
                 }
             }
+
             // 마지막 빈 칸에서는 삭제 버튼 숨기기
             binding.btnDeleteIngredient.visibility = if (position < ingredients.size - 1) View.VISIBLE else View.INVISIBLE
 
-            // TextWatcher는 데이터 업데이트 역할만 수행
             nameWatcher = object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
