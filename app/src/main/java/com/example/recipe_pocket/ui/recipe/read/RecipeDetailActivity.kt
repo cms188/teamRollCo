@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
 import android.widget.RadioGroup
@@ -19,6 +20,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -76,7 +78,7 @@ class RecipeDetailActivity : AppCompatActivity() {
     private companion object {
         const val TOOLBAR_HEIGHT_DP = 56
         const val IMAGE_OVERLAP_RATIO = 0.4f
-        const val MIN_PEEK_HEIGHT_DP = 400
+        const val MIN_PEEK_HEIGHT_DP = 625 //초기 바텀시트 위치 초기값 400
         const val TRANSPARENCY_START_THRESHOLD = 0.7f
         const val ANIMATION_DURATION = 200L
         const val TAG = "RecipeDetailActivity_DEBUG" // 로그 태그 추가
@@ -95,9 +97,20 @@ class RecipeDetailActivity : AppCompatActivity() {
 
         initViews()
         setupUI()
+        CookingBottomMargin()
 
         onBackPressedDispatcher.addCallback(this) {
             finish()
+        }
+    }
+
+    private fun CookingBottomMargin() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.btnStartCooking) { v, insets ->
+            val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = dpToPx(16) + navBottom   // 기본 16dp + 네비게이션바 높이
+            }
+            insets // 소비하지 말고 전파
         }
     }
 
@@ -118,7 +131,7 @@ class RecipeDetailActivity : AppCompatActivity() {
 
         // 툴바 초기 설정
         utils.ToolbarUtils.setupTransparentToolbar(
-            this, "", showEditButton = true, showDeleteButton = true,
+            this, "", showEditButton = false, showDeleteButton = false,
             onEditClicked = {
                 // 수정 버튼 클릭 시 처리
                 val intent =
@@ -140,14 +153,14 @@ class RecipeDetailActivity : AppCompatActivity() {
 
         // 스크롤 리스너 설정 - 스티키 탭 표시/숨김
         binding.nestedScrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
-            val toolbarHeight = binding.toolbar.toolbar.height
+            val toolbarHeight = binding.toolbar.root.height
             val triggerPoint = binding.originalTabContainer.bottom - toolbarHeight
 
             if (scrollY >= triggerPoint) {
                 if (binding.stickyTabContainer.visibility != View.VISIBLE) {
                     binding.stickyTabContainer.visibility = View.VISIBLE
                     binding.originalTabContainer.visibility = View.INVISIBLE
-                    binding.toolbar.toolbar.setBackgroundColor(
+                    binding.toolbar.root.setBackgroundColor(
                         ContextCompat.getColor(
                             this,
                             R.color.white
@@ -361,11 +374,13 @@ class RecipeDetailActivity : AppCompatActivity() {
 
     private fun setupInteractionButtons(recipe: Recipe) {
         val currentUser = auth.currentUser
-        val editDeleteContainer = binding.toolbar.root.findViewById<LinearLayout>(R.id.edit_delete_container_toolbar)
-        val btnEditRecipe = binding.toolbar.root.findViewById<View>(R.id.btn_edit_recipe_toolbar)
-        val btnDeleteRecipe = binding.toolbar.root.findViewById<View>(R.id.btn_delete_recipe_toolbar)
+        val editDeleteContainer = binding.toolbar.root.findViewById<LinearLayout>(R.id.edit_delete_container)
+        val btnEditRecipe = binding.toolbar.root.findViewById<View>(R.id.edit_button_card)
+        val btnDeleteRecipe = binding.toolbar.root.findViewById<View>(R.id.delete_button_card)
         if (currentUser != null && currentUser.uid == recipe.userId) {
             editDeleteContainer.visibility = View.VISIBLE
+            btnEditRecipe.visibility = View.VISIBLE
+            btnDeleteRecipe.visibility = View.VISIBLE
             btnEditRecipe.setOnClickListener {
                 val intent = Intent(this, RecipeEditActivity::class.java).putExtra("RECIPE_ID", recipeId)
                 resultLauncher.launch(intent)
@@ -538,17 +553,6 @@ class RecipeDetailActivity : AppCompatActivity() {
         userRef.update("recipeCount", FieldValue.increment(-1))
             .addOnSuccessListener { Log.d("DeleteRecipe", "recipeCount 업데이트 성공") }
             .addOnFailureListener { e -> Log.w("DeleteRecipe", "recipeCount 업데이트 실패", e) }
-    }
-
-    private fun setupToolbarWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar.root) { view, insets ->
-            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-            view.updatePadding(top = statusBarHeight)
-            val toolbarHeight = statusBarHeight + dpToPx(TOOLBAR_HEIGHT_DP)
-            view.layoutParams.height = toolbarHeight
-            (binding.stickyTabContainer.layoutParams as CoordinatorLayout.LayoutParams).topMargin = statusBarHeight
-            insets
-        }
     }
 
     private fun setupBottomSheetCallbacks() {

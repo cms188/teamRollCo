@@ -5,12 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white20"
-    android:fitsSystemWindows="true">
+    android:id="@+id/DrecipeLayout">
 
     <!-- 툴바 -->
     <include
         android:id="@+id/toolbar"
-        layout="@layout/tool_bar_basic_lagacy" />
+        layout="@layout/toolbar_basic" />
 
     <!-- 배경 이미지 -->
     <FrameLayout
