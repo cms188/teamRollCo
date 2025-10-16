@@ -92,6 +92,7 @@ class MainActivity : AppCompatActivity() {
         setupNotificationListener()
         // 알림 권한 요청 함수 호출
         askNotificationPermission()
+        loadAllData()
 
         binding.refreshLayout.setOnRefreshListener {
             loadAllData()
@@ -101,7 +102,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        loadAllData()
+        //loadAllData() //게시글 들어갈때마다 추천 레시피 새로고침되서 주석처리함
         bottomNavigationView.menu.findItem(R.id.fragment_home).isChecked = true
         setupNotificationListener()
     }
@@ -120,9 +121,6 @@ class MainActivity : AppCompatActivity() {
                 // 이미 권한이 부여됨
                 Log.d("NotificationPermission", "알림 권한이 이미 부여되어 있습니다.")
             } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                // 사용자가 이전에 권한을 거부한 경우, 왜 권한이 필요한지 설명 (선택 사항)
-                // 예: 다이얼로그를 띄워 설명 후 다시 요청
-                // 여기서는 바로 다시 요청합니다.
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             } else {
                 // 처음으로 권한을 요청
@@ -213,7 +211,7 @@ class MainActivity : AppCompatActivity() {
     private fun loadAllData() {
         lifecycleScope.launch {
             // [수정] Hot Cook 로딩 (24시간 내 조회수 순)
-            RecipeLoader.loadPopularRecipesByRecentViews(count = 5).fold(
+            RecipeLoader.loadPopularRecipesByRecentViews(count = 10).fold(
                 onSuccess = { recipes ->
                     hotCookRecipeAdapter.updateRecipes(recipes)
                 },
@@ -223,7 +221,7 @@ class MainActivity : AppCompatActivity() {
             )
 
             // Pick Cook 로딩
-            RecipeLoader.loadMultipleRandomRecipesWithAuthor(count = 5).fold(
+            RecipeLoader.loadMultipleRandomRecipesWithAuthor(count = 10).fold(
                 onSuccess = { recipes ->
                     pickCookRecipeAdapter.updateRecipes(recipes)
                 },
@@ -233,7 +231,7 @@ class MainActivity : AppCompatActivity() {
             )
 
             // 15분 이하 간단요리 로딩
-            RecipeLoader.loadRecipesByCookingTime(15, 5).fold(
+            RecipeLoader.loadRecipesByCookingTime(15, 10).fold(
                 onSuccess = { recipes ->
                     simpleRecipeAdapter.updateRecipes(recipes)
                 },
