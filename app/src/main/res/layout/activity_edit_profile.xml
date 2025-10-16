@@ -8,7 +8,7 @@
 
     <!-- 툴바 -->
     <include
-        android:id="@+id/top_bar_layout"
+        android:id="@+id/toolbar"
         layout="@layout/toolbar_basic" />
 
     <ScrollView

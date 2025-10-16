@@ -35,7 +35,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import utils.ToolbarUtils
 
 class UserPageActivity : AppCompatActivity() {
 
@@ -89,7 +88,7 @@ class UserPageActivity : AppCompatActivity() {
         initializeViews()
 
         // 툴바 설정
-        ToolbarUtils.setupTransparentToolbar(this, "MY")
+        utils.ToolbarUtils.setupTransparentToolbar(this, "MY")
 
         // 클릭 리스너 설정
         setupClickListeners()

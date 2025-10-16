@@ -67,6 +67,8 @@ class EditProfileActivity : AppCompatActivity() {
             WindowInsetsCompat.CONSUMED
         }
 
+        utils.ToolbarUtils.setupTransparentToolbar(this, "정보 수정")
+
         // UI 요소 연결 및 리스너 설정
         val backButton: ImageButton = findViewById(R.id.back_button)
         val changeNicknameButton: LinearLayout = findViewById(R.id.btnChangeNickname)
