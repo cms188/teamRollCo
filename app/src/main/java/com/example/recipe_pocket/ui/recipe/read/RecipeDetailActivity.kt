@@ -131,7 +131,7 @@ class RecipeDetailActivity : AppCompatActivity() {
 
         // 툴바 초기 설정
         utils.ToolbarUtils.setupTransparentToolbar(
-            this, "", showEditButton = false, showDeleteButton = false,
+            this, "", showEditButton = true, showDeleteButton = true,
             onEditClicked = {
                 // 수정 버튼 클릭 시 처리
                 val intent =
