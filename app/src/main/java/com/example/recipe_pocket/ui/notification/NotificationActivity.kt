@@ -31,10 +31,10 @@ class NotificationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityNotificationBinding.inflate(layoutInflater)
-        utils.ToolbarUtils.setupTransparentToolbar(this, "알림", navigateToMainActivity = true)
         setContentView(binding.root)
+        utils.ToolbarUtils.setupTransparentToolbar(this, "알림 목록", navigateToMainActivity = true)
         setupRecyclerViews()
-        utils.ToolbarUtils.setupTransparentToolbar(this, "알림 목록")
+        
     }
 
     override fun onResume() {
