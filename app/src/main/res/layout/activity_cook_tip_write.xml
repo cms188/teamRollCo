@@ -6,76 +6,18 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <!-- 상단 고정 툴바 -->
-    <LinearLayout
-        android:id="@+id/top_bar_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_alignParentTop="true">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="#FAFAFA"
-            android:paddingHorizontal="16dp">
-
-            <ImageButton
-                android:id="@+id/back_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="뒤로가기"
-                android:scaleX="0.8"
-                android:scaleY="0.8"
-                android:src="@drawable/ic_arrow_back"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/text_primary" />
-
-            <TextView
-                android:id="@+id/tv_toolbar_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="요리 팁 작성"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
-
-            <TextView
-                android:id="@+id/btn_upload"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="업로드"
-                android:textColor="@color/orange"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:padding="8dp"
-                android:background="?attr/selectableItemBackground"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/primary_divider"/>
-    </LinearLayout>
+    <!-- 상단 툴바 -->
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_write" />
 
     <!-- 스크롤 가능한 콘텐츠 영역 -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/top_bar_container"
-        android:fillViewport="true"
-        android:clipToPadding="false">
+        android:layout_below="@id/toolbar"
+        android:clipToPadding="false"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -83,37 +25,65 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- 제목 입력란 (오류 수정) -->
-            <EditText
-                android:id="@+id/et_title"
+            <!-- 제목 입력란 -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="제목"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:background="@android:color/transparent"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="24dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/notosans_bold"
+                    android:includeFontPadding="false"
+                    android:text="제목"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/et_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_edittext_stroke"
+                    android:fontFamily="@font/notosans_regular"
+                    android:hint="팁 제목"
+                    android:maxLines="1"
+                    android:paddingHorizontal="16dp"
+                    android:singleLine="true"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_content_blocks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_cook_tip_content_block"/>
+                tools:listitem="@layout/item_cook_tip_content_block" />
+
+            <!-- 콘텐츠 추가 버튼 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_add_block"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/primary"
+                android:fontFamily="@font/notosans_bold"
+                android:includeFontPadding="false"
+                android:text="블록 추가"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_add"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconSize="20dp"
+                app:iconTint="@color/white" />
         </LinearLayout>
     </ScrollView>
-
-    <!-- 콘텐츠 추가 버튼 -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btn_add_block"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="24dp"
-        android:src="@drawable/ic_add"
-        app:tint="@color/white"
-        app:backgroundTint="@color/orange"
-        android:contentDescription="콘텐츠 블록 추가"/>
 
 </RelativeLayout>

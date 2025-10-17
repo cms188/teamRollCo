@@ -28,6 +28,7 @@ import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
+import utils.ToolbarUtils
 
 class CookTipWriteActivity : AppCompatActivity() {
 
@@ -100,11 +101,11 @@ class CookTipWriteActivity : AppCompatActivity() {
 
     private fun updateUIForMode() {
         if (currentMode == MODE_EDIT) {
-            binding.tvToolbarTitle.text = "요리 팁 수정"
-            binding.btnUpload.text = "수정 완료"
+            ToolbarUtils.setupWriteToolbar(activity = this, title = "팁 수정", onSaveClicked = { uploadCookingTip() })
+            binding.toolbar.btnSave.text = "수정 완료"
         } else {
-            binding.tvToolbarTitle.text = "요리 팁 작성"
-            binding.btnUpload.text = "업로드"
+            ToolbarUtils.setupWriteToolbar(activity = this, title = "팁 작성", onSaveClicked = { uploadCookingTip() })
+            binding.toolbar.btnSave.text = "업로드"
         }
     }
 
@@ -149,9 +150,7 @@ class CookTipWriteActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        binding.backButton.setOnClickListener { finish() }
         binding.btnAddBlock.setOnClickListener { viewModel.addContentBlock() }
-        binding.btnUpload.setOnClickListener { uploadCookingTip() }
 
         binding.etTitle.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -187,8 +186,8 @@ class CookTipWriteActivity : AppCompatActivity() {
             return
         }
 
-        binding.btnUpload.isEnabled = false
-        binding.btnUpload.text = "업로드 중..."
+        binding.toolbar.btnSave.isEnabled = false
+        binding.toolbar.btnSave.text = "업로드 중..."
 
         lifecycleScope.launch {
             try {
@@ -219,7 +218,7 @@ class CookTipWriteActivity : AppCompatActivity() {
 
             } catch (e: Exception) {
                 Toast.makeText(this@CookTipWriteActivity, "업로드 실패: ${e.message}", Toast.LENGTH_LONG).show()
-                binding.btnUpload.isEnabled = true
+                binding.toolbar.btnSave.isEnabled = true
                 updateUIForMode()
             }
         }

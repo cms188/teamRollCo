@@ -20,6 +20,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:orientation="vertical"
             android:padding="20dp">
 
@@ -37,33 +39,38 @@
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="20dp"
                     android:paddingVertical="12dp">
+
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
                         android:layout_alignParentStart="true"
-                        android:layout_centerVertical="true">
+                        android:layout_centerVertical="true"
+                        android:orientation="vertical">
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/notosans_bold"
+                            android:includeFontPadding="false"
                             android:text="전체 알림"
-                            android:textSize="16sp"
                             android:textColor="@color/text_primary"
-                            android:fontFamily="@font/notosans_bold"/>
+                            android:textSize="16sp" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
                             android:text="모든 푸시 알림을 받습니다"
-                            android:textSize="12sp"
                             android:textColor="@color/text_sub"
-                            android:layout_marginTop="2dp"/>
+                            android:textSize="12sp" />
                     </LinearLayout>
+
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switch_all_notifications"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"/>
+                        android:layout_centerVertical="true" />
                 </RelativeLayout>
 
             </androidx.cardview.widget.CardView>
@@ -73,19 +80,19 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/white"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white">
+                app:cardElevation="2dp">
 
                 <!-- ▼▼▼ 수정된 부분: 개별 설정들을 LinearLayout으로 감싸기 ▼▼▼ -->
                 <LinearLayout
                     android:id="@+id/individual_settings_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:divider="@drawable/divider_horizontal"
-                    android:showDividers="middle"
-                    android:paddingVertical="8dp">
+                    android:orientation="vertical"
+                    android:paddingVertical="8dp"
+                    android:showDividers="middle">
 
                     <!-- 레시피 좋아요 알림 -->
                     <RelativeLayout
@@ -93,33 +100,38 @@
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="12dp">
+
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
                             android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true">
+                            android:layout_centerVertical="true"
+                            android:orientation="vertical">
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/notosans_medium"
+                                android:includeFontPadding="false"
                                 android:text="레시피 좋아요"
-                                android:textSize="16sp"
                                 android:textColor="@color/text_primary"
-                                android:fontFamily="@font/notosans_medium"/>
+                                android:textSize="16sp" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
                                 android:text="내 레시피에 좋아요가 눌렸을 때"
-                                android:textSize="12sp"
                                 android:textColor="@color/text_sub"
-                                android:layout_marginTop="2dp"/>
+                                android:textSize="12sp" />
                         </LinearLayout>
+
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:id="@+id/switch_recipe_likes"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"/>
+                            android:layout_centerVertical="true" />
                     </RelativeLayout>
 
                     <!-- 레시피 리뷰 알림 -->
@@ -128,33 +140,38 @@
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="12dp">
+
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
                             android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true">
+                            android:layout_centerVertical="true"
+                            android:orientation="vertical">
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/notosans_medium"
+                                android:includeFontPadding="false"
                                 android:text="레시피 리뷰"
-                                android:textSize="16sp"
                                 android:textColor="@color/text_primary"
-                                android:fontFamily="@font/notosans_medium"/>
+                                android:textSize="16sp" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
                                 android:text="내 레시피에 리뷰가 달렸을 때"
-                                android:textSize="12sp"
                                 android:textColor="@color/text_sub"
-                                android:layout_marginTop="2dp"/>
+                                android:textSize="12sp" />
                         </LinearLayout>
+
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:id="@+id/switch_recipe_reviews"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"/>
+                            android:layout_centerVertical="true" />
                     </RelativeLayout>
 
                     <!-- 팔로우 알림 -->
@@ -163,33 +180,38 @@
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="12dp">
+
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
                             android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true">
+                            android:layout_centerVertical="true"
+                            android:orientation="vertical">
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/notosans_medium"
+                                android:includeFontPadding="false"
                                 android:text="팔로우"
-                                android:textSize="16sp"
                                 android:textColor="@color/text_primary"
-                                android:fontFamily="@font/notosans_medium"/>
+                                android:textSize="16sp" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
                                 android:text="다른 사용자가 나를 팔로우 했을 때"
-                                android:textSize="12sp"
                                 android:textColor="@color/text_sub"
-                                android:layout_marginTop="2dp"/>
+                                android:textSize="12sp" />
                         </LinearLayout>
+
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:id="@+id/switch_follows"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"/>
+                            android:layout_centerVertical="true" />
                     </RelativeLayout>
 
                     <!-- 칭호 획득 알림 -->
@@ -198,33 +220,38 @@
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="12dp">
+
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
                             android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true">
+                            android:layout_centerVertical="true"
+                            android:orientation="vertical">
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/notosans_medium"
+                                android:includeFontPadding="false"
                                 android:text="칭호 획득"
-                                android:textSize="16sp"
                                 android:textColor="@color/text_primary"
-                                android:fontFamily="@font/notosans_medium"/>
+                                android:textSize="16sp" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
                                 android:text="새로운 칭호를 획득했을 때"
-                                android:textSize="12sp"
                                 android:textColor="@color/text_sub"
-                                android:layout_marginTop="2dp"/>
+                                android:textSize="12sp" />
                         </LinearLayout>
+
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:id="@+id/switch_titles"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"/>
+                            android:layout_centerVertical="true" />
                     </RelativeLayout>
 
                     <!-- 요리 팁 추천 알림 -->
@@ -233,33 +260,38 @@
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="12dp">
+
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
                             android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true">
+                            android:layout_centerVertical="true"
+                            android:orientation="vertical">
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/notosans_medium"
+                                android:includeFontPadding="false"
                                 android:text="요리 팁 추천"
-                                android:textSize="16sp"
                                 android:textColor="@color/text_primary"
-                                android:fontFamily="@font/notosans_medium"/>
+                                android:textSize="16sp" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
                                 android:text="내 요리 팁을 다른 사용자가 추천했을 때"
-                                android:textSize="12sp"
                                 android:textColor="@color/text_sub"
-                                android:layout_marginTop="2dp"/>
+                                android:textSize="12sp" />
                         </LinearLayout>
+
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:id="@+id/switch_tip_likes"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"/>
+                            android:layout_centerVertical="true" />
                     </RelativeLayout>
 
                     <!-- 요리 팁 댓글 알림 -->
@@ -268,33 +300,38 @@
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="12dp">
+
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
                             android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true">
+                            android:layout_centerVertical="true"
+                            android:orientation="vertical">
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/notosans_medium"
+                                android:includeFontPadding="false"
                                 android:text="요리 팁 댓글"
-                                android:textSize="16sp"
                                 android:textColor="@color/text_primary"
-                                android:fontFamily="@font/notosans_medium"/>
+                                android:textSize="16sp" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
                                 android:text="내 요리 팁에 댓글이 달렸을 때"
-                                android:textSize="12sp"
                                 android:textColor="@color/text_sub"
-                                android:layout_marginTop="2dp"/>
+                                android:textSize="12sp" />
                         </LinearLayout>
+
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:id="@+id/switch_tip_comments"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"/>
+                            android:layout_centerVertical="true" />
                     </RelativeLayout>
 
                     <!-- 요리 팁 답글 알림 -->
@@ -303,33 +340,38 @@
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="12dp">
+
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
                             android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true">
+                            android:layout_centerVertical="true"
+                            android:orientation="vertical">
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/notosans_medium"
+                                android:includeFontPadding="false"
                                 android:text="요리 팁 답글"
-                                android:textSize="16sp"
                                 android:textColor="@color/text_primary"
-                                android:fontFamily="@font/notosans_medium"/>
+                                android:textSize="16sp" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
                                 android:text="내 댓글에 답글이 달렸을 때"
-                                android:textSize="12sp"
                                 android:textColor="@color/text_sub"
-                                android:layout_marginTop="2dp"/>
+                                android:textSize="12sp" />
                         </LinearLayout>
+
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:id="@+id/switch_tip_replies"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"/>
+                            android:layout_centerVertical="true" />
                     </RelativeLayout>
                 </LinearLayout>
                 <!-- ▲▲▲ 수정된 부분 ▲▲▲ -->
