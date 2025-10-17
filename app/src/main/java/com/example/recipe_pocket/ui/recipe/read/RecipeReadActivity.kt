@@ -1,6 +1,7 @@
 package com.example.recipe_pocket.ui.recipe.read
 
 import android.Manifest
+import android.R
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -110,6 +111,11 @@ class RecipeReadActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
+        utils.ToolbarUtils.setupTransparentToolbar(this, "")
+        binding.toolbar.backButtonCard.setCardBackgroundColor(
+            ContextCompat.getColor(binding.root.context, R.color.white)
+        )
+
         binding.btnClose.setOnClickListener { finish() }
         binding.soundButton.setOnClickListener { toggleVoiceRecognition() }
         updateSoundButtonState()
@@ -240,7 +246,7 @@ class RecipeReadActivity : AppCompatActivity() {
     }
 
     private fun updateStepProgressIndicator(currentStep: Int, totalSteps: Int) {
-        binding.tvCurrentStepTitle.text = "${currentStep}단계"
+        binding.tvStepBadge.text = "${currentStep}단계"
         binding.tvStepPagerIndicator.text = "$currentStep / $totalSteps"
         binding.pbStepProgress.progress = (currentStep.toFloat() / totalSteps.toFloat() * 100).toInt()
     }
@@ -357,7 +363,7 @@ class RecipeReadActivity : AppCompatActivity() {
     }
 
     private fun updateSoundButtonState() {
-        binding.soundButton.text = if (isVoiceRecognitionActive) "음성인식 중지" else "음성인식 시작"
+        binding.tvSoundText.text = if (isVoiceRecognitionActive) "음성인식 중지" else "음성인식 시작"
     }
 
     private val voiceCommandReceiver: BroadcastReceiver = object : BroadcastReceiver() {

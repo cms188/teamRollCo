@@ -16,10 +16,22 @@
         android:id="@+id/tv_category_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="레시피의 종류를 모두 선택해주세요."
-        android:textStyle="bold"
+        android:text="카테고리 설정"
+        android:fontFamily="@font/notosans_bold"
+        android:includeFontPadding="false"
         android:textSize="18sp"
-        android:textColor="@color/black"
+        android:textColor="@color/text_primary"
+        android:gravity="center"
+        android:paddingBottom="6dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="레시피 종류를 모두 선택해주세요."
+        android:fontFamily="@font/notosans_medium"
+        android:includeFontPadding="false"
+        android:textSize="12sp"
+        android:textColor="@color/text_secondary"
         android:gravity="center"
         android:paddingBottom="12dp" />
 
@@ -42,13 +54,17 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_save_categories"
-        style="@style/Widget.MaterialComponents.Button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@color/primary"
+        android:fontFamily="@font/notosans_bold"
+        android:gravity="center"
+        android:includeFontPadding="false"
         android:text="저장"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="4dp" />
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        app:cornerRadius="16dp" />
 
 </LinearLayout>
