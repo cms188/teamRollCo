@@ -4,20 +4,28 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.data.Ingredient
 import com.example.recipe_pocket.data.Recipe
 import com.example.recipe_pocket.databinding.ActivityRecipeEditBinding
+import com.example.recipe_pocket.databinding.ItemIngredientBinding
+import com.example.recipe_pocket.databinding.ItemToolBinding
 import com.example.recipe_pocket.repository.RecipeLoader
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
@@ -46,8 +54,7 @@ class RecipeEditActivity : AppCompatActivity() {
     private var currentStepImagePosition: Int = -1
     private val newStepImageUris = mutableMapOf<Int, Uri>()
 
-    private lateinit var ingredientAdapter: IngredientAdapter
-    private lateinit var toolAdapter: ToolAdapter
+    // 데이터를 저장할 리스트
     private val ingredientsList = mutableListOf<Ingredient>()
     private val toolsList = mutableListOf<String>()
 
@@ -55,6 +62,8 @@ class RecipeEditActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityRecipeEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setupWindowInsets()
 
         recipeId = intent.getStringExtra("RECIPE_ID")
         if (recipeId == null) {
@@ -66,24 +75,20 @@ class RecipeEditActivity : AppCompatActivity() {
         setupLaunchers()
         setupCategorySelectionResultListener()
         setupClickListeners()
-        setupRecyclerViews()
         setupViewPager()
         loadRecipeData()
     }
 
-    private fun setupRecyclerViews() {
-        ingredientAdapter = IngredientAdapter(this, ingredientsList)
-        binding.rvIngredients.apply {
-            layoutManager = LinearLayoutManager(this@RecipeEditActivity)
-            adapter = ingredientAdapter
-            itemAnimator = null
-        }
-
-        toolAdapter = ToolAdapter(toolsList)
-        binding.rvTools.apply {
-            layoutManager = LinearLayoutManager(this@RecipeEditActivity)
-            adapter = toolAdapter
-            itemAnimator = null
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // 상단 툴바에 패딩 적용
+            binding.toolbarLayout.toolbar.updateLayoutParams<android.view.ViewGroup.MarginLayoutParams> {
+                topMargin = insets.top
+            }
+            // 하단 네비게이션 바 등에 가려지지 않도록 패딩 적용 (필요한 경우)
+            v.setPadding(insets.left, 0, insets.right, insets.bottom)
+            WindowInsetsCompat.CONSUMED
         }
     }
 
@@ -98,15 +103,24 @@ class RecipeEditActivity : AppCompatActivity() {
         binding.etRecipeTitle.setText(recipe.title)
         binding.etRecipeDescription.setText(recipe.simpleDescription)
 
+        // 재료 목록 초기화 및 뷰 생성
         ingredientsList.clear()
         recipe.ingredients?.let { ingredientsList.addAll(it) }
-        ingredientsList.add(Ingredient())
-        ingredientAdapter.notifyDataSetChanged()
+        // 마지막 항목이 비어있지 않다면 빈 입력칸 추가
+        if (ingredientsList.isEmpty() || ingredientsList.last().name?.isNotEmpty() == true) {
+            ingredientsList.add(Ingredient())
+        }
+        setupIngredientViews()
 
+        // 도구 목록 초기화 및 뷰 생성
         toolsList.clear()
         recipe.tools?.let { toolsList.addAll(it) }
-        toolsList.add("")
-        toolAdapter.notifyDataSetChanged()
+        // 마지막 항목이 비어있지 않다면 빈 입력칸 추가
+        if (toolsList.isEmpty() || toolsList.last().isNotEmpty()) {
+            toolsList.add("")
+        }
+        setupToolViews()
+
 
         recipe.steps?.let {
             stepAdapter.setSteps(it)
@@ -119,16 +133,98 @@ class RecipeEditActivity : AppCompatActivity() {
         }
     }
 
+    // --- 재료 뷰 동적 관리 ---
+    private fun setupIngredientViews() {
+        binding.ingredientsContainer.removeAllViews()
+        ingredientsList.forEachIndexed { index, ingredient ->
+            val ingredientBinding = ItemIngredientBinding.inflate(LayoutInflater.from(this), binding.ingredientsContainer, false)
+
+            ingredientBinding.etIngredientName.setText(ingredient.name)
+            ingredientBinding.etIngredientAmount.setText(ingredient.amount)
+
+            // 마지막 항목(빈 입력칸)이 아니면 삭제 버튼 표시
+            ingredientBinding.btnDeleteIngredient.visibility = if (index < ingredientsList.size - 1) View.VISIBLE else View.INVISIBLE
+
+            // 이름 입력 감지
+            ingredientBinding.etIngredientName.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    ingredientsList[index].name = s.toString()
+                    // 마지막 칸에 입력이 시작되면 새 빈 칸 추가
+                    if (index == ingredientsList.size - 1 && s.toString().isNotEmpty()) {
+                        ingredientsList.add(Ingredient())
+                        setupIngredientViews() // 뷰 갱신 (포커스 유지 필요하면 로직 추가 필요)
+                    }
+                }
+            })
+
+            // 양 입력 감지
+            ingredientBinding.etIngredientAmount.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    ingredientsList[index].amount = s.toString()
+                }
+            })
+
+            // 삭제 버튼 리스너
+            ingredientBinding.btnDeleteIngredient.setOnClickListener {
+                ingredientsList.removeAt(index)
+                setupIngredientViews() // 뷰 갱신
+            }
+
+            binding.ingredientsContainer.addView(ingredientBinding.root)
+        }
+    }
+
+    // --- 조리도구 뷰 동적 관리 ---
+    private fun setupToolViews() {
+        binding.toolsContainer.removeAllViews()
+        toolsList.forEachIndexed { index, tool ->
+            val toolBinding = ItemToolBinding.inflate(LayoutInflater.from(this), binding.toolsContainer, false)
+
+            toolBinding.etToolName.setText(tool)
+
+            // 마지막 항목(빈 입력칸)이 아니면 삭제 버튼 표시
+            toolBinding.btnDeleteTool.visibility = if (index < toolsList.size - 1) View.VISIBLE else View.INVISIBLE
+
+            // 입력 감지
+            toolBinding.etToolName.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    toolsList[index] = s.toString()
+                    // 마지막 칸에 입력이 시작되면 새 빈 칸 추가
+                    if (index == toolsList.size - 1 && s.toString().isNotEmpty()) {
+                        toolsList.add("")
+                        setupToolViews() // 뷰 갱신
+                    }
+                }
+            })
+
+            // 삭제 버튼 리스너
+            toolBinding.btnDeleteTool.setOnClickListener {
+                toolsList.removeAt(index)
+                setupToolViews() // 뷰 갱신
+            }
+
+            binding.toolsContainer.addView(toolBinding.root)
+        }
+    }
+
+
     private fun saveChanges() {
-        binding.btnSave.isEnabled = false
-        binding.btnSave.text = "저장 중..."
+        binding.toolbarLayout.btnSave.isEnabled = false
+        binding.toolbarLayout.btnSave.text = "저장 중..."
 
         lifecycleScope.launch {
             try {
-                val thumbnailUrl = if (thumbnailUri != null) {
-                    uploadImage(thumbnailUri, "recipe_images/${UUID.randomUUID()}").await()
-                } else {
-                    originalRecipe?.thumbnailUrl
+                val updatedData = mutableMapOf<String, Any>()
+
+                if (thumbnailUri != null) {
+                    val thumbnailUrl = uploadImage(thumbnailUri, "recipe_images/${UUID.randomUUID()}").await()
+                    updatedData["thumbnailUrl"] = thumbnailUrl ?: ""
                 }
 
                 val currentStepsData = stepAdapter.collectAllStepsData()
@@ -142,8 +238,9 @@ class RecipeEditActivity : AppCompatActivity() {
                 }
                 val stepImageUrls = Tasks.whenAllSuccess<String?>(stepImageUploadTasks).await()
 
+                // 빈 값 필터링
                 val ingredients = ingredientsList.filter { !it.name.isNullOrBlank() }
-                    .map { Ingredient(it.name, it.amount, null) }
+                    .map { mapOf("name" to it.name, "amount" to it.amount) }
                 val tools = toolsList.filter { it.isNotBlank() }
 
                 val steps = currentStepsData.mapIndexed { index, stepData ->
@@ -157,16 +254,13 @@ class RecipeEditActivity : AppCompatActivity() {
                     )
                 }.toList()
 
-                val updatedData = mapOf(
-                    "title" to binding.etRecipeTitle.text.toString(),
-                    "simpleDescription" to binding.etRecipeDescription.text.toString(),
-                    "category" to selectedCategories,
-                    "thumbnailUrl" to (thumbnailUrl ?: ""),
-                    "ingredients" to ingredients.map { mapOf("name" to it.name, "amount" to it.amount) },
-                    "tools" to tools,
-                    "steps" to steps,
-                    "updatedAt" to Timestamp.now()
-                )
+                updatedData["title"] = binding.etRecipeTitle.text.toString()
+                updatedData["simpleDescription"] = binding.etRecipeDescription.text.toString()
+                updatedData["category"] = selectedCategories
+                updatedData["ingredients"] = ingredients
+                updatedData["tools"] = tools
+                updatedData["steps"] = steps
+                updatedData["updatedAt"] = Timestamp.now()
 
                 db.collection("Recipes").document(recipeId!!).update(updatedData).await()
 
@@ -177,15 +271,11 @@ class RecipeEditActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Toast.makeText(this@RecipeEditActivity, "저장 실패: ${e.message}", Toast.LENGTH_LONG).show()
             } finally {
-                binding.btnSave.isEnabled = true
-                binding.btnSave.text = "수정완료"
+                binding.toolbarLayout.btnSave.isEnabled = true
+                binding.toolbarLayout.btnSave.text = "수정완료"
             }
         }
     }
-
-    // =================================================================================
-    // 아래 코드는 수정할 필요 없이 그대로 두시면 됩니다.
-    // =================================================================================
 
     private fun setupLaunchers() {
         thumbnailLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -221,6 +311,7 @@ class RecipeEditActivity : AppCompatActivity() {
                 stepAdapter.removeStepAt(position)
                 newStepImageUris.remove(position)
                 updateArrowVisibility(binding.viewPagerSteps.currentItem)
+                binding.tvStepIndicator.text = "${binding.viewPagerSteps.currentItem + 1} / ${stepAdapter.itemCount}"
             }
         )
 
@@ -228,7 +319,9 @@ class RecipeEditActivity : AppCompatActivity() {
         binding.viewPagerSteps.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                binding.tvStepIndicator.text = "${position + 1} / ${stepAdapter.itemCount}"
+                val total = stepAdapter.itemCount
+                val current = if (total > 0) position + 1 else 0
+                binding.tvStepIndicator.text = "$current / $total"
                 updateArrowVisibility(position)
             }
         })
@@ -269,8 +362,13 @@ class RecipeEditActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        binding.ivBack.setOnClickListener { finish() }
-        binding.btnSave.setOnClickListener { saveChanges() }
+        // 툴바 버튼 리스너 설정
+        binding.toolbarLayout.backButton.setOnClickListener { finish() }
+        binding.toolbarLayout.btnSave.setOnClickListener { saveChanges() }
+
+        binding.toolbarLayout.btnTempSave.visibility = View.GONE
+        binding.toolbarLayout.toolbarTitle.text = ""
+        binding.toolbarLayout.btnSave.text = "수정완료"
 
         binding.btnSelectCategory.setOnClickListener {
             CategorySelection
@@ -285,13 +383,22 @@ class RecipeEditActivity : AppCompatActivity() {
 
         binding.buttonAddStep.setOnClickListener {
             stepAdapter.addStep()
-            binding.viewPagerSteps.currentItem = stepAdapter.itemCount - 1
+            // 새 단계 추가 후 마지막 페이지로 이동
+            binding.viewPagerSteps.post {
+                binding.viewPagerSteps.setCurrentItem(stepAdapter.itemCount - 1, true)
+            }
         }
         binding.ivPrevStep.setOnClickListener {
-            binding.viewPagerSteps.currentItem -= 1
+            val current = binding.viewPagerSteps.currentItem
+            if (current > 0) {
+                binding.viewPagerSteps.setCurrentItem(current - 1, true)
+            }
         }
         binding.ivNextStep.setOnClickListener {
-            binding.viewPagerSteps.currentItem += 1
+            val current = binding.viewPagerSteps.currentItem
+            if (current < stepAdapter.itemCount - 1) {
+                binding.viewPagerSteps.setCurrentItem(current + 1, true)
+            }
         }
     }
 

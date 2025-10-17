@@ -149,7 +149,7 @@ class CookTipWriteActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        binding.ivBack.setOnClickListener { finish() }
+        binding.backButton.setOnClickListener { finish() }
         binding.btnAddBlock.setOnClickListener { viewModel.addContentBlock() }
         binding.btnUpload.setOnClickListener { uploadCookingTip() }
 

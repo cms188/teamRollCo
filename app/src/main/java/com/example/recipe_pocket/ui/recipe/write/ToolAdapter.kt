@@ -30,10 +30,9 @@ class ToolAdapter(
             }
 
             binding.btnDeleteTool.setOnClickListener {
-                if (adapterPosition != RecyclerView.NO_POSITION) {
+                if (adapterPosition != RecyclerView.NO_POSITION && tools.size > 1) {
                     tools.removeAt(adapterPosition)
                     notifyItemRemoved(adapterPosition)
-                    notifyItemRangeChanged(adapterPosition, tools.size)
                 }
             }
             binding.btnDeleteTool.visibility = if (position < tools.size - 1) View.VISIBLE else View.INVISIBLE

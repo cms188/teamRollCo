@@ -110,7 +110,7 @@ class RecipeReadActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        binding.btnClose.setOnClickListener { finish() }
+        binding.ivBackButton.setOnClickListener { finish() }
         binding.soundButton.setOnClickListener { toggleVoiceRecognition() }
         updateSoundButtonState()
         setupViewPager()
@@ -162,9 +162,10 @@ class RecipeReadActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
     }
 
-    private fun setToolbarVisibility(isVisible: Boolean) {
-        binding.topBarsContainer.visibility = if (isVisible) View.VISIBLE else View.GONE
+    private fun updateTopUIForPage(isStepPage: Boolean) {
+        binding.layoutStepProgressIndicator.visibility = if (isStepPage) View.VISIBLE else View.GONE
     }
+
 
     private fun setupViewPager() {
         recipeStepAdapter = RecipeStepAdapter(null, object : CircularTimerView.OnTimerStateChangedListener {
@@ -179,7 +180,7 @@ class RecipeReadActivity : AppCompatActivity() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 val isStepPage = position < totalSteps
-                setToolbarVisibility(isStepPage)
+                updateTopUIForPage(isStepPage)
 
                 if (isStepPage) {
                     updateStepProgressIndicator(position + 1, totalSteps)
@@ -220,10 +221,10 @@ class RecipeReadActivity : AppCompatActivity() {
         recipeStepAdapter.updateItems(recipe)
 
         if (totalSteps > 0) {
-            setToolbarVisibility(true)
+            updateTopUIForPage(true)
             updateStepProgressIndicator(1, totalSteps)
         } else {
-            setToolbarVisibility(false)
+            updateTopUIForPage(false)
         }
     }
 

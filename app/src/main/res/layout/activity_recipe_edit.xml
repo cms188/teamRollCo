@@ -1,73 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/Recipe_Edit_Layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/white"
     android:fitsSystemWindows="true"
     tools:context=".ui.recipe.write.RecipeEditActivity">
 
-    <!-- 상단 고정 툴바 -->
-    <LinearLayout
-        android:id="@+id/top_bar_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="@drawable/bg_search_top"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp">
-
-            <ImageView
-                android:id="@+id/iv_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:focusable="true"
-                android:src="@drawable/ic_arrow_back" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="레시피 수정"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/btn_save"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:background="@drawable/bg_orange_button_rounded"
-                android:gravity="center"
-                android:paddingHorizontal="18dp"
-                android:text="수정완료"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-    </LinearLayout>
+    <!-- 상단 고정 툴바 (include 사용) -->
+    <include
+        android:id="@+id/toolbar_layout"
+        layout="@layout/toolbar_write" />
 
     <!-- 스크롤 가능한 메인 컨텐츠 -->
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/top_bar_container"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:fillViewport="true">
 
         <LinearLayout
@@ -114,7 +66,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/bg_gray_rounded_light"
+                android:background="@drawable/bg_edittext_stroke"
                 android:paddingHorizontal="16dp"
                 android:hint="레시피 제목" />
 
@@ -123,7 +75,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="120dp"
                 android:layout_marginBottom="24dp"
-                android:background="@drawable/bg_gray_rounded_light"
+                android:background="@drawable/bg_edittext_stroke"
                 android:gravity="top|start"
                 android:hint="간단한 요리 소개"
                 android:inputType="textMultiLine"
@@ -150,13 +102,12 @@
                         style="@style/CookWriteTitle"
                         android:layout_marginBottom="12dp"
                         android:text="재료" />
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv_ingredients"
+                    <!-- 동적으로 뷰가 추가될 컨테이너 -->
+                    <LinearLayout
+                        android:id="@+id/ingredients_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false"
-                        tools:itemCount="3"
-                        tools:listitem="@layout/item_ingredient" />
+                        android:orientation="vertical" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -176,13 +127,12 @@
                         style="@style/CookWriteTitle"
                         android:layout_marginBottom="12dp"
                         android:text="조리 도구" />
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv_tools"
+                    <!-- 동적으로 뷰가 추가될 컨테이너 -->
+                    <LinearLayout
+                        android:id="@+id/tools_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false"
-                        tools:itemCount="2"
-                        tools:listitem="@layout/item_tool" />
+                        android:orientation="vertical" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -268,4 +218,4 @@
 
         </LinearLayout>
     </ScrollView>
-</RelativeLayout>
+</LinearLayout>
