@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
+import com.example.recipe_pocket.CategoryPageActivity
 import com.example.recipe_pocket.databinding.DialogSearchFilterBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -38,6 +39,12 @@ class FilterBottomSheetFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (requireActivity() is CategoryPageActivity) {
+            binding.FilterCategory.visibility = View.GONE
+            binding.chipgroupCategoryOptions.clearCheck()
+        }
+
         setupViews()
         setupClickListeners()
     }

@@ -25,6 +25,7 @@ import com.example.recipe_pocket.ui.recipe.search.FilterBottomSheetFragment
 import com.example.recipe_pocket.ui.recipe.search.SearchFilter
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
 import com.example.recipe_pocket.ui.main.WriteChoiceDialogFragment
+import com.example.recipe_pocket.ui.recipe.search.CookingTime
 import com.example.recipe_pocket.ui.user.UserPageActivity
 import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -351,10 +352,25 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
                 }
             }
 
-            // 카테고리 필터는 이미 loadRecipesByCategory에서 처리했으므로 여기서는 제외
-            // SearchFilter가 지원하는 다른 필터들이 있다면 여기에 추가
+            // 카테고리 필터
+            val categoryCheck = if (filter.categories.isEmpty()) true else {
+                recipe.categoryList?.any { filter.categories.contains(it) } ?: false
+            }
 
-            creationDateCheck
+            // 난이도 필터
+            val difficultyCheck = if (filter.difficulty.isEmpty()) true else {
+                filter.difficulty.contains(recipe.difficulty)
+            }
+
+            // 조리 시간 필터
+            val timeCheck = when (filter.cookingTime) {
+                CookingTime.ALL -> true
+                CookingTime.UNDER_10 -> (recipe.cookingTime ?: Int.MAX_VALUE) <= 10
+                CookingTime.UNDER_20 -> (recipe.cookingTime ?: Int.MAX_VALUE) <= 20
+                CookingTime.UNDER_30 -> (recipe.cookingTime ?: Int.MAX_VALUE) <= 30
+            }
+
+            creationDateCheck && categoryCheck && difficultyCheck && timeCheck
         }
     }
 

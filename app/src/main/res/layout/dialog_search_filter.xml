@@ -80,6 +80,12 @@
         </com.google.android.material.chip.ChipGroup>
 
         <!-- 카테고리 -->
+    <LinearLayout
+        android:id="@+id/Filter_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
         <TextView style="@style/FilterTitle" android:text="카테고리" />
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipgroup_category_options"
@@ -100,7 +106,7 @@
                 android:layout_height="wrap_content"
                 android:text="전체" />
         </com.google.android.material.chip.ChipGroup>
-
+    </LinearLayout>
         <!-- 난이도 -->
         <TextView style="@style/FilterTitle" android:text="난이도" />
         <com.google.android.material.chip.ChipGroup
