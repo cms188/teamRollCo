@@ -336,10 +336,17 @@ class RecipeDetailActivity : AppCompatActivity() {
             summaryBinding.ingredientsContainer.addView(view)
         }
         summaryBinding.toolsContainer.removeAllViews()
-        recipe.tools?.forEach { tool ->
-            val view = layoutInflater.inflate(R.layout.item_tool_display, summaryBinding.toolsContainer, false)
-            view.findViewById<TextView>(R.id.tool_name).text = tool
-            summaryBinding.toolsContainer.addView(view)
+        var tools = recipe.tools // tools가 null이거나 비어있는 경우 안보이게
+        if (tools.isNullOrEmpty()) {
+            summaryBinding.sectionTools.visibility = View.GONE
+        }
+        else {
+            summaryBinding.sectionTools.visibility = View.VISIBLE
+            tools.forEach { tool ->
+                val view = layoutInflater.inflate(R.layout.item_tool_display, summaryBinding.toolsContainer, false)
+                view.findViewById<TextView>(R.id.tool_name).text = tool
+                summaryBinding.toolsContainer.addView(view)
+            }
         }
         /*summaryBinding.btnStartCooking.setOnClickListener {
             val intent = Intent(this, RecipeReadActivity::class.java).apply { putExtra("RECIPE_ID", recipeId) }
