@@ -28,7 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="레시피 종류를 모두 선택해주세요."
-        android:fontFamily="@font/notosans_medium"
+        android:fontFamily="@font/notosans_regular"
         android:includeFontPadding="false"
         android:textSize="12sp"
         android:textColor="@color/text_secondary"

@@ -1,31 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_margin="8dp"
     android:clickable="true"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:focusable="true"
-    android:foreground="?attr/selectableItemBackgroundBorderless">
+    android:foreground="?attr/selectableItemBackgroundBorderless"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
 
     <ImageView
         android:id="@+id/category_icon"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:background="@drawable/cate1_01"
-        android:contentDescription="@null" />
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:contentDescription="@null"
+        tools:background="@drawable/cat1_1"/>
 
     <TextView
         android:id="@+id/category_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
         android:gravity="center"
+        android:includeFontPadding="false"
         android:text="카테고리"
         android:textAppearance="@style/category"
-        android:textColor="#333333" />
+        android:textColor="@color/text_primary" />
 
 </LinearLayout>

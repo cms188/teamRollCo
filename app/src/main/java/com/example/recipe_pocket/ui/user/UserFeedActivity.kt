@@ -42,7 +42,7 @@ class UserFeedActivity : AppCompatActivity() {
             finish()
             return
         }
-
+utils.ToolbarUtils.setupTransparentToolbar(this, "")
         setupRecyclerView()
         setupClickListeners()
         loadAllData()
@@ -55,7 +55,6 @@ class UserFeedActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        binding.ivBackButton.setOnClickListener { finish() }
         binding.btnFollow.setOnClickListener { toggleFollow() }
     }
 
@@ -88,7 +87,9 @@ class UserFeedActivity : AppCompatActivity() {
                 val recipeCount = document.getLong("recipeCount") ?: 0
                 val followerCount = document.getLong("followerCount") ?: 0
                 val followingCount = document.getLong("followingCount") ?: 0
-                binding.tvFollowerInfo.text = "게시물 $recipeCount · 팔로워 $followerCount · 팔로잉 $followingCount"
+                binding.tvPostCount.text = "$recipeCount"
+                binding.tvFollowerCount.text = "$followerCount"
+                binding.tvFollowingCount.text = "$followingCount"
 
                 // 프로필 이미지 로드
                 val imageUrl = document.getString("profileImageUrl")
@@ -131,12 +132,13 @@ class UserFeedActivity : AppCompatActivity() {
         // isFollowing 상태에 따라 버튼의 텍스트와 스타일 변경
         if (isFollowing) {
             binding.btnFollow.text = "언팔로우"
-            binding.btnFollow.background = ContextCompat.getDrawable(this, R.drawable.bg_gray_rounded)
-            binding.btnFollow.setTextColor(ContextCompat.getColor(this, R.color.black))
+            binding.btnFollow.setBackgroundColor(
+                ContextCompat.getColor(this, R.color.accent_honey_yellow))  // 회색 배경
+            binding.btnFollow.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
         } else {
             binding.btnFollow.text = "팔로우"
-            binding.btnFollow.background = ContextCompat.getDrawable(this, R.drawable.bg_orange_button_rounded)
-            binding.btnFollow.setTextColor(ContextCompat.getColor(this, R.color.white))
+            binding.btnFollow.setBackgroundColor(ContextCompat.getColor(this,R.color.primary))  // 주황색 배경
+            binding.btnFollow.setTextColor(ContextCompat.getColor(this, R.color.primary_cream))
         }
     }
 
