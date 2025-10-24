@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:orientation="vertical">
 
     <!--<androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -39,23 +39,31 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_tips"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:listitem="@layout/item_cook_tip_list"/>
+            tools:listitem="@layout/item_cook_tip_list" />
+
         <ProgressBar
             android:id="@+id/progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_gravity="center"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            tools:visibility="visible" />
+
         <TextView
             android:id="@+id/tv_empty_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="작성된 요리 팁이 없습니다."
-            android:visibility="gone"/>
+            android:fontFamily="@font/notosans_regular"
+            android:includeFontPadding="false"
+            android:text="작성한 요리 팁이 없어요."
+            android:textColor="@color/text_secondary"
+            android:visibility="gone"
+            tools:visibility="visible" />
     </FrameLayout>
 </LinearLayout>

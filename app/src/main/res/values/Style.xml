@@ -17,7 +17,7 @@
     </style>
     <style name="category">
         <item name="android:textSize">13sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/notosans_bold</item>
     </style>
     <!-- 추가할 스타일 1: 선택된 단계 -->
     <style name="StepIndicatorActive">

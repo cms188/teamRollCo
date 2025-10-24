@@ -33,6 +33,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
+            android:fontFamily="@font/notosans_regular"
+            android:includeFontPadding="false"
             android:text="북마크가 비어있어요."
             android:textColor="@color/text_secondary"
             android:textSize="12sp"

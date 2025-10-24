@@ -76,7 +76,7 @@ class CookTipDetailActivity : AppCompatActivity() {
         setupClickListeners()
         loadTipData()
         loadComments()
-        utils.ToolbarUtils.setupTransparentToolbar(this, "요리 Tip")
+        utils.ToolbarUtils.setupTransparentToolbar(this, "요리 Tip", showEditButton = true, showDeleteButton = true)
         setupWindowInsets()
     }
 

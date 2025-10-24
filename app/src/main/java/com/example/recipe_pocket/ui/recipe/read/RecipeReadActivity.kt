@@ -110,8 +110,6 @@ class RecipeReadActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        binding.ivBackButton.setOnClickListener { finish() }
-        binding.soundButton.setOnClickListener { toggleVoiceRecognition() }
         updateSoundButtonState()
         setupViewPager()
         LocalBroadcastManager.getInstance(this).registerReceiver(
@@ -358,7 +356,6 @@ class RecipeReadActivity : AppCompatActivity() {
     }
 
     private fun updateSoundButtonState() {
-        binding.soundButton.text = if (isVoiceRecognitionActive) "음성인식 중지" else "음성인식 시작"
     }
 
     private val voiceCommandReceiver: BroadcastReceiver = object : BroadcastReceiver() {
