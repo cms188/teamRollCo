@@ -99,6 +99,10 @@ class CookWrite01Activity : AppCompatActivity() {
                 Toast.makeText(this, "레시피 제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            if (binding.etRecipeDescription.text.toString().isBlank()) {
+                Toast.makeText(this, "요리 소개를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             goToNextStep()
         }
     }

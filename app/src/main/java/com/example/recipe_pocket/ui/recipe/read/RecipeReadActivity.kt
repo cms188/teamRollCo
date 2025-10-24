@@ -1,6 +1,7 @@
 package com.example.recipe_pocket.ui.recipe.read
 
 import android.Manifest
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -12,18 +13,30 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.example.recipe_pocket.R
 import com.example.recipe_pocket.data.Recipe
-import com.example.recipe_pocket.databinding.ActivityRecipeReadBinding
 import com.example.recipe_pocket.service.FloatingTimerService
 import com.example.recipe_pocket.service.VoiceRecognitionService
 import com.google.firebase.auth.FirebaseAuth
@@ -33,12 +46,24 @@ import kotlinx.coroutines.tasks.await
 
 class RecipeReadActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityRecipeReadBinding
     private lateinit var recipeStepAdapter: RecipeStepAdapter
     private lateinit var firestore: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
     private var recipeId: String? = null
+    private var currentRecipe: Recipe? = null // 레시피 데이터 저장
     private var totalSteps = 0
+
+    // UI 요소
+    private lateinit var viewPager: ViewPager2
+    private lateinit var backButton: ImageButton
+    private lateinit var allStepsButton: LinearLayout
+    private lateinit var voiceButton: LinearLayout
+    private lateinit var stepProgressIndicatorLayout: CardView // 타입을 CardView로 수정
+    private lateinit var stepBadgeTextView: TextView
+    private lateinit var currentStepTitleTextView: TextView
+    private lateinit var stepPagerIndicatorTextView: TextView
+    private lateinit var stepProgressBar: ProgressBar
+
 
     private var isVoiceRecognitionActive = false
     private var shouldStartVoiceRecognitionAfterPermission = false
@@ -65,12 +90,26 @@ class RecipeReadActivity : AppCompatActivity() {
         }
     }
 
+    // '모든 단계 보기' 액티비티를 위한 런처 추가
+    private val allStepsResultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val selectedIndex = result.data?.getIntExtra(AllStepsActivity.RESULT_SELECTED_STEP_INDEX, -1) ?: -1
+            if (selectedIndex != -1) {
+                viewPager.setCurrentItem(selectedIndex, true)
+            }
+        }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityRecipeReadBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_recipe_read_recent)
 
         initFirebase()
+        initializeViews()
+        setupToolbar() // 툴바 설정 추가
         setupUI()
         processIntent(intent)
     }
@@ -79,6 +118,40 @@ class RecipeReadActivity : AppCompatActivity() {
         super.onResume()
         // 앱으로 돌아왔을 때, 실행 중인 플로팅 타이머 서비스가 있다면 중지
     }
+
+    // 뷰 ID를 이용해 초기화
+    private fun initializeViews() {
+        backButton = findViewById(R.id.back_button)
+        viewPager = findViewById(R.id.view_pager_recipe_steps)
+        stepProgressIndicatorLayout = findViewById(R.id.layout_step_progress_indicator)
+        stepBadgeTextView = findViewById(R.id.tv_step_badge)
+        currentStepTitleTextView = findViewById(R.id.tv_current_step_title)
+        stepPagerIndicatorTextView = findViewById(R.id.tv_step_pager_indicator)
+        stepProgressBar = findViewById(R.id.pb_step_progress)
+        allStepsButton = findViewById(R.id.btn_previous_step)
+        voiceButton = findViewById(R.id.btn_next_step)
+    }
+
+    private fun setupToolbar() {
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        val toolbarTitle = findViewById<TextView>(R.id.toolbar_title)
+        val editDeleteContainer = findViewById<View>(R.id.edit_delete_container)
+
+        // 제목 설정 및 불필요한 버튼 숨기기
+        toolbarTitle.text = "요리하기"
+        editDeleteContainer.visibility = View.GONE
+
+        // 상태바 높이만큼 패딩 추가하여 레이아웃 밀림 방지
+        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.updatePadding(top = statusBarHeight)
+            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                height = statusBarHeight + (56 * resources.displayMetrics.density).toInt()
+            }
+            WindowInsetsCompat.CONSUMED
+        }
+    }
+
 
     private fun processIntent(intent: Intent?) {
         if (intent == null) {
@@ -110,15 +183,36 @@ class RecipeReadActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        binding.ivBackButton.setOnClickListener { finish() }
-        binding.soundButton.setOnClickListener { toggleVoiceRecognition() }
-        updateSoundButtonState()
+        backButton.setOnClickListener { finish() }
+        voiceButton.setOnClickListener { toggleVoiceRecognition() }
+        updateSoundButtonState() // 버튼 텍스트 대신 아이콘 상태 등으로 변경 가능
         setupViewPager()
         LocalBroadcastManager.getInstance(this).registerReceiver(
             voiceCommandReceiver,
             IntentFilter(VoiceRecognitionService.ACTION_VOICE_COMMAND)
         )
+
+        // '모든 단계 보기' 버튼 클릭 리스너
+        allStepsButton.setOnClickListener {
+            showAllStepsActivity()
+        }
     }
+
+    // 모든 단계 보기 액티비티 호출
+    private fun showAllStepsActivity() {
+        val steps = currentRecipe?.steps ?: return
+        if (steps.isEmpty()) return
+
+        val stepTitles = ArrayList(steps.sortedBy { it.stepNumber }.mapIndexed { index, step ->
+            "${index + 1}단계: ${step.title?.takeIf { it.isNotEmpty() } ?: "요리하기"}"
+        })
+
+        val intent = Intent(this, AllStepsActivity::class.java).apply {
+            putStringArrayListExtra(AllStepsActivity.EXTRA_STEP_TITLES, stepTitles)
+        }
+        allStepsResultLauncher.launch(intent)
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -162,25 +256,30 @@ class RecipeReadActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
     }
 
-    private fun updateTopUIForPage(isStepPage: Boolean) {
-        binding.layoutStepProgressIndicator.visibility = if (isStepPage) View.VISIBLE else View.GONE
+    private fun updateTopUIForPage(isStepPage: Boolean, currentStep: Int = 0) {
+        stepProgressIndicatorLayout.visibility = if (isStepPage) View.VISIBLE else View.GONE
+        if (isStepPage) {
+            val stepData = currentRecipe?.steps?.getOrNull(currentStep)
+            stepBadgeTextView.text = "${currentStep + 1}단계"
+            currentStepTitleTextView.text = stepData?.title?.takeIf { it.isNotEmpty() } ?: "요리하기"
+        }
     }
 
 
     private fun setupViewPager() {
-        recipeStepAdapter = RecipeStepAdapter(null, object : CircularTimerView.OnTimerStateChangedListener {
+        recipeStepAdapter = RecipeStepAdapter(null, object : RecipeStepAdapter.OnTimerStateChangedListener {
             override fun onTimerStart() { isTimerRunningForFloating = true }
             override fun onTimerPause() { isTimerRunningForFloating = false }
             override fun onTimerStop() { isTimerRunningForFloating = false }
         })
 
-        binding.viewPagerRecipeSteps.adapter = recipeStepAdapter
+        viewPager.adapter = recipeStepAdapter
 
-        binding.viewPagerRecipeSteps.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 val isStepPage = position < totalSteps
-                updateTopUIForPage(isStepPage)
+                updateTopUIForPage(isStepPage, position)
 
                 if (isStepPage) {
                     updateStepProgressIndicator(position + 1, totalSteps)
@@ -198,6 +297,7 @@ class RecipeReadActivity : AppCompatActivity() {
             if (documentSnapshot.exists()) {
                 val recipe = documentSnapshot.toObject(Recipe::class.java)
                 if (recipe != null) {
+                    currentRecipe = recipe // 레시피 데이터 저장
                     val currentUserId = auth.currentUser?.uid
                     if (currentUserId != null) {
                         recipe.isBookmarked = recipe.bookmarkedBy?.contains(currentUserId) == true
@@ -220,35 +320,32 @@ class RecipeReadActivity : AppCompatActivity() {
         totalSteps = recipe.steps?.size ?: 0
         recipeStepAdapter.updateItems(recipe)
 
-        if (totalSteps > 0) {
-            updateTopUIForPage(true)
+        val isStepPage = totalSteps > 0
+        updateTopUIForPage(isStepPage, 0)
+        if (isStepPage) {
             updateStepProgressIndicator(1, totalSteps)
-        } else {
-            updateTopUIForPage(false)
         }
     }
 
     private fun restoreTimerState(targetStep: Int, remainingTime: Long) {
-        binding.viewPagerRecipeSteps.post {
-            binding.viewPagerRecipeSteps.setCurrentItem(targetStep, false)
-            binding.viewPagerRecipeSteps.post {
+        viewPager.post {
+            viewPager.setCurrentItem(targetStep, false)
+            viewPager.post {
                 val vh = getCurrentViewHolder()
-                val timerView = vh?.circularTimerView
-                timerView?.setRemainingTime(remainingTime)
-                timerView?.startTimer()
+                vh?.setRemainingTime(remainingTime)
+                vh?.startTimer()
             }
         }
     }
 
     private fun updateStepProgressIndicator(currentStep: Int, totalSteps: Int) {
-        binding.tvCurrentStepTitle.text = "${currentStep}단계"
-        binding.tvStepPagerIndicator.text = "$currentStep / $totalSteps"
-        binding.pbStepProgress.progress = (currentStep.toFloat() / totalSteps.toFloat() * 100).toInt()
+        stepPagerIndicatorTextView.text = "$currentStep / $totalSteps"
+        stepProgressBar.progress = (currentStep.toFloat() / totalSteps.toFloat() * 100).toInt()
     }
 
     private fun getCurrentViewHolder(): RecipeStepAdapter.StepViewHolder? {
-        val recyclerView = binding.viewPagerRecipeSteps.getChildAt(0) as? RecyclerView ?: return null
-        val viewHolder = recyclerView.findViewHolderForAdapterPosition(binding.viewPagerRecipeSteps.currentItem)
+        val recyclerView = viewPager.getChildAt(0) as? RecyclerView ?: return null
+        val viewHolder = recyclerView.findViewHolderForAdapterPosition(viewPager.currentItem)
         return viewHolder as? RecipeStepAdapter.StepViewHolder
     }
 
@@ -274,18 +371,19 @@ class RecipeReadActivity : AppCompatActivity() {
     }
 
     private fun launchFloatingTimer() {
-        val timerView = activeTimerViewHolder?.circularTimerView
-        if (timerView != null && timerView.isRunning()) {
+        val vh = activeTimerViewHolder
+        if (vh != null && vh.isTimerRunning()) {
             val intent = Intent(this, FloatingTimerService::class.java).apply {
                 action = FloatingTimerService.ACTION_START
-                putExtra(FloatingTimerService.EXTRA_INITIAL_TIME, timerView.getInitialTimeInMillis())
-                putExtra(FloatingTimerService.EXTRA_TIME_IN_MILLIS, timerView.getTimeLeftInMillis())
+                putExtra(FloatingTimerService.EXTRA_INITIAL_TIME, vh.getInitialTimeInMillis())
+                putExtra(FloatingTimerService.EXTRA_TIME_IN_MILLIS, vh.getTimeLeftInMillis())
                 putExtra(FloatingTimerService.EXTRA_RECIPE_ID, recipeId)
-                putExtra(FloatingTimerService.EXTRA_STEP_POSITION, binding.viewPagerRecipeSteps.currentItem)
+                putExtra(FloatingTimerService.EXTRA_STEP_POSITION, viewPager.currentItem)
             }
             startService(intent)
         }
     }
+
 
     private fun checkAndRequestPermissions(): Boolean {
         val permissionsToRequest = mutableListOf<String>()
@@ -358,8 +456,14 @@ class RecipeReadActivity : AppCompatActivity() {
     }
 
     private fun updateSoundButtonState() {
-        binding.soundButton.text = if (isVoiceRecognitionActive) "음성인식 중지" else "음성인식 시작"
+        val icon = voiceButton.findViewById<ImageView>(R.id.btn_next_step_icon)
+        val text = voiceButton.findViewById<TextView>(R.id.btn_next_step_text)
+        val alphaValue = if (isVoiceRecognitionActive) 1.0f else 0.5f
+
+        icon.alpha = alphaValue
+        text.alpha = alphaValue
     }
+
 
     private val voiceCommandReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -368,17 +472,17 @@ class RecipeReadActivity : AppCompatActivity() {
                 Log.d(TAG, "Received command from service: $command")
                 when (command) {
                     VoiceRecognitionService.COMMAND_NEXT -> {
-                        val currentItem = binding.viewPagerRecipeSteps.currentItem
+                        val currentItem = viewPager.currentItem
                         if (currentItem < recipeStepAdapter.itemCount - 1) {
-                            binding.viewPagerRecipeSteps.setCurrentItem(currentItem + 1, true)
+                            viewPager.setCurrentItem(currentItem + 1, true)
                         } else {
                             Toast.makeText(this@RecipeReadActivity, "마지막입니다.", Toast.LENGTH_SHORT).show()
                         }
                     }
                     VoiceRecognitionService.COMMAND_PREVIOUS -> {
-                        val currentItem = binding.viewPagerRecipeSteps.currentItem
+                        val currentItem = viewPager.currentItem
                         if (currentItem > 0) {
-                            binding.viewPagerRecipeSteps.setCurrentItem(currentItem - 1, true)
+                            viewPager.setCurrentItem(currentItem - 1, true)
                         } else {
                             Toast.makeText(this@RecipeReadActivity, "첫 단계입니다.", Toast.LENGTH_SHORT).show()
                         }
