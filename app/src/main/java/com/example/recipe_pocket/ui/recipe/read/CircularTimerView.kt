@@ -34,8 +34,7 @@ class CircularTimerView @JvmOverloads constructor(
 
     private val progressBar: ProgressBar
     private val tvTime: TextView
-    private val btnPlay: ImageButton
-    private val btnPause: ImageButton
+    private val btnPlayPause: ImageButton
     private val btnReset: ImageButton
 
     private val largeTextSize: Float
@@ -45,8 +44,7 @@ class CircularTimerView @JvmOverloads constructor(
         LayoutInflater.from(context).inflate(R.layout.view_circular_timer, this, true)
         progressBar = findViewById(R.id.progressBar)
         tvTime = findViewById(R.id.tv_time)
-        btnPlay = findViewById(R.id.btn_play)
-        btnPause = findViewById(R.id.btn_pause)
+        btnPlayPause = findViewById(R.id.btn_play_pause)
         btnReset = findViewById(R.id.btn_reset)
 
         largeTextSize = tvTime.textSize
@@ -54,21 +52,18 @@ class CircularTimerView @JvmOverloads constructor(
             TypedValue.COMPLEX_UNIT_SP, 36f, resources.displayMetrics
         )
 
-        btnPlay.setOnClickListener {
-            if (!isTimerRunning) {
-                startTimer()
-            }
-        }
-
-        btnPause.setOnClickListener {
+        btnPlayPause.setOnClickListener {
             if (isTimerRunning) {
                 pauseTimer()
+            } else {
+                startTimer()
             }
         }
 
         btnReset.setOnClickListener {
             resetTimer()
         }
+        updatePlayPauseButton()
     }
 
     fun setOnTimerStateChangedListener(listener: OnTimerStateChangedListener) {
@@ -98,6 +93,7 @@ class CircularTimerView @JvmOverloads constructor(
         if (timeLeftInMillis <= 0 || isTimerRunning) return
 
         isTimerRunning = true
+        updatePlayPauseButton()
         timerStateListener?.onTimerStart()
 
         countDownTimer = object : CountDownTimer(timeLeftInMillis, 50) {
@@ -110,6 +106,7 @@ class CircularTimerView @JvmOverloads constructor(
                 timeLeftInMillis = 0
                 isTimerRunning = false
                 updateTimerUI()
+                updatePlayPauseButton()
                 timerStateListener?.onTimerStop()
             }
         }.start()
@@ -118,6 +115,7 @@ class CircularTimerView @JvmOverloads constructor(
         if (!isTimerRunning) return
         countDownTimer?.cancel()
         isTimerRunning = false
+        updatePlayPauseButton()
         timerStateListener?.onTimerPause()
     }
 
@@ -126,8 +124,17 @@ class CircularTimerView @JvmOverloads constructor(
         pauseTimer()
         timeLeftInMillis = initialTimeInMillis
         updateTimerUI()
+        updatePlayPauseButton()
         if (wasRunning) {
             timerStateListener?.onTimerStop()
+        }
+    }
+
+    private fun updatePlayPauseButton() {
+        if (isTimerRunning) {
+            btnPlayPause.setImageResource(R.drawable.ic_pause)
+        } else {
+            btnPlayPause.setImageResource(R.drawable.ic_play)
         }
     }
 

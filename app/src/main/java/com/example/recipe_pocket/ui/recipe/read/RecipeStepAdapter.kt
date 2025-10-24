@@ -2,11 +2,15 @@ package com.example.recipe_pocket.ui.recipe.read
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -29,11 +33,18 @@ sealed class RecipePageItem {
 
 class RecipeStepAdapter(
     initialRecipe: Recipe?,
-    private val timerStateListener: CircularTimerView.OnTimerStateChangedListener? // 리스너 추가
+    private val timerStateListener: OnTimerStateChangedListener? // 리스너 추가
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var pageItems: List<RecipePageItem> = emptyList()
+
+    // Activity에 타이머 상태를 알리기 위한 인터페이스
+    interface OnTimerStateChangedListener {
+        fun onTimerStart()
+        fun onTimerPause()
+        fun onTimerStop()
+    }
 
     companion object {
         private const val VIEW_TYPE_STEP = 1
@@ -58,11 +69,7 @@ class RecipeStepAdapter(
         return when (viewType) {
             VIEW_TYPE_STEP -> {
                 val view = inflater.inflate(R.layout.read_recipe_step, parent, false)
-                val holder = StepViewHolder(view)
-                // ViewHolder 생성 시 리스너 설정
-                timerStateListener?.let {
-                    holder.setTimerStateListener(it)
-                }
+                val holder = StepViewHolder(view, timerStateListener) // ViewHolder 생성 시 리스너 전달
                 viewHolders.add(holder)
                 holder
             }
@@ -86,7 +93,7 @@ class RecipeStepAdapter(
     override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
         if (holder is StepViewHolder) {
-            holder.releaseCircularTimer()
+            holder.releaseTimer()
             viewHolders.remove(holder)
         }
     }
@@ -103,15 +110,26 @@ class RecipeStepAdapter(
     }
 
     fun releaseAllTimers() {
-        viewHolders.forEach { it.releaseCircularTimer() }
+        viewHolders.forEach { it.releaseTimer() }
         viewHolders.clear()
     }
 
-    class StepViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class StepViewHolder(itemView: View, private val listener: OnTimerStateChangedListener?) : RecyclerView.ViewHolder(itemView) {
         private val stepTitleTextView: TextView = itemView.findViewById(R.id.tv_step_title)
         private val stepDescriptionTextView: TextView = itemView.findViewById(R.id.tv_step_description)
         private val stepImageView: ImageView = itemView.findViewById(R.id.iv_step_image)
-        val circularTimerView: CircularTimerView = itemView.findViewById(R.id.circular_timer_view)
+
+        // 타이머 관련 UI 요소
+        private val timerContainer: LinearLayout = itemView.findViewById(R.id.timer_container)
+        private val timerTimeTextView: TextView = itemView.findViewById(R.id.tv_timer_time)
+        private val timerProgressBar: ProgressBar = itemView.findViewById(R.id.pb_timer_progress)
+        private val playPauseButton: ImageButton = itemView.findViewById(R.id.btn_timer_play_pause)
+        private val resetButton: ImageButton = itemView.findViewById(R.id.btn_timer_reset)
+
+        private var countDownTimer: CountDownTimer? = null
+        private var initialTimeInMillis: Long = 0
+        private var timeLeftInMillis: Long = 0
+        private var isRunning = false
 
         fun bind(step: RecipeStep) {
             stepTitleTextView.text = if (step.title.isNullOrEmpty()) "요리하기" else step.title
@@ -124,22 +142,104 @@ class RecipeStepAdapter(
             } else {
                 stepImageView.visibility = View.GONE
             }
+
             if (step.useTimer == true && step.time != null && step.time > 0) {
-                circularTimerView.visibility = View.VISIBLE
-                circularTimerView.setTime(step.time)
+                timerContainer.visibility = View.VISIBLE
+                initialTimeInMillis = step.time * 1000L
+                timeLeftInMillis = initialTimeInMillis
+                updateTimerUI()
             } else {
-                circularTimerView.visibility = View.GONE
+                timerContainer.visibility = View.GONE
+            }
+
+            playPauseButton.setOnClickListener {
+                if (isRunning) pauseTimer() else startTimer()
+            }
+
+            resetButton.setOnClickListener {
+                resetTimer()
             }
         }
-        // CircularTimerView에 리스너를 설정하는 메서드 추가
-        fun setTimerStateListener(listener: CircularTimerView.OnTimerStateChangedListener) {
-            circularTimerView.setOnTimerStateChangedListener(listener)
+
+        fun startTimer() {
+            if (timeLeftInMillis <= 0 || isRunning) return
+            isRunning = true
+            updatePlayPauseButton()
+            listener?.onTimerStart()
+
+            countDownTimer = object : CountDownTimer(timeLeftInMillis, 50) {
+                override fun onTick(millisUntilFinished: Long) {
+                    timeLeftInMillis = millisUntilFinished
+                    updateTimerUI()
+                }
+
+                override fun onFinish() {
+                    timeLeftInMillis = 0
+                    isRunning = false
+                    updateTimerUI()
+                    updatePlayPauseButton()
+                    listener?.onTimerStop()
+                }
+            }.start()
         }
 
-        fun startTimer() { if (circularTimerView.visibility == View.VISIBLE) circularTimerView.startTimer() }
-        fun pauseTimer() { if (circularTimerView.visibility == View.VISIBLE) circularTimerView.pauseTimer() }
-        fun releaseCircularTimer() { circularTimerView.releaseTimer() }
+        fun pauseTimer() {
+            if (!isRunning) return
+            countDownTimer?.cancel()
+            isRunning = false
+            updatePlayPauseButton()
+            listener?.onTimerPause()
+        }
+
+        private fun resetTimer() {
+            val wasRunning = isRunning
+            pauseTimer()
+            timeLeftInMillis = initialTimeInMillis
+            updateTimerUI()
+            updatePlayPauseButton()
+            if (wasRunning) {
+                listener?.onTimerStop()
+            }
+        }
+
+        private fun updateTimerUI() {
+            val totalSeconds = (timeLeftInMillis + 999) / 1000
+            val minutes = totalSeconds / 60
+            val seconds = totalSeconds % 60
+            timerTimeTextView.text = String.format("%02d:%02d", minutes, seconds)
+
+            val progress = if (initialTimeInMillis > 0) {
+                (timeLeftInMillis.toDouble() * 1000 / initialTimeInMillis).toInt()
+            } else {
+                0
+            }
+            timerProgressBar.progress = progress
+        }
+
+        private fun updatePlayPauseButton() {
+            if (isRunning) {
+                playPauseButton.setImageResource(R.drawable.ic_pause)
+            } else {
+                playPauseButton.setImageResource(R.drawable.ic_play)
+            }
+        }
+
+        fun releaseTimer() {
+            countDownTimer?.cancel()
+            countDownTimer = null
+        }
+
+        fun getTimeLeftInMillis(): Long = timeLeftInMillis
+        fun getInitialTimeInMillis(): Long = initialTimeInMillis
+        fun isTimerRunning(): Boolean = isRunning
+        fun setRemainingTime(remainingMillis: Long) {
+            if (!isRunning) {
+                timeLeftInMillis = remainingMillis
+                updateTimerUI()
+            }
+        }
     }
+
 
     class FinishViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val title: TextView = itemView.findViewById(R.id.tv_finish_title)

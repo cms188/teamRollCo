@@ -47,6 +47,7 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
     private var currentFilter = SearchFilter.default()
 
     private var isSuggestionViewVisible = false
+    private var startedInSearchMode = false // 메인에서 바로 넘어왔는지 확인하는 플래그
 
     private val bottomNavigationView: BottomNavigationView
         get() = binding.bottomNavigationView.bottomNavigation
@@ -67,11 +68,19 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
 
         // 인텐트에서 검색어 확인 및 처리 로직
         val incomingQuery = intent.getStringExtra("search_query")
+        startedInSearchMode = intent.getBooleanExtra("START_IN_SEARCH_MODE", false)
+
         if (!incomingQuery.isNullOrBlank()) {
             // 인텐트로 검색어가 전달된 경우 (예: 제철 재료 클릭)
             binding.etSearchBar.setText(incomingQuery)
             performSearch() // 검색 수행 (UI 숨김, 데이터 로딩 등 포함)
-        } else {
+        } else if (startedInSearchMode) {
+            // 메인 화면에서 검색 아이콘을 눌러 진입한 경우
+            binding.etSearchBar.requestFocus()
+            showKeyboard(binding.etSearchBar)
+            showSuggestionView()
+        }
+        else {
             // 직접 검색 화면으로 들어온 경우, 전체 레시피 목록을 불러옴
             loadData(null)
         }
@@ -231,7 +240,6 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
                     }
                 } else {
                     // 인기 검색어가 없을 경우 처리 (예: 메시지 표시 또는 숨김)
-                    // 필요하다면 여기에 TextView를 추가하여 "인기 검색어가 없습니다" 메시지를 표시할 수 있습니다.
                 }
             }.onFailure {
                 // 오류 처리
@@ -418,13 +426,21 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
         onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (isSuggestionViewVisible) {
-                    hideSuggestionView()
+                    // 메인에서 바로 검색모드로 진입한 경우, 뒤로가면 바로 종료
+                    if (startedInSearchMode) {
+                        finish()
+                    } else {
+                        // 검색 결과 화면에서 검색창을 다시 눌렀던 경우, 제안 화면만 숨김
+                        hideSuggestionView()
+                    }
                 } else {
+                    // 검색 결과 화면에서는 무조건 종료
                     finish()
                 }
             }
         })
     }
+
 
     private fun setupBottomNavigation() {
         bottomNavigationView.setOnItemReselectedListener { /* no-op */ }
@@ -468,5 +484,10 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
     private fun hideKeyboard(view: View) {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    private fun showKeyboard(view: View) {
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
     }
 }

@@ -181,6 +181,11 @@ class CookWrite02Activity : AppCompatActivity() {
         val finalIngredients = ingredientsList.filter { !it.name.isNullOrBlank() }
         val finalTools = toolsList.filter { it.isNotBlank() }
 
+        if (finalIngredients.isEmpty()) {
+            Toast.makeText(this, "재료를 1개 이상 입력해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         recipeData?.let {
             it.ingredients = finalIngredients
             it.tools = finalTools
