@@ -110,7 +110,7 @@ class RecipeDetailActivity : AppCompatActivity() {
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 bottomMargin = dpToPx(16) + navBottom   // 기본 16dp + 네비게이션바 높이
             }
-            insets // 소비하지 말고 전파
+            insets
         }
     }
 
@@ -131,7 +131,7 @@ class RecipeDetailActivity : AppCompatActivity() {
 
         // 툴바 초기 설정
         utils.ToolbarUtils.setupTransparentToolbar(
-            this, "", showEditButton = true, showDeleteButton = true,
+            this, "", showEditButton = false, showDeleteButton = false,
             onEditClicked = {
                 // 수정 버튼 클릭 시 처리
                 val intent =
