@@ -106,28 +106,28 @@
                                     android:id="@+id/category_button_1"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cate1_01" android:contentDescription="한식"/>
+                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cat1_1" android:contentDescription="한식"/>
                                     <TextView style="@style/UserPageMenuText" android:text="한식" android:textColor="#333333"/>
                                 </LinearLayout>
                                 <LinearLayout
                                     android:id="@+id/category_button_2"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cate1_02" android:contentDescription="양식"/>
+                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cat1_2" android:contentDescription="양식"/>
                                     <TextView style="@style/UserPageMenuText" android:text="양식" android:textColor="#333333"/>
                                 </LinearLayout>
                                 <LinearLayout
                                     android:id="@+id/category_button_3"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cate1_03" android:contentDescription="중식"/>
+                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cat1_3" android:contentDescription="중식"/>
                                     <TextView style="@style/UserPageMenuText" android:text="중식" android:textColor="#333333"/>
                                 </LinearLayout>
                                 <LinearLayout
                                     android:id="@+id/category_button_4"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cate1_04" android:contentDescription="일식"/>
+                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cat1_4" android:contentDescription="일식"/>
                                     <TextView style="@style/UserPageMenuText" android:text="일식" android:textColor="#333333"/>
                                 </LinearLayout>
                             </LinearLayout>
@@ -141,28 +141,38 @@
                                     android:id="@+id/category_button_11"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cate1_05" android:contentDescription="디저트" />
-                                    <TextView style="@style/UserPageMenuText" android:text="디저트" android:textColor="#333333"/>
+                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cat1_5" android:contentDescription="동남아식" />
+                                    <TextView style="@style/UserPageMenuText" android:text="동남아식" android:textColor="#333333"/>
                                 </LinearLayout>
                                 <LinearLayout
                                     android:id="@+id/category_button_12"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cate1_06" android:contentDescription="분식"/>
-                                    <TextView style="@style/UserPageMenuText" android:text="분식" android:textColor="#333333"/>
+                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cat1_6" android:contentDescription="남미식"/>
+                                    <TextView style="@style/UserPageMenuText" android:text="남미식" android:textColor="#333333"/>
                                 </LinearLayout>
                                 <LinearLayout
                                     android:id="@+id/category_button_13"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cate1_07" android:contentDescription="음료"/>
-                                    <TextView style="@style/UserPageMenuText" android:text="음료" android:textColor="#333333"/>
+                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cat1_7" android:contentDescription="분식"/>
+                                    <TextView style="@style/UserPageMenuText" android:text="분식" android:textColor="#333333"/>
                                 </LinearLayout>
                                 <LinearLayout
                                     android:id="@+id/category_button_14"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cate1_08" android:contentDescription="더보기"/>
+                                    <TextView
+                                        style="@style/UserPageMenuIcon"
+                                        android:layout_width="56dp"
+                                        android:layout_height="56dp"
+                                        android:background="@drawable/bg_circle_border"
+                                        android:gravity="center"
+                                        android:text="•••"
+                                        android:textColor="@color/text_secondary"
+                                        android:textSize="20sp"
+                                        android:textStyle="bold"
+                                        android:contentDescription="더보기"/>
                                     <TextView style="@style/UserPageMenuText" android:text="더보기" android:textColor="#333333"/>
                                 </LinearLayout>
                             </LinearLayout>

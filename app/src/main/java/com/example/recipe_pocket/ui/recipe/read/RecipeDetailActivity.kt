@@ -110,7 +110,7 @@ class RecipeDetailActivity : AppCompatActivity() {
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 bottomMargin = dpToPx(16) + navBottom   // 기본 16dp + 네비게이션바 높이
             }
-            insets // 소비하지 말고 전파
+            insets
         }
     }
 
@@ -131,7 +131,7 @@ class RecipeDetailActivity : AppCompatActivity() {
 
         // 툴바 초기 설정
         utils.ToolbarUtils.setupTransparentToolbar(
-            this, "", showEditButton = true, showDeleteButton = true,
+            this, "", showEditButton = false, showDeleteButton = false,
             onEditClicked = {
                 // 수정 버튼 클릭 시 처리
                 val intent =
@@ -336,10 +336,17 @@ class RecipeDetailActivity : AppCompatActivity() {
             summaryBinding.ingredientsContainer.addView(view)
         }
         summaryBinding.toolsContainer.removeAllViews()
-        recipe.tools?.forEach { tool ->
-            val view = layoutInflater.inflate(R.layout.item_tool_display, summaryBinding.toolsContainer, false)
-            view.findViewById<TextView>(R.id.tool_name).text = tool
-            summaryBinding.toolsContainer.addView(view)
+        var tools = recipe.tools // tools가 null이거나 비어있는 경우 안보이게
+        if (tools.isNullOrEmpty()) {
+            summaryBinding.sectionTools.visibility = View.GONE
+        }
+        else {
+            summaryBinding.sectionTools.visibility = View.VISIBLE
+            tools.forEach { tool ->
+                val view = layoutInflater.inflate(R.layout.item_tool_display, summaryBinding.toolsContainer, false)
+                view.findViewById<TextView>(R.id.tool_name).text = tool
+                summaryBinding.toolsContainer.addView(view)
+            }
         }
         /*summaryBinding.btnStartCooking.setOnClickListener {
             val intent = Intent(this, RecipeReadActivity::class.java).apply { putExtra("RECIPE_ID", recipeId) }

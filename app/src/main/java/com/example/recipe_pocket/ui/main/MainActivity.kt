@@ -143,7 +143,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupClickListeners() {
         binding.topSearchButton.setOnClickListener {
-            startActivity(Intent(this, SearchResult::class.java))
+            val intent = Intent(this, SearchResult::class.java).apply {
+                // 검색 모드로 시작하도록 플래그 추가
+                putExtra("START_IN_SEARCH_MODE", true)
+            }
+            startActivity(intent)
         }
         binding.categoryButton1.setOnClickListener {
             startActivity(CategoryPageActivity.createIntent(this, "한식"))
@@ -158,13 +162,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(CategoryPageActivity.createIntent(this, "일식"))
         }
         binding.categoryButton11.setOnClickListener {
-            startActivity(CategoryPageActivity.createIntent(this, "디저트"))
+            startActivity(CategoryPageActivity.createIntent(this, "동남아식"))
         }
         binding.categoryButton12.setOnClickListener {
-            startActivity(CategoryPageActivity.createIntent(this, "분식"))
+            startActivity(CategoryPageActivity.createIntent(this, "남미식"))
         }
         binding.categoryButton13.setOnClickListener {
-            startActivity(CategoryPageActivity.createIntent(this, "음료"))
+            startActivity(CategoryPageActivity.createIntent(this, "분식"))
         }
         binding.categoryButton14.setOnClickListener {
             startActivity(Intent(this, AllCategoriesActivity::class.java))

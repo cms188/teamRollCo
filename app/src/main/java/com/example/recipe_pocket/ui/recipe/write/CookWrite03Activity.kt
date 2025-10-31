@@ -1,44 +1,28 @@
 package com.example.recipe_pocket.ui.recipe.write
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.recipe_pocket.R
-import com.example.recipe_pocket.ai.AITagGenerator
 import com.example.recipe_pocket.data.RecipeData
 import com.example.recipe_pocket.databinding.CookWrite03Binding
 import com.example.recipe_pocket.databinding.ItemStepIndicatorBinding
-import com.example.recipe_pocket.repository.NotificationHandler
+import com.example.recipe_pocket.repository.RecipeSavePipeline
+import com.example.recipe_pocket.ui.auth.EditProfileActivity
 import com.example.recipe_pocket.ui.main.MainActivity
-import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.Tasks
-import com.google.firebase.Timestamp
+import com.example.recipe_pocket.util.BgSaves
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
-import java.util.*
-import kotlinx.coroutines.launch
 
 class CookWrite03Activity : AppCompatActivity() {
 
@@ -46,8 +30,6 @@ class CookWrite03Activity : AppCompatActivity() {
     private lateinit var stepAdapter: CookWrite03StepAdapter
     private val viewModel: CookWriteViewModel by viewModels()
     private val auth = Firebase.auth
-    private val db = Firebase.firestore
-    private val storage = Firebase.storage
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -171,148 +153,46 @@ class CookWrite03Activity : AppCompatActivity() {
 
     private fun saveRecipe() {
         updateAllFragmentsData()
-        val recipeData = viewModel.recipeData.value
-        if (recipeData == null) {
-            Toast.makeText(this, "저장할 데이터가 없습니다.", Toast.LENGTH_SHORT).show()
+
+        val recipeSnapshot = buildRecipeSnapshot()
+        if (recipeSnapshot == null) {
+            Toast.makeText(this, "업로드할 데이터가 없습니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (auth.currentUser == null) {
+            Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
             return
         }
 
         val saveButton = findViewById<TextView>(R.id.btn_save)
-        saveButton.isEnabled = false
-        saveButton.text = "태그 생성 중..."
+        saveButton?.isEnabled = false
+        saveButton?.text = "업로드 준비 중..."
 
-        val recipeContentForAI = """
-            - 레시피 제목: ${recipeData.title}
-            - 간단한 설명: ${recipeData.description}
-            - 주요 재료: ${recipeData.ingredients.joinToString(", ") { it.name ?: "" }}
-        """.trimIndent()
+        val displayTitle = recipeSnapshot.title.ifBlank { "레시피" }
 
-        lifecycleScope.launch {
-            val tagResult = AITagGenerator.generateTags(recipeContentForAI)
-
-            tagResult.onSuccess { generatedTags ->
-                uploadRecipeAndSave(recipeData, generatedTags)
-            }.onFailure { exception ->
-                Log.e("AITagGenerator", "태그 생성 실패", exception)
-                Toast.makeText(this@CookWrite03Activity, "AI 태그 생성에 실패했습니다. 레시피는 태그 없이 저장됩니다.", Toast.LENGTH_LONG).show()
-                uploadRecipeAndSave(recipeData, emptySet())
-            }
+        BgSaves.enqueue(
+            context = this,
+            successMessage = "'$displayTitle' 업로드가 완료되었습니다.",
+            failureMessage = "'$displayTitle' 업로드에 실패했습니다."
+        ) {
+            RecipeSavePipeline.saveRecipeWithAi(recipeSnapshot)
         }
+
+        Toast.makeText(this, "백그라운드에서 업로드를 시작합니다.", Toast.LENGTH_SHORT).show()
+        startActivity(Intent(this, MainActivity::class.java))
     }
 
-    private fun uploadRecipeAndSave(data: RecipeData, tags: Set<String>) {
-        val saveButton = findViewById<TextView>(R.id.btn_save)
-        saveButton.isEnabled = false
-        saveButton.text = "저장 중..."
-
-        val thumbnailUploadTask = uploadImage(data.thumbnailUrl)
-
-        thumbnailUploadTask.addOnSuccessListener { thumbnailUrl ->
-            val stepImageUploadTasks = data.steps.map { uploadImage(it.imageUri) }
-            Tasks.whenAllSuccess<String>(stepImageUploadTasks).addOnSuccessListener { stepImageUrls ->
-                val firestoreMap = hashMapOf(
-                    "userId" to (auth.currentUser?.uid ?: ""),
-                    "userEmail" to (auth.currentUser?.email ?: ""),
-                    "title" to data.title,
-                    "simpleDescription" to data.description,
-                    "thumbnailUrl" to (thumbnailUrl ?: ""),
-                    "servings" to data.servings,
-                    "category" to data.category,
-                    "difficulty" to data.difficulty,
-                    "cookingTime" to data.cookingTimeMinutes,
-                    "ingredients" to data.ingredients.map { mapOf("name" to it.name, "amount" to it.amount, "unit" to it.unit) },
-                    "tools" to data.tools,
-                    "steps" to data.steps.mapIndexed { index, step ->
-                        mapOf(
-                            "stepNumber" to (index + 1),
-                            "title" to step.stepTitle,
-                            "description" to step.stepDescription,
-                            "imageUrl" to (stepImageUrls.getOrNull(index) ?: ""),
-                            "time" to step.timerSeconds,
-                            "useTimer" to step.useTimer
-                        )
-                    },
-                    "tags" to tags.toList(),
-                    "createdAt" to Timestamp.now(),
-                    "updatedAt" to Timestamp.now()
-                )
-
-                db.collection("Recipes").add(firestoreMap)
-                    .addOnSuccessListener {
-                        val userRef = db.collection("Users").document(auth.currentUser!!.uid)
-                        userRef.update("recipeCount", FieldValue.increment(1))
-                            .addOnSuccessListener {
-                                Log.d("RecipeSave", "recipeCount 업데이트 성공")
-                                checkAndGrantTitle(userRef)
-                            }
-                            .addOnFailureListener { e ->
-                                Log.w("RecipeSave", "recipeCount 업데이트 실패", e)
-                            }
-
-                        val intent = Intent(this, MainActivity::class.java).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        }
-                        startActivity(intent)
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(this, "데이터 저장 실패: ${e.message}", Toast.LENGTH_SHORT).show()
-                        saveButton.isEnabled = true
-                        saveButton.text = "등록"
-                    }
-            }.addOnFailureListener { e ->
-                Toast.makeText(this, "단계 이미지 업로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
-                saveButton.isEnabled = true
-                saveButton.text = "등록"
-            }
-        }.addOnFailureListener { e ->
-            Toast.makeText(this, "대표 이미지 업로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
-            saveButton.isEnabled = true
-            saveButton.text = "등록"
-        }
-    }
-
-    private fun checkAndGrantTitle(userRef: DocumentReference) {
-        userRef.get().addOnSuccessListener { document ->
-            if (document.exists()) {
-                val currentCount = document.getLong("recipeCount") ?: 0
-                var newTitle: String? = null
-
-                when (currentCount) {
-                    3L -> newTitle = "새싹 요리사"
-                    10L -> newTitle = "우리집 요리사"
-                    25L -> newTitle = "요리 장인"
-                    50L -> newTitle = "레시피 마스터"
-                }
-
-                if (newTitle != null) {
-                    userRef.update("unlockedTitles", FieldValue.arrayUnion(newTitle))
-                        .addOnSuccessListener {
-                            Toast.makeText(applicationContext, "'$newTitle' 칭호를 획득했습니다!", Toast.LENGTH_LONG).show()
-                            lifecycleScope.launch {
-                                auth.currentUser?.uid?.let { userId ->
-                                    NotificationHandler.createTitleNotification(userId, newTitle)
-                                }
-                            }
-                        }
-                }
-            }
-        }
-    }
-
-    private fun uploadImage(uriString: String?): Task<String?> {
-        if (uriString.isNullOrEmpty()) {
-            return Tasks.forResult(null)
-        }
-        val uri = Uri.parse(uriString)
-        val storageRef = storage.reference.child("recipe_images/${UUID.randomUUID()}")
-        return storageRef.putFile(uri).continueWithTask { task ->
-            if (!task.isSuccessful) {
-                task.exception?.let { throw it }
-            }
-            storageRef.downloadUrl
-        }.continueWith { task ->
-            if (task.isSuccessful) task.result.toString() else throw task.exception!!
-        }
+    private fun buildRecipeSnapshot(): RecipeData? {
+        val base = viewModel.recipeData.value ?: return null
+        val steps = viewModel.steps.value?.map { it.copy() } ?: emptyList()
+        val ingredients = base.ingredients.map { it.copy() }
+        return base.copy(
+            category = base.category.toList(),
+            ingredients = ingredients,
+            tools = base.tools.toList(),
+            steps = steps
+        )
     }
 
     private fun dpToPx(dp: Int): Int {

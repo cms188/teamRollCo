@@ -11,8 +11,8 @@
 
     <!-- 좌측: 메인 이미지, 북마크 버튼 컨테이너 -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="150dp"
-        android:layout_height="150dp">
+        android:layout_width="135dp"
+        android:layout_height="135dp">
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="0dp"

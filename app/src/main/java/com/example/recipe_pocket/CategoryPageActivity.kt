@@ -25,6 +25,7 @@ import com.example.recipe_pocket.ui.recipe.search.FilterBottomSheetFragment
 import com.example.recipe_pocket.ui.recipe.search.SearchFilter
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
 import com.example.recipe_pocket.ui.main.WriteChoiceDialogFragment
+import com.example.recipe_pocket.ui.recipe.search.CookingTime
 import com.example.recipe_pocket.ui.user.UserPageActivity
 import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -47,22 +48,12 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
     private lateinit var binding: CategoryPageBinding
     private lateinit var recipeAdapter: RecipeAdapter
 
-    // 정렬 옵션
     private enum class SortOrder { LATEST, VIEWS, LIKES, BOOKMARKS }
     private var currentSortOrder = SortOrder.LATEST
-
-    // 현재 선택된 카테고리
     private var selectedCategory: String = "전체"
-
-    // 캐시된 레시피 목록
     private var recipeListCache = listOf<Recipe>()
-
-    // 현재 필터 상태
     private var currentFilter = SearchFilter.default()
-
-    // 카테고리 태그 뷰들
     private val categoryTags = mutableMapOf<String, TextView>()
-
     private val bottomNavigationView: BottomNavigationView
         get() = binding.bottomNavigationView.bottomNavigation
 
@@ -71,7 +62,6 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
         binding = CategoryPageBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //setupWindowInsets()
         val initialCategory = intent.getStringExtra(EXTRA_INITIAL_CATEGORY)
         setupBackButton()
         setupRecyclerView()
@@ -90,8 +80,6 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
         bottomNavigationView.menu.findItem(R.id.fragment_home).isChecked = true
     }
 
-
-    // FilterBottomSheetFragment.OnFilterAppliedListener 인터페이스 구현
     override fun onFilterApplied(filter: SearchFilter) {
         currentFilter = filter
         updateFilterButtonUI()
@@ -129,12 +117,27 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
         // 카테고리 태그 뷰들을 맵에 저장
         categoryTags["전체"] = binding.tagAll
         categoryTags["한식"] = binding.tagKorean
+        categoryTags["양식"] = binding.tagWestern
         categoryTags["중식"] = binding.tagChinese
         categoryTags["일식"] = binding.tagJapanese
-        categoryTags["양식"] = binding.tagWestern
+        categoryTags["동남아식"] = binding.tagSoutheastAsian
+        categoryTags["남미식"] = binding.tagSouthAmerican
         categoryTags["분식"] = binding.tagSnack
+        categoryTags["밑반찬"] = binding.tagSideDish
+        categoryTags["국물요리"] = binding.tagSoup
+        categoryTags["밥"] = binding.tagRice
+        categoryTags["면"] = binding.tagNoodle
+        categoryTags["일품"] = binding.tagMainDish
         categoryTags["디저트"] = binding.tagDessert
         categoryTags["음료"] = binding.tagDrink
+        categoryTags["채소요리"] = binding.tagVeggie
+        categoryTags["간편식"] = binding.tagInstant
+        categoryTags["키즈"] = binding.tagKids
+        categoryTags["캠핑"] = binding.tagCamping
+        categoryTags["제철요리"] = binding.tagSeasonal
+        categoryTags["초스피드"] = binding.tagQuick
+        categoryTags["손님접대"] = binding.tagGuest
+        categoryTags["명절"] = binding.tagHoliday
         categoryTags["기타"] = binding.tagOther
 
         // 각 카테고리 태그에 클릭 리스너 설정
@@ -143,8 +146,6 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
                 selectCategory(category)
             }
         }
-
-        // 초기 선택 상태 설정 (전체)
     }
 
     private fun selectCategory(category: String) {
@@ -281,10 +282,10 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
     }
 
     private fun applyFiltersAndSort() {
-        // 1. 필터링 적용
+        // 필터링
         val filteredList = filterRecipes(recipeListCache, currentFilter)
 
-        // 2. 정렬 적용
+        // 정렬
         val sortedList = when (currentSortOrder) {
             SortOrder.LATEST -> filteredList.sortedByDescending { it.createdAt }
             SortOrder.VIEWS -> filteredList.sortedByDescending { it.viewCount ?: 0 }
@@ -292,7 +293,7 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
             SortOrder.BOOKMARKS -> filteredList.sortedByDescending { it.bookmarkedBy?.size ?: 0 }
         }
 
-        // 3. UI 업데이트
+        // UI 업데이트
         if (sortedList.isNotEmpty()) {
             binding.recyclerViewSearchResults.visibility = View.VISIBLE
             binding.tvNoResults.visibility = View.GONE
@@ -351,10 +352,25 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
                 }
             }
 
-            // 카테고리 필터는 이미 loadRecipesByCategory에서 처리했으므로 여기서는 제외
-            // SearchFilter가 지원하는 다른 필터들이 있다면 여기에 추가
+            // 카테고리 필터
+            val categoryCheck = if (filter.categories.isEmpty()) true else {
+                recipe.categoryList?.any { filter.categories.contains(it) } ?: false
+            }
 
-            creationDateCheck
+            // 난이도 필터
+            val difficultyCheck = if (filter.difficulty.isEmpty()) true else {
+                filter.difficulty.contains(recipe.difficulty)
+            }
+
+            // 조리 시간 필터
+            val timeCheck = when (filter.cookingTime) {
+                CookingTime.ALL -> true
+                CookingTime.UNDER_10 -> (recipe.cookingTime ?: Int.MAX_VALUE) <= 10
+                CookingTime.UNDER_20 -> (recipe.cookingTime ?: Int.MAX_VALUE) <= 20
+                CookingTime.UNDER_30 -> (recipe.cookingTime ?: Int.MAX_VALUE) <= 30
+            }
+
+            creationDateCheck && categoryCheck && difficultyCheck && timeCheck
         }
     }
 

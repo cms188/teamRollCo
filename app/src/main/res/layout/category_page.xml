@@ -70,139 +70,100 @@
 
                 <TextView
                     android:id="@+id/tag_all"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_category_tag_selected"
-                    android:gravity="center"
-                    android:paddingStart="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="6dp"
-                    android:text="전체"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
+                    style="@style/CategoryTag"
+                    android:text="전체" />
                 <TextView
                     android:id="@+id/tag_korean"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_category_tag_normal"
-                    android:gravity="center"
-                    android:paddingStart="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="6dp"
-                    android:text="한식"
-                    android:textColor="@color/black"
-                    android:textSize="16sp" />
-
+                    style="@style/CategoryTag"
+                    android:text="한식" />
                 <TextView
                     android:id="@+id/tag_western"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_category_tag_normal"
-                    android:gravity="center"
-                    android:paddingStart="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="6dp"
-                    android:text="양식"
-                    android:textColor="@color/black"
-                    android:textSize="16sp" />
-
+                    style="@style/CategoryTag"
+                    android:text="양식" />
                 <TextView
                     android:id="@+id/tag_chinese"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_category_tag_normal"
-                    android:gravity="center"
-                    android:paddingStart="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="6dp"
-                    android:text="중식"
-                    android:textColor="@color/black"
-                    android:textSize="16sp" />
-
+                    style="@style/CategoryTag"
+                    android:text="중식" />
                 <TextView
                     android:id="@+id/tag_japanese"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_category_tag_normal"
-                    android:gravity="center"
-                    android:paddingStart="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="6dp"
-                    android:text="일식"
-                    android:textColor="@color/black"
-                    android:textSize="16sp" />
-
+                    style="@style/CategoryTag"
+                    android:text="일식" />
+                <TextView
+                    android:id="@+id/tag_southeast_asian"
+                    style="@style/CategoryTag"
+                    android:text="동남아식" />
+                <TextView
+                    android:id="@+id/tag_south_american"
+                    style="@style/CategoryTag"
+                    android:text="남미식" />
                 <TextView
                     android:id="@+id/tag_snack"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_category_tag_normal"
-                    android:gravity="center"
-                    android:paddingStart="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="6dp"
-                    android:text="분식"
-                    android:textColor="@color/black"
-                    android:textSize="16sp" />
-
+                    style="@style/CategoryTag"
+                    android:text="분식" />
+                <TextView
+                    android:id="@+id/tag_side_dish"
+                    style="@style/CategoryTag"
+                    android:text="밑반찬" />
+                <TextView
+                    android:id="@+id/tag_soup"
+                    style="@style/CategoryTag"
+                    android:text="국물요리" />
+                <TextView
+                    android:id="@+id/tag_rice"
+                    style="@style/CategoryTag"
+                    android:text="밥" />
+                <TextView
+                    android:id="@+id/tag_noodle"
+                    style="@style/CategoryTag"
+                    android:text="면" />
+                <TextView
+                    android:id="@+id/tag_main_dish"
+                    style="@style/CategoryTag"
+                    android:text="일품" />
                 <TextView
                     android:id="@+id/tag_dessert"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_category_tag_normal"
-                    android:gravity="center"
-                    android:paddingStart="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="6dp"
-                    android:text="디저트"
-                    android:textColor="@color/black"
-                    android:textSize="16sp" />
-
+                    style="@style/CategoryTag"
+                    android:text="디저트" />
                 <TextView
                     android:id="@+id/tag_drink"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_category_tag_normal"
-                    android:gravity="center"
-                    android:paddingStart="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="6dp"
-                    android:text="음료"
-                    android:textColor="@color/black"
-                    android:textSize="16sp" />
-
+                    style="@style/CategoryTag"
+                    android:text="음료" />
                 <TextView
-                    android:id="@+id/tag_Other"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:background="@color/white"
-                    android:gravity="center"
-                    android:paddingStart="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="6dp"
-                    android:text="기타"
-                    android:textColor="@color/black"
-                    android:textSize="16sp" />
+                    android:id="@+id/tag_veggie"
+                    style="@style/CategoryTag"
+                    android:text="채소요리" />
+                <TextView
+                    android:id="@+id/tag_instant"
+                    style="@style/CategoryTag"
+                    android:text="간편식" />
+                <TextView
+                    android:id="@+id/tag_kids"
+                    style="@style/CategoryTag"
+                    android:text="키즈" />
+                <TextView
+                    android:id="@+id/tag_camping"
+                    style="@style/CategoryTag"
+                    android:text="캠핑" />
+                <TextView
+                    android:id="@+id/tag_seasonal"
+                    style="@style/CategoryTag"
+                    android:text="제철요리" />
+                <TextView
+                    android:id="@+id/tag_quick"
+                    style="@style/CategoryTag"
+                    android:text="초스피드" />
+                <TextView
+                    android:id="@+id/tag_guest"
+                    style="@style/CategoryTag"
+                    android:text="손님접대" />
+                <TextView
+                    android:id="@+id/tag_holiday"
+                    style="@style/CategoryTag"
+                    android:text="명절" />
+                <TextView
+                    android:id="@+id/tag_other"
+                    style="@style/CategoryTag"
+                    android:text="기타" />
             </LinearLayout>
         </HorizontalScrollView>
 
@@ -287,6 +248,4 @@
             android:visibility="gone"
             tools:visibility="visible" />
     </FrameLayout>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.NumberPicker
 import android.widget.TextView
@@ -12,7 +13,10 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.data.RecipeData
 import com.example.recipe_pocket.databinding.CookWrite01Binding
@@ -50,11 +54,26 @@ class CookWrite01Activity : AppCompatActivity() {
             onSaveClicked = { }
         )
 
+        CookingBottomMargin()
         setupCategorySelectionResultListener()
         setupClickListeners()
         updateServingsText()
         updateCookingTimeText()
         updateCategoryButtonText() // 초기 텍스트 설정
+    }
+
+    private fun CookingBottomMargin() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.btnNext) { v, insets ->
+            val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = dpToPx(16) + navBottom   // 기본 16dp + 네비게이션바 높이
+            }
+            insets
+        }
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
     }
 
     private fun setupClickListeners() {
@@ -97,6 +116,10 @@ class CookWrite01Activity : AppCompatActivity() {
             }
             if (binding.etRecipeTitle.text.toString().isBlank()) {
                 Toast.makeText(this, "레시피 제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (binding.etRecipeDescription.text.toString().isBlank()) {
+                Toast.makeText(this, "요리 소개를 입력해주세요.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             goToNextStep()

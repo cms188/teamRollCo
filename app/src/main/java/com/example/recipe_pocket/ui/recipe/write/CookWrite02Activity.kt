@@ -7,9 +7,13 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import com.example.recipe_pocket.data.Ingredient
 import com.example.recipe_pocket.data.RecipeData
 import com.example.recipe_pocket.databinding.CookWrite02Binding
@@ -31,11 +35,25 @@ class CookWrite02Activity : AppCompatActivity() {
         setContentView(binding.root)
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        CookingBottomMargin()
         loadInitialData()
-        // RecyclerView 설정 대신 동적 뷰 설정 함수 호출
         setupIngredientViews()
         setupToolViews()
         setupToolbarAndListeners()
+    }
+
+    private fun CookingBottomMargin() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.btnNext) { v, insets ->
+            val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = dpToPx(16) + navBottom   // 기본 16dp + 네비게이션바 높이
+            }
+            insets
+        }
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
     }
 
     private fun loadInitialData() {
@@ -180,6 +198,11 @@ class CookWrite02Activity : AppCompatActivity() {
         // 마지막 빈 칸을 제외하고 저장
         val finalIngredients = ingredientsList.filter { !it.name.isNullOrBlank() }
         val finalTools = toolsList.filter { it.isNotBlank() }
+
+        if (finalIngredients.isEmpty()) {
+            Toast.makeText(this, "재료를 1개 이상 입력해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         recipeData?.let {
             it.ingredients = finalIngredients

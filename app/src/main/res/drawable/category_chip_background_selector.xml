@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 칩이 선택된 상태일 때 -->
+    <item android:state_checked="true" android:color="@color/primary" />
+    <!-- 기본 상태 -->
+    <item android:color="@color/primary_divider" />
+</selector>
