@@ -1,6 +1,7 @@
 package com.example.recipe_pocket.ui.recipe.write
 
 import android.os.Bundle
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,12 +12,17 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 
 class CategorySelection : BottomSheetDialogFragment() {
 
     private var _binding: ActivityCategorySelectionBinding? = null
     private val binding get() = _binding!!
     private val selectedCategories = mutableSetOf<String>()
+
+    private val categoryByType get() = resources.getStringArray(R.array.categories_by_type)
+    private val categoryByDish get() = resources.getStringArray(R.array.categories_by_dish)
+    private val categoryByTheme get() = resources.getStringArray(R.array.categories_by_theme)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,17 +58,26 @@ class CategorySelection : BottomSheetDialogFragment() {
     }
 
     private fun populateCategoryChips() {
-        val categories = resources.getStringArray(R.array.recipe_categories)
+        addChipsToGroup(binding.chipGroupType, categoryByType)
+        addChipsToGroup(binding.chipGroupDish, categoryByDish)
+        addChipsToGroup(binding.chipGroupTheme, categoryByTheme)
+    }
+
+    private fun addChipsToGroup(chipGroup: ChipGroup, categories: Array<String>) {
         categories.forEach { category ->
-            binding.chipGroupCategories.addView(createCategoryChip(category))
+            chipGroup.addView(createCategoryChip(category))
         }
     }
 
     private fun createCategoryChip(categoryText: String): Chip {
-        return Chip(requireContext()).apply {
+        return Chip(ContextThemeWrapper(requireContext(), R.style.CategorySelectionChip)).apply {
             text = categoryText
             isCheckable = true
             isChecked = selectedCategories.contains(categoryText)
+
+            //선택 시 체크 아이콘 제거
+            this.checkedIcon = null
+
             setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     selectedCategories.add(categoryText)
