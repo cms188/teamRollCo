@@ -23,7 +23,7 @@
 
     <EditText
         android:id="@+id/et_ingredient_amount"
-        android:layout_width="100dp"
+        android:layout_width="80dp"
         android:layout_height="48dp"
         android:layout_marginEnd="8dp"
         android:background="@drawable/bg_gray_rounded_light"

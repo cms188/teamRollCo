@@ -6,69 +6,87 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="6dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground">
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
+        android:id="@+id/text_content_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:layout_margin="12dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:id="@+id/text_content_layout"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/iv_notification_image"
-            app:layout_constraintBottom_toBottomOf="parent">
+            android:layout_marginBottom="4dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/tv_notification_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="알림 제목"
-                android:textSize="16sp"
-                android:textColor="@color/black"
-                android:textStyle="bold"
+                android:ellipsize="end"
+                android:fontFamily="@font/notosans_bold"
+                android:includeFontPadding="false"
                 android:maxLines="2"
-                android:ellipsize="end" />
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                tools:text="알림 제목" />
 
-            <TextView
-                android:id="@+id/tv_notification_content"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="알림 내용이 여기에 표시됩니다. 알림 내용은 두 줄까지 표시될 수 있습니다."
-                android:textSize="14sp"
-                android:textColor="@color/darker_gray"
-                android:layout_marginTop="4dp"
-                android:maxLines="2"
-                android:ellipsize="end" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
 
             <TextView
                 android:id="@+id/tv_notification_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="오전 00:00"
+                android:textColor="@color/text_secondary"
                 android:textSize="12sp"
-                android:textColor="@color/text_gray"
-                android:layout_marginTop="8dp" />
+                tools:text="오전 00:00" />
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/iv_notification_image"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:src="@drawable/bg_no_img_gray"
-            android:scaleType="centerCrop" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/tv_notification_content"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:paddingHorizontal="4dp"
+                android:textColor="@color/text_sub"
+                android:textSize="13sp"
+                tools:text="알림 내용이 여기에 표시됩니다. 알림 내용은 두 줄까지 표시될 수 있습니다." />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp">
+
+                <ImageView
+                    android:id="@+id/iv_notification_image"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:scaleType="centerCrop"
+                    tools:src="@drawable/bg_no_img_gray" />
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </LinearLayout>
+
 </androidx.cardview.widget.CardView>

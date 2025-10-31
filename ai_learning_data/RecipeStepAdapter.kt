@@ -178,7 +178,7 @@ class RecipeStepAdapter(initialRecipe: Recipe?) :
 
             } else {
                 bookmarkButton.text = "북마크에 추가"
-                val outlineIcon = ContextCompat.getDrawable(context, R.drawable.ic_bookmark_outline_figma)
+                val outlineIcon = ContextCompat.getDrawable(context, R.drawable.ic_bookmark)
                 bookmarkButton.setCompoundDrawablesWithIntrinsicBounds(outlineIcon, null, null, null)
                 bookmarkButton.compoundDrawables[0]?.setTintList(null)
             }

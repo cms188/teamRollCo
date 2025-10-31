@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <!-- 상단 고정 툴바 부분 -->
+    <!-- 툴바 -->
     <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar_write" />
@@ -16,13 +16,16 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/btn_next_container"
         android:layout_below="@id/toolbar"
-        android:fillViewport="true">
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingBottom="90dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:orientation="vertical"
             android:padding="16dp">
 
@@ -39,7 +42,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="16dp">
 
                     <TextView
                         style="@style/CookWriteTitle"
@@ -67,7 +71,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="16dp">
 
                     <TextView
                         style="@style/CookWriteTitle"
@@ -86,26 +91,28 @@
     </ScrollView>
 
     <LinearLayout
-        android:id="@+id/btn_next_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/white"
-        android:orientation="vertical">
+        android:background="@android:color/transparent"
+        android:elevation="8dp"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="20dp">
 
-        <TextView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_next"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/bg_orange_button_rounded"
+            android:layout_height="50dp"
+            android:backgroundTint="@color/primary"
+            android:fontFamily="@font/notosans_bold"
             android:gravity="center"
-            android:text="다음  >"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:includeFontPadding="false"
+            android:text="다음"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:cornerRadius="16dp" />
     </LinearLayout>
 
 </RelativeLayout>

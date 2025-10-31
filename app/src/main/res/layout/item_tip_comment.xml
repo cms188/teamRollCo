@@ -1,88 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingVertical="8dp">
+    android:background="?attr/selectableItemBackground"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="12dp">
 
     <ImageView
         android:id="@+id/reply_indicator"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="top"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="4dp"
-        android:layout_gravity="center_vertical"
+        android:alpha="0.6"
         android:src="@drawable/ic_reply_arrow"
         android:visibility="gone"
-        tools:visibility="visible"/>
+        app:tint="@color/text_sub"
+        tools:visibility="visible" />
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/iv_profile"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:src="@drawable/ic_profile_placeholder"/>
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="2dp"
+        app:strokeWidth="0dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/iv_profile"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_profile_placeholder" />
+    </com.google.android.material.card.MaterialCardView>
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:layout_marginStart="12dp">
+        android:orientation="vertical">
+
         <LinearLayout
             android:id="@+id/comment_author_layout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
             <TextView
                 android:id="@+id/tv_nickname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                tools:text="닉네임"/>
+                android:ellipsize="end"
+                android:fontFamily="@font/notosans_bold"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                tools:text="닉네임" />
+
             <TextView
                 android:id="@+id/tv_timestamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
                 android:layout_marginStart="8dp"
-                tools:text="01.01 00:00"/>
+                android:fontFamily="@font/notosans_regular"
+                android:includeFontPadding="false"
+                android:textColor="@color/text_hint"
+                android:textSize="12sp"
+                tools:text="01.01 00:00" />
         </LinearLayout>
+
         <TextView
             android:id="@+id/tv_comment"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/black"
-            tools:text="댓글 내용입니다."/>
+            android:layout_marginTop="6dp"
+            android:fontFamily="@font/notosans_regular"
+            android:includeFontPadding="false"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            tools:text="댓글 내용입니다." />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="4dp">
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
             <TextView
                 android:id="@+id/btn_reply"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:fontFamily="@font/notosans_medium"
+                android:includeFontPadding="false"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
                 android:text="답글"
-                android:textSize="12sp"
-                android:textColor="@color/text_gray"
-                android:padding="4dp"
-                android:background="?attr/selectableItemBackground"/>
+                android:textColor="@color/text_sub"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="12dp"
+                android:layout_marginHorizontal="4dp"
+                android:background="@color/primary_divider" />
+
             <TextView
                 android:id="@+id/btn_delete_comment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="삭제"
-                android:textSize="12sp"
-                android:textColor="@color/text_gray"
-                android:padding="4dp"
-                android:visibility="gone"
                 android:background="?attr/selectableItemBackground"
-                tools:visibility="visible"/>
+                android:fontFamily="@font/notosans_medium"
+                android:includeFontPadding="false"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:text="삭제"
+                android:textColor="@color/error"
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:visibility="visible" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -40,8 +40,6 @@
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="뒤로가기"
-                android:scaleX="0.8"
-                android:scaleY="0.8"
                 android:src="@drawable/ic_arrow_back"
                 app:tint="@color/text_primary" />
         </androidx.cardview.widget.CardView>

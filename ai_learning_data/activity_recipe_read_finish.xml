@@ -98,7 +98,7 @@
                     android:layout_marginEnd="2dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_gray_rounded"
-                    android:drawableStart="@drawable/ic_bookmark_outline_figma"
+                    android:drawableStart="@drawable/ic_bookmark"
                     android:drawablePadding="-12dp"
                     android:paddingStart="20dp"
                     android:text="북마크에 추가"
