@@ -23,14 +23,5 @@
     <string name="profile_image">작성자 프로필 사진</string>
     <string name="profile_name">작성자</string>
 
-    <string-array name="recipe_categories">
-        <item>한식</item>
-        <item>중식</item>
-        <item>일식</item>
-        <item>양식</item>
-        <item>분식</item>
-        <item>디저트</item>
-        <item>음료</item>
-        <item>기타</item>
-    </string-array>
 </resources>
+
