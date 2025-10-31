@@ -34,10 +34,10 @@ class RecipeAdapter(
         val context = button.context
         if (isBookmarked) {
             button.setImageResource(R.drawable.ic_bookmark_filled)
-            button.setColorFilter(ContextCompat.getColor(context, R.color.orange))
+            button.setColorFilter(ContextCompat.getColor(context, R.color.primary_light))
         } else {
-            button.setImageResource(R.drawable.ic_bookmark_outline_figma)
-            button.setColorFilter(ContextCompat.getColor(context, R.color.black))
+            button.setImageResource(R.drawable.ic_bookmark)
+            button.setColorFilter(ContextCompat.getColor(context, R.color.black40))
         }
     }
 

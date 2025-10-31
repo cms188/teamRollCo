@@ -42,7 +42,7 @@
             android:layout_height="40dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:src="@drawable/ic_bookmark_outline_figma"
+            android:src="@drawable/ic_bookmark"
             android:background="@drawable/bg_bookmark_shape"
             android:padding="8dp"
             app:tint="@android:color/black"

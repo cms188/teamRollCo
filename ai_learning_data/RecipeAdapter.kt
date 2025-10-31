@@ -32,7 +32,7 @@ class RecipeAdapter(
             button.setImageResource(R.drawable.ic_bookmark_filled)
             button.setColorFilter(ContextCompat.getColor(context, R.color.orange))
         } else {
-            button.setImageResource(R.drawable.ic_bookmark_outline_figma)
+            button.setImageResource(R.drawable.ic_bookmark)
             button.setColorFilter(ContextCompat.getColor(context, R.color.black))
         }
     }

@@ -46,8 +46,8 @@ class UserPageActivity : AppCompatActivity() {
     private lateinit var profileImageView: ImageView
     private lateinit var nicknameTextView: TextView
     private lateinit var badgeTextView: TextView
-    private lateinit var editInfoTextView: TextView
-    private lateinit var badgeCardView: CardView
+    private lateinit var editInfoLayout: LinearLayout
+    private lateinit var badgeLayout: LinearLayout
     private lateinit var myRecipesLayout: LinearLayout
     private lateinit var followersLayout: LinearLayout
     private lateinit var followingLayout: LinearLayout
@@ -108,8 +108,8 @@ class UserPageActivity : AppCompatActivity() {
         profileImageView = findViewById(R.id.imageView_profile)
         nicknameTextView = findViewById(R.id.textView_authorName)
         badgeTextView = findViewById(R.id.textView_badge)
-        editInfoTextView = findViewById(R.id.textView_editInfo)
-        badgeCardView = findViewById(R.id.cardView_badge)
+        editInfoLayout = findViewById(R.id.layout_editInfo)
+        badgeLayout = findViewById(R.id.layout_badge)
 
         // 통계 섹션
         myRecipesLayout = findViewById(R.id.layout_myRecipes)
@@ -186,7 +186,7 @@ class UserPageActivity : AppCompatActivity() {
 
                     // [수정] 칭호 설정 로직
                     val title = document.getString("title")
-                    badgeCardView.visibility = View.VISIBLE // 항상 보이도록 변경
+                    badgeLayout.visibility = View.VISIBLE // 항상 보이도록 변경
                     if (!title.isNullOrEmpty()) {
                         badgeTextView.text = title
                     } else {
@@ -228,12 +228,12 @@ class UserPageActivity : AppCompatActivity() {
         }
 
         // 정보 수정 클릭
-        editInfoTextView.setOnClickListener {
+        editInfoLayout.setOnClickListener {
             startActivity(Intent(this, EditProfileActivity::class.java))
         }
 
         // 칭호 클릭
-        badgeCardView.setOnClickListener {
+        badgeLayout.setOnClickListener {
             startActivity(Intent(this, TitleListActivity::class.java))
         }
 

@@ -375,7 +375,7 @@
                                 android:background="@drawable/bg_gray_rounded_light"
                                 android:contentDescription="사진 추가"
                                 android:scaleType="center"
-                                android:src="@drawable/ic_add_photo" />
+                                android:src="@drawable/ic_camera_add" />
 
                             <androidx.recyclerview.widget.RecyclerView
                                 android:id="@+id/rv_review_images"
