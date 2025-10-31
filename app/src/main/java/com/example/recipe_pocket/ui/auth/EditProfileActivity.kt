@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
@@ -35,7 +36,7 @@ class EditProfileActivity : AppCompatActivity() {
     private lateinit var storage: FirebaseStorage
 
     private lateinit var profileImageView: ImageView
-    private lateinit var changeProfileImageButton: FloatingActionButton
+    private lateinit var changeProfileImageButton: View
     private lateinit var currentNicknameTextView: TextView
 
     private val pickImageLauncher = registerForActivityResult(
