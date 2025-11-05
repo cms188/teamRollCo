@@ -10,7 +10,7 @@ import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.RecipeAdapter
 import com.example.recipe_pocket.repository.RecipeLoader
-import com.example.recipe_pocket.databinding.ActivityMyRecipesBinding // 바인딩 클래스 이름 변경
+import com.example.recipe_pocket.databinding.ActivityMyRecipesBinding
 import com.example.recipe_pocket.ui.auth.LoginActivity
 import com.example.recipe_pocket.ui.main.MainActivity
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 
 class MyRecipesActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMyRecipesBinding // 바인딩 클래스 이름 변경
+    private lateinit var binding: ActivityMyRecipesBinding
     private lateinit var recipeAdapter: RecipeAdapter
 
     private val bottomNavigationView: BottomNavigationView
@@ -30,13 +30,18 @@ class MyRecipesActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMyRecipesBinding.inflate(layoutInflater) // 바인딩 클래스 이름 변경
+        binding = ActivityMyRecipesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         utils.ToolbarUtils.setupTransparentToolbar(this, "내 레시피")
         setupRecyclerView()
         loadMyRecipes()
         setupBottomNavigation()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        bottomNavigationView.menu.findItem(R.id.fragment_settings).isChecked = true
     }
 
     private fun setupRecyclerView() {

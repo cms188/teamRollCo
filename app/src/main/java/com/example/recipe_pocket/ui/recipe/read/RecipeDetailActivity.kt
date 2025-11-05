@@ -382,12 +382,16 @@ class RecipeDetailActivity : AppCompatActivity() {
     private fun setupInteractionButtons(recipe: Recipe) {
         val currentUser = auth.currentUser
         val editDeleteContainer = binding.toolbar.root.findViewById<LinearLayout>(R.id.edit_delete_container)
-        val btnEditRecipe = binding.toolbar.root.findViewById<View>(R.id.edit_button_card)
-        val btnDeleteRecipe = binding.toolbar.root.findViewById<View>(R.id.delete_button_card)
+        val editButtonCard = binding.toolbar.root.findViewById<View>(R.id.edit_button_card)
+        val deleteButtonCard = binding.toolbar.root.findViewById<View>(R.id.delete_button_card)
+        val btnEditRecipe = binding.toolbar.root.findViewById<View>(R.id.edit_button)
+        val btnDeleteRecipe = binding.toolbar.root.findViewById<View>(R.id.delete_button)
+
         if (currentUser != null && currentUser.uid == recipe.userId) {
             editDeleteContainer.visibility = View.VISIBLE
-            btnEditRecipe.visibility = View.VISIBLE
-            btnDeleteRecipe.visibility = View.VISIBLE
+            editButtonCard.visibility = View.VISIBLE
+            deleteButtonCard.visibility = View.VISIBLE
+
             btnEditRecipe.setOnClickListener {
                 val intent = Intent(this, RecipeEditActivity::class.java).putExtra("RECIPE_ID", recipeId)
                 resultLauncher.launch(intent)
