@@ -25,7 +25,6 @@ class CookWrite02Activity : AppCompatActivity() {
     private lateinit var binding: CookWrite02Binding
     private var recipeData: RecipeData? = null
 
-    // 데이터 목록은 그대로 유지
     private val ingredientsList = mutableListOf<Ingredient>()
     private val toolsList = mutableListOf<String>()
 
@@ -35,26 +34,24 @@ class CookWrite02Activity : AppCompatActivity() {
         setContentView(binding.root)
 
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-        CookingBottomMargin()
+        applyBottomInsetToNextButton()
         loadInitialData()
         setupIngredientViews()
         setupToolViews()
         setupToolbarAndListeners()
     }
 
-    private fun CookingBottomMargin() {
+    private fun applyBottomInsetToNextButton() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.btnNext) { v, insets ->
             val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = dpToPx(16) + navBottom   // 기본 16dp + 네비게이션바 높이
+                bottomMargin = dpToPx(16) + navBottom
             }
             insets
         }
     }
 
-    private fun dpToPx(dp: Int): Int {
-        return (dp * resources.displayMetrics.density).toInt()
-    }
+    private fun dpToPx(dp: Int) = (dp * resources.displayMetrics.density).toInt()
 
     private fun loadInitialData() {
         recipeData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -66,136 +63,126 @@ class CookWrite02Activity : AppCompatActivity() {
 
         if (recipeData == null) {
             Toast.makeText(this, "데이터 로딩 실패!", Toast.LENGTH_SHORT).show()
-            finish()
-            return
+            finish(); return
         }
 
-        // 재료 목록 초기화: 기존 데이터가 있으면 불러오고, 마지막에 빈 칸 추가
         ingredientsList.clear()
-        if (recipeData!!.ingredients.isNotEmpty()) {
-            ingredientsList.addAll(recipeData!!.ingredients)
-        }
+        if (recipeData!!.ingredients.isNotEmpty()) ingredientsList.addAll(recipeData!!.ingredients)
         if (ingredientsList.isEmpty() || ingredientsList.last().name?.isNotEmpty() == true) {
             ingredientsList.add(Ingredient())
         }
 
-
-        // 조리도구 목록 초기화: 기존 데이터가 있으면 불러오고, 마지막에 빈 칸 추가
         toolsList.clear()
-        if (recipeData!!.tools.isNotEmpty()) {
-            toolsList.addAll(recipeData!!.tools)
-        }
+        if (recipeData!!.tools.isNotEmpty()) toolsList.addAll(recipeData!!.tools)
         if (toolsList.isEmpty() || toolsList.last().isNotEmpty()) {
             toolsList.add("")
         }
     }
 
-    // RecyclerView 관련 코드 전체 삭제
     private fun setupToolbarAndListeners() {
-        utils.ToolbarUtils.setupWriteToolbar(this, "",
-            onTempSaveClicked = {
-                Toast.makeText(this, "임시저장 기능은 아직 지원되지 않습니다.", Toast.LENGTH_SHORT).show()
-            },
+        utils.ToolbarUtils.setupWriteToolbar(
+            this, "",
+            onTempSaveClicked = { Toast.makeText(this, "임시저장 기능은 아직 지원되지 않습니다.", Toast.LENGTH_SHORT).show() },
             onSaveClicked = { }
         )
-
         binding.btnNext.setOnClickListener { goToNextStep() }
     }
 
-    // 재료 뷰를 동적으로 추가/관리하는 함수
+    // 재료 영역
+
     private fun setupIngredientViews() {
-        binding.ingredientsContainer.removeAllViews() // 컨테이너 초기화
-        ingredientsList.forEachIndexed { index, ingredient ->
-            val ingredientBinding = ItemIngredientBinding.inflate(LayoutInflater.from(this), binding.ingredientsContainer, false)
-
-            ingredientBinding.etIngredientName.setText(ingredient.name)
-            ingredientBinding.etIngredientAmount.setText(ingredient.amount)
-
-            // 마지막 항목이 아니면 삭제 버튼 표시
-            ingredientBinding.btnDeleteIngredient.visibility = if (index < ingredientsList.size - 1) View.VISIBLE else View.INVISIBLE
-
-            // 텍스트 변경 리스너
-            ingredientBinding.etIngredientName.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable?) {
-                    ingredientsList[index].name = s.toString()
-                    // 마지막 칸에 텍스트가 입력되면 새 칸 추가
-                    if (index == ingredientsList.size - 1 && s.toString().isNotEmpty()) {
-                        addNewIngredientRowIfNeeded()
-                    }
-                }
-            })
-            ingredientBinding.etIngredientAmount.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable?) {
-                    ingredientsList[index].amount = s.toString()
-                }
-            })
-
-            // 삭제 버튼 리스너
-            ingredientBinding.btnDeleteIngredient.setOnClickListener {
-                ingredientsList.removeAt(index)
-                setupIngredientViews() // 목록을 다시 그림
-            }
-
-            binding.ingredientsContainer.addView(ingredientBinding.root)
+        binding.ingredientsContainer.removeAllViews()
+        ingredientsList.forEachIndexed { i, _ ->
+            binding.ingredientsContainer.addView(createIngredientRow(i))
         }
     }
 
-    // 필요할 때 재료 입력 행을 추가하는 함수
-    private fun addNewIngredientRowIfNeeded() {
-        if (ingredientsList.lastOrNull()?.name?.isNotEmpty() == true) {
-            ingredientsList.add(Ingredient())
-            setupIngredientViews() // 새 행이 추가되었으므로 다시 그림
+    private fun createIngredientRow(index: Int): View {
+        val row = ItemIngredientBinding.inflate(
+            LayoutInflater.from(this), binding.ingredientsContainer, false
+        )
+
+        val item = ingredientsList[index]
+        row.etIngredientName.setText(item.name)
+        row.etIngredientAmount.setText(item.amount)
+        row.btnDeleteIngredient.visibility =
+            if (index < ingredientsList.size - 1) View.VISIBLE else View.INVISIBLE
+
+        row.etIngredientName.addTextChangedListener(simpleTextWatcher { s ->
+            ingredientsList[index].name = s
+            if (index == ingredientsList.size - 1 && s.isNotEmpty()) appendIngredientRow()
+        })
+        row.etIngredientAmount.addTextChangedListener(simpleTextWatcher { s ->
+            ingredientsList[index].amount = s
+        })
+
+        row.btnDeleteIngredient.setOnClickListener {
+            ingredientsList.removeAt(index)
+            setupIngredientViews()
         }
+
+        return row.root
     }
 
-    // 조리도구 뷰를 동적으로 추가/관리하는 함수
+    private fun appendIngredientRow() {
+        // 이전 마지막 행의 삭제 버튼 보이기
+        val prevIdx = ingredientsList.size - 1
+        val prevChild = binding.ingredientsContainer.getChildAt(prevIdx)
+        ItemIngredientBinding.bind(prevChild).btnDeleteIngredient.visibility = View.VISIBLE
+
+        ingredientsList.add(Ingredient())
+        binding.ingredientsContainer.addView(createIngredientRow(ingredientsList.size - 1))
+    }
+
+    // 도구 영역
+
     private fun setupToolViews() {
-        binding.toolsContainer.removeAllViews() // 컨테이너 초기화
-        toolsList.forEachIndexed { index, tool ->
-            val toolBinding = ItemToolBinding.inflate(LayoutInflater.from(this), binding.toolsContainer, false)
-
-            toolBinding.etToolName.setText(tool)
-
-            // 마지막 항목이 아니면 삭제 버튼 표시
-            toolBinding.btnDeleteTool.visibility = if (index < toolsList.size - 1) View.VISIBLE else View.INVISIBLE
-
-            // 텍스트 변경 리스너
-            toolBinding.etToolName.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable?) {
-                    toolsList[index] = s.toString()
-                    // 마지막 칸에 텍스트가 입력되면 새 칸 추가
-                    if (index == toolsList.size - 1 && s.toString().isNotEmpty()) {
-                        addNewToolRowIfNeeded()
-                    }
-                }
-            })
-
-            // 삭제 버튼 리스너
-            toolBinding.btnDeleteTool.setOnClickListener {
-                toolsList.removeAt(index)
-                setupToolViews() // 목록을 다시 그림
-            }
-
-            binding.toolsContainer.addView(toolBinding.root)
+        binding.toolsContainer.removeAllViews()
+        toolsList.forEachIndexed { i, _ ->
+            binding.toolsContainer.addView(createToolRow(i))
         }
     }
 
-    // 필요할 때 조리도구 입력 행을 추가하는 함수
-    private fun addNewToolRowIfNeeded() {
-        if (toolsList.lastOrNull()?.isNotEmpty() == true) {
-            toolsList.add("")
-            setupToolViews() // 새 행이 추가되었으므로 다시 그림
+    private fun createToolRow(index: Int): View {
+        val row = ItemToolBinding.inflate(
+            LayoutInflater.from(this), binding.toolsContainer, false
+        )
+
+        row.etToolName.setText(toolsList[index])
+        row.btnDeleteTool.visibility =
+            if (index < toolsList.size - 1) View.VISIBLE else View.INVISIBLE
+
+        row.etToolName.addTextChangedListener(simpleTextWatcher { s ->
+            toolsList[index] = s
+            if (index == toolsList.size - 1 && s.isNotEmpty()) appendToolRow()
+        })
+
+        row.btnDeleteTool.setOnClickListener {
+            toolsList.removeAt(index)
+            setupToolViews()
         }
+
+        return row.root
     }
+
+    private fun appendToolRow() {
+        val prevIdx = toolsList.size - 1
+        val prevChild = binding.toolsContainer.getChildAt(prevIdx)
+        ItemToolBinding.bind(prevChild).btnDeleteTool.visibility = View.VISIBLE
+
+        toolsList.add("")
+        binding.toolsContainer.addView(createToolRow(toolsList.size - 1))
+    }
+
+    // 유틸
+    private inline fun simpleTextWatcher(crossinline after: (String) -> Unit) =
+        object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) { after(s?.toString().orEmpty()) }
+        }
 
     private fun goToNextStep() {
-        // 마지막 빈 칸을 제외하고 저장
         val finalIngredients = ingredientsList.filter { !it.name.isNullOrBlank() }
         val finalTools = toolsList.filter { it.isNotBlank() }
 
@@ -207,10 +194,11 @@ class CookWrite02Activity : AppCompatActivity() {
         recipeData?.let {
             it.ingredients = finalIngredients
             it.tools = finalTools
-            val intent = Intent(this, CookWrite03Activity::class.java).apply {
-                putExtra("recipe_data", it)
-            }
-            startActivity(intent)
+            startActivity(
+                Intent(this, CookWrite03Activity::class.java).apply {
+                    putExtra("recipe_data", it)
+                }
+            )
         }
     }
 }
