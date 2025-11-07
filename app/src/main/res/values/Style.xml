@@ -209,4 +209,19 @@
         <item name="android:paddingEnd">14dp</item>
     </style>
 
+
+    <!-- 필터/정렬 버튼 스타일 -->
+    <style name="SearchFilterButton" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">36dp</item> <!-- 세로 크기 고정 -->
+        <item name="android:minWidth">70dp</item> <!-- 최소 너비 지정 -->
+        <item name="android:gravity">center</item> <!-- 텍스트 중앙 정렬 -->
+        <item name="android:paddingHorizontal">12dp</item> <!-- 좌우 패딩 -->
+        <item name="android:background">@drawable/bg_filter_button_normal</item>
+        <item name="android:textColor">@color/text_sub</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">@font/notosans_medium</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:drawablePadding">4dp</item>
+    </style>
 </resources>
