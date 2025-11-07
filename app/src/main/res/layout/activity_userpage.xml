@@ -289,7 +289,7 @@
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
                                 android:layout_gravity="center"
-                                android:src="@drawable/ic_bookmark_filled"
+                                android:src="@drawable/ic_bookmark"
                                 app:tint="@color/primary_light" />
 
                             <TextView
@@ -322,8 +322,8 @@
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
                                 android:layout_gravity="center"
-                                android:alpha="0.7"
-                                android:src="@drawable/ic_like_filled" />
+                                android:src="@drawable/ic_like"
+                                app:tint="@color/primary_light" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -338,9 +338,8 @@
 
                         </LinearLayout>
 
-                        <!-- 리뷰 관리 -->
                         <LinearLayout
-                            android:id="@+id/layout_reviewManage"
+                            android:id="@+id/layout_liked_tips"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -355,9 +354,9 @@
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
                                 android:layout_gravity="center"
-                                android:scaleY="1.1"
+                                android:src="@drawable/ic_thumb_up_outline"
                                 android:scaleX="1.1"
-                                android:src="@drawable/ic_review"
+                                android:scaleY="1.1"
                                 app:tint="@color/primary_light" />
 
                             <TextView
@@ -367,7 +366,7 @@
                                 android:fontFamily="@font/notosans_medium"
                                 android:gravity="center"
                                 android:includeFontPadding="false"
-                                android:text="리뷰 관리"
+                                android:text="좋아요한 팁"
                                 android:textColor="@color/text_primary"
                                 android:textSize="12sp" />
                         </LinearLayout>
@@ -396,7 +395,7 @@
                                 android:layout_height="24dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_pen"
-                                app:tint="@color/primary_variant" />
+                                app:tint="@color/text_hint" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -411,8 +410,9 @@
 
                         </LinearLayout>
 
+                        <!-- 리뷰 관리 -->
                         <LinearLayout
-                            android:id="@+id/layout_liked_tips"
+                            android:id="@+id/layout_reviewManage"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -427,10 +427,10 @@
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
                                 android:layout_gravity="center"
-                                android:src="@drawable/ic_thumb_up"
-                                android:scaleX="1.1"
                                 android:scaleY="1.1"
-                                app:tint="@color/primary_light" />
+                                android:scaleX="1.1"
+                                android:src="@drawable/ic_review"
+                                app:tint="@color/text_hint" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -439,7 +439,7 @@
                                 android:fontFamily="@font/notosans_medium"
                                 android:gravity="center"
                                 android:includeFontPadding="false"
-                                android:text="좋아요한 팁"
+                                android:text="리뷰 관리"
                                 android:textColor="@color/text_primary"
                                 android:textSize="12sp" />
                         </LinearLayout>
