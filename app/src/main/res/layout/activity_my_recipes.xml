@@ -52,8 +52,5 @@
             tools:visibility="visible" />
     </FrameLayout>
 
-    <!-- 내비게이션 바 -->
-    <include
-        android:id="@+id/bottom_navigation_view"
-        layout="@layout/navigation_bottom" />
+
 </LinearLayout>
