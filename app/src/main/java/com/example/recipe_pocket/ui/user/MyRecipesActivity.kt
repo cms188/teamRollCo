@@ -10,7 +10,7 @@ import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.RecipeAdapter
 import com.example.recipe_pocket.repository.RecipeLoader
-import com.example.recipe_pocket.databinding.ActivityMyRecipesBinding // 바인딩 클래스 이름 변경
+import com.example.recipe_pocket.databinding.ActivityMyRecipesBinding
 import com.example.recipe_pocket.ui.auth.LoginActivity
 import com.example.recipe_pocket.ui.main.MainActivity
 import com.example.recipe_pocket.ui.recipe.search.SearchResult
@@ -22,21 +22,21 @@ import kotlinx.coroutines.launch
 
 class MyRecipesActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMyRecipesBinding // 바인딩 클래스 이름 변경
+    private lateinit var binding: ActivityMyRecipesBinding
     private lateinit var recipeAdapter: RecipeAdapter
-
-    private val bottomNavigationView: BottomNavigationView
-        get() = binding.bottomNavigationView.bottomNavigation
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMyRecipesBinding.inflate(layoutInflater) // 바인딩 클래스 이름 변경
+        binding = ActivityMyRecipesBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         utils.ToolbarUtils.setupTransparentToolbar(this, "내 레시피")
         setupRecyclerView()
         loadMyRecipes()
-        setupBottomNavigation()
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
     private fun setupRecyclerView() {
@@ -79,42 +79,6 @@ class MyRecipesActivity : AppCompatActivity() {
                     binding.tvNoBookmarks.visibility = View.VISIBLE
                 }
             )
-        }
-    }
-
-    private fun setupBottomNavigation() {
-        bottomNavigationView.setOnItemReselectedListener { /* no-op */ }
-
-        bottomNavigationView.setOnItemSelectedListener { item ->
-            val currentUser = Firebase.auth.currentUser
-
-            if (item.itemId == R.id.fragment_favorite) {
-                if (currentUser != null) {
-                    WriteChoiceDialogFragment().show(supportFragmentManager, WriteChoiceDialogFragment.TAG)
-                } else {
-                    startActivity(Intent(this, LoginActivity::class.java))
-                }
-                return@setOnItemSelectedListener true
-            }
-
-            val intent = when (item.itemId) {
-                R.id.fragment_home -> Intent(this, MainActivity::class.java)
-                R.id.fragment_search -> Intent(this, SearchResult::class.java)
-                R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
-                R.id.fragment_settings -> {
-                    if (currentUser != null) Intent(this, UserPageActivity::class.java)
-                    else Intent(this, LoginActivity::class.java)
-                }
-                else -> null
-            }
-
-            intent?.let {
-                it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                startActivity(it)
-                overridePendingTransition(0, 0)
-            }
-
-            true
         }
     }
 }

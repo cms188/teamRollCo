@@ -8,17 +8,20 @@ import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.recipe_pocket.data.Recipe
 import com.example.recipe_pocket.databinding.CategoryPageBinding
 import com.example.recipe_pocket.repository.RecipeLoader
 import com.example.recipe_pocket.ui.auth.LoginActivity
+import com.example.recipe_pocket.ui.category.CategoryTextAdapter
 import com.example.recipe_pocket.ui.main.MainActivity
 import com.example.recipe_pocket.ui.recipe.search.CreationPeriod
 import com.example.recipe_pocket.ui.recipe.search.FilterBottomSheetFragment
@@ -47,6 +50,7 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
 
     private lateinit var binding: CategoryPageBinding
     private lateinit var recipeAdapter: RecipeAdapter
+    private lateinit var allCategoriesTextAdapter: CategoryTextAdapter
 
     private enum class SortOrder { LATEST, VIEWS, LIKES, BOOKMARKS }
     private var currentSortOrder = SortOrder.LATEST
@@ -54,6 +58,9 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
     private var recipeListCache = listOf<Recipe>()
     private var currentFilter = SearchFilter.default()
     private val categoryTags = mutableMapOf<String, TextView>()
+
+    private var isAllCategoriesVisible = false
+
     private val bottomNavigationView: BottomNavigationView
         get() = binding.bottomNavigationView.bottomNavigation
 
@@ -68,6 +75,8 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
         setupCategoryTags()
         setupFilterAndSortButtons()
         setupBottomNavigation()
+        setupAllCategoriesDropdown()
+        handleOnBackPressed()
 
         val resolvedCategory = initialCategory?.takeIf { categoryTags.containsKey(it) } ?: "전체"
         selectedCategory = resolvedCategory
@@ -415,5 +424,61 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
 
             true
         }
+    }
+
+    private fun setupAllCategoriesDropdown() {
+        val categoryNames = categoryTags.keys.toList()
+        allCategoriesTextAdapter = CategoryTextAdapter(categoryNames) { category ->
+            selectCategory(category)
+            toggleAllCategoriesView()
+        }
+        binding.recyclerViewAllCategoriesText.apply {
+            layoutManager = GridLayoutManager(this@CategoryPageActivity, 4)
+            adapter = allCategoriesTextAdapter
+        }
+
+        binding.btnCategoryAll.setOnClickListener {
+            toggleAllCategoriesView()
+        }
+    }
+
+    private fun toggleAllCategoriesView() {
+        isAllCategoriesVisible = !isAllCategoriesVisible
+        if (isAllCategoriesVisible) {
+            binding.allCategoriesContainer.apply {
+                bringToFront()
+                alpha = 0f
+                translationY = -height.toFloat()
+                visibility = View.VISIBLE
+                animate()
+                    .alpha(1f)
+                    .translationY(0f)
+                    .setDuration(300)
+                    .start()
+            }
+            binding.btnCategoryAll.animate().rotation(180f).setDuration(300).start()
+        } else {
+            binding.allCategoriesContainer.animate()
+                .alpha(0f)
+                .translationY(-binding.allCategoriesContainer.height.toFloat())
+                .setDuration(300)
+                .withEndAction {
+                    binding.allCategoriesContainer.visibility = View.GONE
+                }
+                .start()
+            binding.btnCategoryAll.animate().rotation(0f).setDuration(300).start()
+        }
+    }
+
+    private fun handleOnBackPressed() {
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (isAllCategoriesVisible) {
+                    toggleAllCategoriesView()
+                } else {
+                    finish()
+                }
+            }
+        })
     }
 }

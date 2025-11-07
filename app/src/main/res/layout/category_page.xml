@@ -248,4 +248,28 @@
             android:visibility="gone"
             tools:visibility="visible" />
     </FrameLayout>
+
+    <!-- 전체 카테고리 뷰 -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/all_categories_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:maxHeight="260dp"
+        android:elevation="10dp"
+        app:cardElevation="10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_all_categories_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:background="@color/white"/>
+
+    </androidx.cardview.widget.CardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

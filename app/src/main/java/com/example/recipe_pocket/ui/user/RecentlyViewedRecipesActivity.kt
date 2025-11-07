@@ -27,23 +27,18 @@ class RecentlyViewedRecipesActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRecentBinding
     private lateinit var recipeAdapter: RecipeAdapter
 
-    private val bottomNavigationView: BottomNavigationView
-        get() = binding.bottomNavigationView.bottomNavigation
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRecentBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setupRecyclerView()
-        setupBottomNavigation()
         utils.ToolbarUtils.setupTransparentToolbar(this, "최근 본 레시피")
     }
 
     override fun onResume() {
         super.onResume()
         loadRecentlyViewedRecipes()
-        bottomNavigationView.menu.findItem(R.id.fragment_settings).isChecked = true
     }
 
     private fun setupRecyclerView() {
@@ -107,45 +102,6 @@ class RecentlyViewedRecipesActivity : AppCompatActivity() {
                 binding.tvNoRecent.visibility = View.GONE
                 recipeAdapter.updateRecipes(recipes)
             }
-        }
-    }
-
-    private fun setupBottomNavigation() {
-        bottomNavigationView.setOnItemReselectedListener { /* no-op */ }
-
-        bottomNavigationView.setOnItemSelectedListener { item ->
-            if (item.itemId == R.id.fragment_settings) {
-                return@setOnItemSelectedListener true
-            }
-
-            val currentUser = FirebaseAuth.getInstance().currentUser
-
-            if (item.itemId == R.id.fragment_favorite) {
-                if (currentUser != null) {
-                    WriteChoiceDialogFragment().show(supportFragmentManager, WriteChoiceDialogFragment.TAG)
-                } else {
-                    startActivity(Intent(this, LoginActivity::class.java))
-                }
-                return@setOnItemSelectedListener true
-            }
-
-            val intent = when (item.itemId) {
-                R.id.fragment_home -> Intent(this, MainActivity::class.java)
-                R.id.fragment_search -> Intent(this, SearchResult::class.java)
-                R.id.fragment_another -> {
-                    if (currentUser != null) Intent(this, BookmarkActivity::class.java)
-                    else Intent(this, LoginActivity::class.java)
-                }
-                else -> null
-            }
-
-            intent?.let {
-                it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                startActivity(it)
-                overridePendingTransition(0, 0)
-            }
-
-            true
         }
     }
 }
