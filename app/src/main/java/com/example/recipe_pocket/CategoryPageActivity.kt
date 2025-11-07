@@ -54,8 +54,6 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
     private var recipeListCache = listOf<Recipe>()
     private var currentFilter = SearchFilter.default()
     private val categoryTags = mutableMapOf<String, TextView>()
-    private val bottomNavigationView: BottomNavigationView
-        get() = binding.bottomNavigationView.bottomNavigation
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,17 +65,11 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
         setupRecyclerView()
         setupCategoryTags()
         setupFilterAndSortButtons()
-        setupBottomNavigation()
 
         val resolvedCategory = initialCategory?.takeIf { categoryTags.containsKey(it) } ?: "전체"
         selectedCategory = resolvedCategory
         updateCategoryUI(resolvedCategory)
         loadRecipesByCategory(resolvedCategory)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        bottomNavigationView.menu.findItem(R.id.fragment_home).isChecked = true
     }
 
     override fun onFilterApplied(filter: SearchFilter) {
@@ -167,7 +159,7 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
             } else {
                 // 선택되지 않은 카테고리 스타일
                 textView.setBackgroundResource(R.drawable.bg_category_tag_normal)
-                textView.setTextColor(ContextCompat.getColor(this, R.color.black))
+                textView.setTextColor(ContextCompat.getColor(this, R.color.primary_variant))
             }
         }
         targetView?.let { selectedView ->
@@ -371,49 +363,6 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
             }
 
             creationDateCheck && categoryCheck && difficultyCheck && timeCheck
-        }
-    }
-
-    private fun setupBottomNavigation() {
-        bottomNavigationView.setOnItemReselectedListener { /* no-op */ }
-
-        bottomNavigationView.setOnItemSelectedListener { item ->
-            val currentUser = FirebaseAuth.getInstance().currentUser
-
-            if (item.itemId == R.id.fragment_favorite) {
-                if (currentUser != null) {
-                    WriteChoiceDialogFragment().show(supportFragmentManager, WriteChoiceDialogFragment.TAG)
-                } else {
-                    startActivity(Intent(this, LoginActivity::class.java))
-                }
-                return@setOnItemSelectedListener true
-            }
-
-            val intent = when (item.itemId) {
-                R.id.fragment_home -> Intent(this, MainActivity::class.java)
-                R.id.fragment_search -> Intent(this, SearchResult::class.java)
-                R.id.fragment_another -> {
-                    if (currentUser != null) {
-                        Intent(this, BookmarkActivity::class.java)
-                    } else {
-                        Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
-                        Intent(this, LoginActivity::class.java)
-                    }
-                }
-                R.id.fragment_settings -> {
-                    if (currentUser != null) Intent(this, UserPageActivity::class.java)
-                    else Intent(this, LoginActivity::class.java)
-                }
-                else -> null
-            }
-
-            intent?.let {
-                it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                startActivity(it)
-                overridePendingTransition(0, 0)
-            }
-
-            true
         }
     }
 }

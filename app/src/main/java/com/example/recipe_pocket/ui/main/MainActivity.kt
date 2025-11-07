@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -161,16 +163,23 @@ class MainActivity : AppCompatActivity() {
         binding.categoryButton4.setOnClickListener {
             startActivity(CategoryPageActivity.createIntent(this, "일식"))
         }
-        binding.categoryButton11.setOnClickListener {
+        binding.categoryButton5.setOnClickListener {
             startActivity(CategoryPageActivity.createIntent(this, "동남아식"))
         }
-        binding.categoryButton12.setOnClickListener {
+        binding.categoryButton11.setOnClickListener {
             startActivity(CategoryPageActivity.createIntent(this, "남미식"))
         }
-        binding.categoryButton13.setOnClickListener {
+        binding.categoryButton12.setOnClickListener {
             startActivity(CategoryPageActivity.createIntent(this, "분식"))
         }
+        binding.categoryButton13.setOnClickListener {
+            startActivity(CategoryPageActivity.createIntent(this, "디저트"))
+        }
         binding.categoryButton14.setOnClickListener {
+            startActivity(CategoryPageActivity.createIntent(this, "음료"))
+        }
+
+        binding.categoryButton15.setOnClickListener {
             startActivity(Intent(this, AllCategoriesActivity::class.java))
         }
 
@@ -180,7 +189,7 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("new_notification_count", newNotificationCount)
             notificationResultLauncher.launch(intent)
         }
-        binding.ivSeeAllTips.setOnClickListener {
+        binding.seeAllTips.setOnClickListener {
             startActivity(Intent(this, CookTipListActivity::class.java))
         }
     }

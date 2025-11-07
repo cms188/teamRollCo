@@ -2,6 +2,7 @@ package com.example.recipe_pocket.ui.recipe.search
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
@@ -102,6 +103,7 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
         ViewCompat.setOnApplyWindowInsetsListener(binding.SearchResultLayout) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                topMargin = insets.top
                 leftMargin = insets.left
                 bottomMargin = insets.bottom
                 rightMargin = insets.right

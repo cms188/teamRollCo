@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="120dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginEnd="12dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="30dp"
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:outlineAmbientShadowColor="@color/primary_variant"
+        android:outlineSpotShadowColor="@color/primary_variant"
         app:cardCornerRadius="30dp"
-        app:cardElevation="0dp">
+        app:cardElevation="2dp"
+        tools:targetApi="28">
 
         <ImageView
             android:id="@+id/iv_ingredient_image"

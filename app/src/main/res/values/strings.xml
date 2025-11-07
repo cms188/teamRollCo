@@ -3,13 +3,13 @@
     <string name="app_name">recipe_pocket</string>
 
     <!-- activity_main 텍스트 -->
-    <string name="title">어떤 음식이 땡기세요?</string>
+    <string name="title">오늘은\n무엇을 요리할까요?</string>
     <string name="title1">오늘의 인기 요리</string>
     <string name="title1_1">지금 가장 많은 사람들이 찾고 있어요</string>
     <string name="title2">이런 요리는 어때요?</string>
-    <string name="title2_1">추천하는 레시피들을 골라봤어요</string>
+    <string name="title2_1">취향저격 레시피를 골라봤어요.</string>
     <string name="title3">오늘의 요리 팁</string>
-    <string name="title4">n분 이하 간단요리</string>
+    <string name="title4">15분 이하 간단요리</string>
     <string name="title4_1">빠르고 쉽게 만들 수 있어요.</string>
 
     <!-- cook_card 텍스트 -->

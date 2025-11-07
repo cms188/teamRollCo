@@ -1,231 +1,360 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/Search_Result_Layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/primary_cream"
     android:fitsSystemWindows="true"
-    android:background="@color/search_color"
+    android:orientation="vertical"
     tools:ignore="ExtraText">
 
-    <!-- 상단바 시작( 뒤로가기 버튼, 카테고리, 정렬 ) -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- 상단바 -->
+    <LinearLayout
         android:id="@+id/top_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/search_color"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:background="@color/primary_cream"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical"
         android:paddingStart="8dp"
+        android:paddingTop="8dp"
         android:paddingEnd="16dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        >
+        android:paddingBottom="8dp">
 
-        <ImageButton
-            android:id="@+id/btn_back"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?selectableItemBackgroundBorderless"
-            android:contentDescription="뒤로가기"
-            android:src="@drawable/ic_arrow_back"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp" />
-        <ImageButton
-            android:id="@+id/btn_category_all"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?selectableItemBackgroundBorderless"
-            android:contentDescription="카테고리 전체"
-            android:src="@drawable/ic_arrow_down"
-            app:layout_constraintTop_toTopOf="@id/category_scroll_view"
-            app:layout_constraintBottom_toBottomOf="@id/category_scroll_view"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="8dp" />
+        <!-- 뒤로가기 버튼과 카테고리 스크롤 -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
 
-        <!-- 카테고리 목록 좌우 스크롤 -->
-        <HorizontalScrollView
-            android:id="@+id/category_scroll_view"
-            android:layout_width="0dp" android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:layout_marginStart="16dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/filter_sort_buttons_container"
-            app:layout_constraintStart_toEndOf="@id/btn_back"
-            app:layout_constraintEnd_toStartOf="@id/btn_category_all" android:layout_marginTop="4dp"
-            android:layout_marginEnd="8dp" >
+            <!-- 카테고리 -->
+            <HorizontalScrollView
+                android:id="@+id/category_scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="20dp"
+                android:clipToPadding="false"
+                android:paddingStart="28dp"
+                android:paddingEnd="16dp"
+                android:scrollbars="none">
 
-            <LinearLayout
-                android:id="@+id/category_tags_container"
+                <LinearLayout
+                    android:id="@+id/category_tags_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tag_all"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="전체" />
+
+                    <TextView
+                        android:id="@+id/tag_korean"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="한식" />
+
+                    <TextView
+                        android:id="@+id/tag_western"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="양식" />
+
+                    <TextView
+                        android:id="@+id/tag_chinese"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="중식" />
+
+                    <TextView
+                        android:id="@+id/tag_japanese"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="일식" />
+
+                    <TextView
+                        android:id="@+id/tag_southeast_asian"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="동남아식" />
+
+                    <TextView
+                        android:id="@+id/tag_south_american"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="남미식" />
+
+                    <TextView
+                        android:id="@+id/tag_snack"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="분식" />
+
+                    <TextView
+                        android:id="@+id/tag_side_dish"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="밑반찬" />
+
+                    <TextView
+                        android:id="@+id/tag_soup"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="국물요리" />
+
+                    <TextView
+                        android:id="@+id/tag_rice"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="밥" />
+
+                    <TextView
+                        android:id="@+id/tag_noodle"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="면" />
+
+                    <TextView
+                        android:id="@+id/tag_main_dish"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="일품" />
+
+                    <TextView
+                        android:id="@+id/tag_dessert"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="디저트" />
+
+                    <TextView
+                        android:id="@+id/tag_drink"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="음료" />
+
+                    <TextView
+                        android:id="@+id/tag_veggie"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="채소요리" />
+
+                    <TextView
+                        android:id="@+id/tag_instant"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="간편식" />
+
+                    <TextView
+                        android:id="@+id/tag_kids"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="키즈" />
+
+                    <TextView
+                        android:id="@+id/tag_camping"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="캠핑" />
+
+                    <TextView
+                        android:id="@+id/tag_seasonal"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="제철요리" />
+
+                    <TextView
+                        android:id="@+id/tag_quick"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="초스피드" />
+
+                    <TextView
+                        android:id="@+id/tag_guest"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="손님접대" />
+
+                    <TextView
+                        android:id="@+id/tag_holiday"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="명절" />
+
+                    <TextView
+                        android:id="@+id/tag_other"
+                        style="@style/CategoryTag"
+                        android:fontFamily="@font/notosans_medium"
+                        android:includeFontPadding="false"
+                        android:text="기타" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <View
+                android:layout_width="16dp"
+                android:layout_height="40dp"
+                android:layout_gravity="start|center_vertical"
+                android:layout_marginStart="46dp"
+                android:background="@drawable/gradient_overlay_cream_vertical" />
+
+            <!-- 뒤로가기 -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingEnd="16dp">
+                android:layout_gravity="start|center_vertical"
+                android:layout_marginStart="8dp"
+                app:cardBackgroundColor="@color/primary_cream"
+                app:cardCornerRadius="0dp"
+                app:cardElevation="0dp">
 
-                <TextView
-                    android:id="@+id/tag_all"
-                    style="@style/CategoryTag"
-                    android:text="전체" />
-                <TextView
-                    android:id="@+id/tag_korean"
-                    style="@style/CategoryTag"
-                    android:text="한식" />
-                <TextView
-                    android:id="@+id/tag_western"
-                    style="@style/CategoryTag"
-                    android:text="양식" />
-                <TextView
-                    android:id="@+id/tag_chinese"
-                    style="@style/CategoryTag"
-                    android:text="중식" />
-                <TextView
-                    android:id="@+id/tag_japanese"
-                    style="@style/CategoryTag"
-                    android:text="일식" />
-                <TextView
-                    android:id="@+id/tag_southeast_asian"
-                    style="@style/CategoryTag"
-                    android:text="동남아식" />
-                <TextView
-                    android:id="@+id/tag_south_american"
-                    style="@style/CategoryTag"
-                    android:text="남미식" />
-                <TextView
-                    android:id="@+id/tag_snack"
-                    style="@style/CategoryTag"
-                    android:text="분식" />
-                <TextView
-                    android:id="@+id/tag_side_dish"
-                    style="@style/CategoryTag"
-                    android:text="밑반찬" />
-                <TextView
-                    android:id="@+id/tag_soup"
-                    style="@style/CategoryTag"
-                    android:text="국물요리" />
-                <TextView
-                    android:id="@+id/tag_rice"
-                    style="@style/CategoryTag"
-                    android:text="밥" />
-                <TextView
-                    android:id="@+id/tag_noodle"
-                    style="@style/CategoryTag"
-                    android:text="면" />
-                <TextView
-                    android:id="@+id/tag_main_dish"
-                    style="@style/CategoryTag"
-                    android:text="일품" />
-                <TextView
-                    android:id="@+id/tag_dessert"
-                    style="@style/CategoryTag"
-                    android:text="디저트" />
-                <TextView
-                    android:id="@+id/tag_drink"
-                    style="@style/CategoryTag"
-                    android:text="음료" />
-                <TextView
-                    android:id="@+id/tag_veggie"
-                    style="@style/CategoryTag"
-                    android:text="채소요리" />
-                <TextView
-                    android:id="@+id/tag_instant"
-                    style="@style/CategoryTag"
-                    android:text="간편식" />
-                <TextView
-                    android:id="@+id/tag_kids"
-                    style="@style/CategoryTag"
-                    android:text="키즈" />
-                <TextView
-                    android:id="@+id/tag_camping"
-                    style="@style/CategoryTag"
-                    android:text="캠핑" />
-                <TextView
-                    android:id="@+id/tag_seasonal"
-                    style="@style/CategoryTag"
-                    android:text="제철요리" />
-                <TextView
-                    android:id="@+id/tag_quick"
-                    style="@style/CategoryTag"
-                    android:text="초스피드" />
-                <TextView
-                    android:id="@+id/tag_guest"
-                    style="@style/CategoryTag"
-                    android:text="손님접대" />
-                <TextView
-                    android:id="@+id/tag_holiday"
-                    style="@style/CategoryTag"
-                    android:text="명절" />
-                <TextView
-                    android:id="@+id/tag_other"
-                    style="@style/CategoryTag"
-                    android:text="기타" />
+                <ImageButton
+                    android:id="@+id/btn_back"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:contentDescription="뒤로가기"
+                    android:src="@drawable/ic_arrow_back" />
+            </androidx.cardview.widget.CardView>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="16dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end|center_vertical"
+                    android:background="@drawable/gradient_overlay_cream_vertical"
+                    android:rotation="180" />
+
+                <View
+                    android:layout_width="30dp"
+                    android:layout_height="40dp"
+                    android:background="@color/primary_cream" />
             </LinearLayout>
-        </HorizontalScrollView>
 
+            <!-- 더보기 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                app:cardBackgroundColor="@color/primary_cream"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp">
+
+                <ImageButton
+                    android:id="@+id/btn_category_all"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:contentDescription="카테고리 전체"
+                    android:src="@drawable/ic_arrow_down" />
+            </androidx.cardview.widget.CardView>
+
+        </FrameLayout>
 
         <!-- 정렬 및 필터 -->
         <LinearLayout
             android:id="@+id/filter_sort_buttons_container"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:gravity="end"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            app:layout_constraintTop_toBottomOf="@id/category_scroll_view"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:paddingEnd="16dp"
-            android:paddingStart="16dp">
+            android:orientation="horizontal"
+            android:paddingTop="8dp">
 
-            <TextView
-                android:id="@+id/tv_filter_button"
-                style="@style/SearchFilterButton"
-                android:text="필터"
-                android:drawableStart="@drawable/ic_filter" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                app:cardBackgroundColor="@color/transparent"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:id="@+id/tv_filter_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_filter_button_normal"
+                    android:drawablePadding="4dp"
+                    android:fontFamily="@font/notosans_medium"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:minWidth="70dp"
+                    android:paddingHorizontal="12dp"
+                    android:text="필터"
+                    android:textColor="@color/text_sub"
+                    android:textSize="12sp"
+                    app:drawableStartCompat="@drawable/ic_filter"
+                    app:drawableTint="@color/text_sub" />
+            </androidx.cardview.widget.CardView>
 
             <TextView
                 android:id="@+id/tv_sort_button"
-                style="@style/SearchFilterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
                 android:layout_marginStart="8dp"
+                android:background="@drawable/bg_filter_button_normal"
+                android:fontFamily="@font/notosans_medium"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:minWidth="70dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="8dp"
                 android:text="최신순"
-                android:drawableEnd="@drawable/ic_arrow_down" />
+                android:textColor="@color/text_sub"
+                android:textSize="12sp"
+                app:drawableEndCompat="@drawable/ic_arrow_down"
+                app:drawableTint="@color/text_sub" />
         </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
-    <include
-        android:id="@+id/bottom_navigation_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        layout="@layout/navigation_bottom"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- 콘텐츠 영역 시작 -->
+    <!-- 콘텐츠 -->
     <FrameLayout
         android:id="@+id/fragment_container"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@color/white"
-        app:layout_constraintTop_toBottomOf="@id/top_bar_layout"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_view"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_weight="1"
+        android:background="@color/white">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_search_results"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipToPadding="false"
             android:paddingTop="16dp"
             android:paddingBottom="16dp"
-            android:clipToPadding="false"
             tools:listitem="@layout/cook_card_03" />
 
         <TextView
@@ -233,19 +362,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="아직 내용이 없습니다."
-            android:textSize="16sp"
-            android:textColor="@android:color/darker_gray"
+            android:fontFamily="@font/notosans_regular"
             android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="아직 내용이 없습니다."
+            android:textColor="@color/text_hint"
+            android:textSize="12sp"
             android:visibility="gone"
             tools:visibility="visible" />
 
         <ProgressBar
             android:id="@+id/progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_gravity="center"
+            android:indeterminateTint="@color/primary"
             android:visibility="gone"
             tools:visibility="visible" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/gradient_overlay_cream" />
     </FrameLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

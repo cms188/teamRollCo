@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_frame_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/main_frame_layout"
-    android:background="#F5F5F5">
+    android:background="@color/white"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/refresh_layout"
@@ -22,16 +23,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:fillViewport="true"
-                android:contentDescription="메인 콘텐츠 스크롤 영역"
-                android:clipToPadding="false">
+                android:clipToPadding="false"
+                android:fillViewport="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:clipChildren="false"
                     android:clipToPadding="false"
+                    android:orientation="vertical"
                     android:paddingBottom="16dp">
 
                     <FrameLayout
@@ -42,53 +42,44 @@
                             android:id="@+id/header_gradient_view"
                             android:layout_width="match_parent"
                             android:layout_height="240dp"
-                            android:background="@drawable/bg_main_header_gradient"/>
+                            android:background="@drawable/bg_main_header_gradient" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
+                            android:layout_gravity="bottom"
                             android:layout_marginStart="24dp"
-                            android:layout_marginTop="96dp">
+                            android:layout_marginBottom="100dp"
+                            android:orientation="vertical">
 
                             <TextView
                                 android:id="@+id/title"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/notosans_bold"
+                                android:includeFontPadding="false"
+                                android:shadowColor="@color/primary_cream"
+                                android:shadowDx="0"
+                                android:shadowDy="3"
+                                android:shadowRadius="6"
                                 android:text="@string/title"
                                 android:textAppearance="@style/title"
-                                android:textColor="@color/black20"
-                                android:shadowColor="#40000000"
-                                android:shadowDx="1"
-                                android:shadowDy="1"
-                                android:shadowRadius="2" />
-
-                            <TextView
-                                android:id="@+id/subtitle"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="레시피들을 둘러보세요."
-                                android:textColor="#333333"
-                                android:textSize="14sp"
-                                android:shadowColor="#40000000"
-                                android:shadowDx="1"
-                                android:shadowDy="1"
-                                android:shadowRadius="2"/>
+                                android:textColor="@color/text_primary" />
                         </LinearLayout>
-
                     </FrameLayout>
 
                     <!-- 카테고리 카드 -->
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="-60dp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
+                        android:layout_marginHorizontal="12dp"
+                        android:layout_marginTop="-80dp"
                         android:layout_marginBottom="16dp"
+                        android:outlineAmbientShadowColor="@color/primary_variant"
+                        android:outlineSpotShadowColor="@color/primary_variant"
                         app:cardCornerRadius="16dp"
-                        app:cardElevation="8dp">
+                        app:cardElevation="6dp"
+                        tools:targetApi="28">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -102,33 +93,105 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal">
+
                                 <LinearLayout
                                     android:id="@+id/category_button_1"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cat1_1" android:contentDescription="한식"/>
-                                    <TextView style="@style/UserPageMenuText" android:text="한식" android:textColor="#333333"/>
+
+                                    <ImageView
+                                        style="@style/UserPageMenuIcon"
+                                        android:layout_width="56dp"
+                                        android:layout_height="56dp"
+                                        android:background="@drawable/cat1_1"
+                                        android:contentDescription="한식" />
+
+                                    <TextView
+                                        style="@style/UserPageMenuText"
+                                        android:fontFamily="@font/notosans_bold"
+                                        android:includeFontPadding="false"
+                                        android:text="한식"
+                                        android:textColor="@color/text_primary" />
                                 </LinearLayout>
+
                                 <LinearLayout
                                     android:id="@+id/category_button_2"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cat1_2" android:contentDescription="양식"/>
-                                    <TextView style="@style/UserPageMenuText" android:text="양식" android:textColor="#333333"/>
+
+                                    <ImageView
+                                        style="@style/UserPageMenuIcon"
+                                        android:layout_width="56dp"
+                                        android:layout_height="56dp"
+                                        android:background="@drawable/cat1_2"
+                                        android:contentDescription="양식" />
+
+                                    <TextView
+                                        style="@style/UserPageMenuText"
+                                        android:fontFamily="@font/notosans_bold"
+                                        android:includeFontPadding="false"
+                                        android:text="양식"
+                                        android:textColor="@color/text_primary" />
                                 </LinearLayout>
+
                                 <LinearLayout
                                     android:id="@+id/category_button_3"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cat1_3" android:contentDescription="중식"/>
-                                    <TextView style="@style/UserPageMenuText" android:text="중식" android:textColor="#333333"/>
+
+                                    <ImageView
+                                        style="@style/UserPageMenuIcon"
+                                        android:layout_width="56dp"
+                                        android:layout_height="56dp"
+                                        android:background="@drawable/cat1_3"
+                                        android:contentDescription="중식" />
+
+                                    <TextView
+                                        style="@style/UserPageMenuText"
+                                        android:fontFamily="@font/notosans_bold"
+                                        android:includeFontPadding="false"
+                                        android:text="중식"
+                                        android:textColor="@color/text_primary" />
                                 </LinearLayout>
+
                                 <LinearLayout
                                     android:id="@+id/category_button_4"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cat1_4" android:contentDescription="일식"/>
-                                    <TextView style="@style/UserPageMenuText" android:text="일식" android:textColor="#333333"/>
+
+                                    <ImageView
+                                        style="@style/UserPageMenuIcon"
+                                        android:layout_width="56dp"
+                                        android:layout_height="56dp"
+                                        android:background="@drawable/cat1_4"
+                                        android:contentDescription="일식" />
+
+                                    <TextView
+                                        style="@style/UserPageMenuText"
+                                        android:fontFamily="@font/notosans_bold"
+                                        android:includeFontPadding="false"
+                                        android:text="일식"
+                                        android:textColor="@color/text_primary" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:id="@+id/category_button_5"
+                                    style="@style/UserPageMenuButton"
+                                    android:layout_height="wrap_content">
+
+                                    <ImageView
+                                        style="@style/UserPageMenuIcon"
+                                        android:layout_width="56dp"
+                                        android:layout_height="56dp"
+                                        android:background="@drawable/cat1_5"
+                                        android:contentDescription="동남아식" />
+
+                                    <TextView
+                                        style="@style/UserPageMenuText"
+                                        android:fontFamily="@font/notosans_bold"
+                                        android:includeFontPadding="false"
+                                        android:text="동남아식"
+                                        android:textColor="@color/text_primary" />
                                 </LinearLayout>
                             </LinearLayout>
 
@@ -137,246 +200,342 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal">
+
+
                                 <LinearLayout
                                     android:id="@+id/category_button_11"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cat1_5" android:contentDescription="동남아식" />
-                                    <TextView style="@style/UserPageMenuText" android:text="동남아식" android:textColor="#333333"/>
+
+                                    <ImageView
+                                        style="@style/UserPageMenuIcon"
+                                        android:layout_width="56dp"
+                                        android:layout_height="56dp"
+                                        android:background="@drawable/cat1_6"
+                                        android:contentDescription="남미식" />
+
+                                    <TextView
+                                        style="@style/UserPageMenuText"
+                                        android:fontFamily="@font/notosans_bold"
+                                        android:includeFontPadding="false"
+                                        android:text="남미식"
+                                        android:textColor="@color/text_primary" />
                                 </LinearLayout>
+
                                 <LinearLayout
                                     android:id="@+id/category_button_12"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cat1_6" android:contentDescription="남미식"/>
-                                    <TextView style="@style/UserPageMenuText" android:text="남미식" android:textColor="#333333"/>
+
+                                    <ImageView
+                                        style="@style/UserPageMenuIcon"
+                                        android:layout_width="56dp"
+                                        android:layout_height="56dp"
+                                        android:background="@drawable/cat1_7"
+                                        android:contentDescription="분식" />
+
+                                    <TextView
+                                        style="@style/UserPageMenuText"
+                                        android:fontFamily="@font/notosans_bold"
+                                        android:includeFontPadding="false"
+                                        android:text="분식"
+                                        android:textColor="@color/text_primary" />
                                 </LinearLayout>
+
                                 <LinearLayout
                                     android:id="@+id/category_button_13"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
-                                    <ImageView style="@style/UserPageMenuIcon" android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/cat1_7" android:contentDescription="분식"/>
-                                    <TextView style="@style/UserPageMenuText" android:text="분식" android:textColor="#333333"/>
+
+                                    <ImageView
+                                        style="@style/UserPageMenuIcon"
+                                        android:layout_width="56dp"
+                                        android:layout_height="56dp"
+                                        android:background="@drawable/cat2_6"
+                                        android:contentDescription="디저트" />
+
+                                    <TextView
+                                        style="@style/UserPageMenuText"
+                                        android:fontFamily="@font/notosans_bold"
+                                        android:includeFontPadding="false"
+                                        android:text="디저트"
+                                        android:textColor="@color/text_primary" />
                                 </LinearLayout>
+
                                 <LinearLayout
                                     android:id="@+id/category_button_14"
                                     style="@style/UserPageMenuButton"
                                     android:layout_height="wrap_content">
+
+                                    <ImageView
+                                        style="@style/UserPageMenuIcon"
+                                        android:layout_width="56dp"
+                                        android:layout_height="56dp"
+                                        android:background="@drawable/cat2_7"
+                                        android:contentDescription="음료" />
+
+                                    <TextView
+                                        style="@style/UserPageMenuText"
+                                        android:fontFamily="@font/notosans_bold"
+                                        android:includeFontPadding="false"
+                                        android:text="음료"
+                                        android:textColor="@color/text_primary" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:id="@+id/category_button_15"
+                                    style="@style/UserPageMenuButton"
+                                    android:layout_height="wrap_content">
+
                                     <TextView
                                         style="@style/UserPageMenuIcon"
                                         android:layout_width="56dp"
                                         android:layout_height="56dp"
                                         android:background="@drawable/bg_circle_border"
+                                        android:contentDescription="더보기"
                                         android:gravity="center"
                                         android:text="•••"
                                         android:textColor="@color/text_secondary"
                                         android:textSize="20sp"
-                                        android:textStyle="bold"
-                                        android:contentDescription="더보기"/>
-                                    <TextView style="@style/UserPageMenuText" android:text="더보기" android:textColor="#333333"/>
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        style="@style/UserPageMenuText"
+                                        android:fontFamily="@font/notosans_bold"
+                                        android:includeFontPadding="false"
+                                        android:text="더보기"
+                                        android:textColor="@color/text_primary" />
                                 </LinearLayout>
                             </LinearLayout>
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
                     <!-- Hot Cook 카드 -->
-                    <androidx.cardview.widget.CardView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="16dp"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="4dp">
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:paddingTop="16dp"
-                            android:paddingBottom="16dp">
-                            <TextView
-                                android:id="@+id/title1"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="16dp"
-                                android:text="@string/title1"
-                                android:textAppearance="@style/title1"
-                                android:textColor="@android:color/black" />
-                            <TextView
-                                android:id="@+id/title1_1"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="16dp"
-                                android:text="@string/title1_1"
-                                android:textAppearance="@style/title1_1"
-                                android:textColor="@android:color/darker_gray"/>
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/hot_cook_recyclerview"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="16dp"
-                                android:clipToPadding="false"
-                                android:paddingStart="16dp"
-                                tools:listitem="@layout/cook_card_01"/>
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
+                        android:orientation="vertical"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="16dp">
 
-                    <!-- Pick Cook 카드 -->
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="16dp"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="4dp">
-                        <LinearLayout
+                        <TextView
+                            android:id="@+id/title1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:paddingTop="16dp"
-                            android:paddingBottom="16dp">
-                            <TextView
-                                android:id="@+id/title2"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="16dp"
-                                android:text="@string/title2"
-                                android:textAppearance="@style/title1"
-                                android:textColor="@android:color/black"/>
-                            <TextView
-                                android:id="@+id/title2_1"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="16dp"
-                                android:text="@string/title2_1"
-                                android:textAppearance="@style/title1_1"
-                                android:textColor="@android:color/darker_gray"/>
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/pick_cook_recyclerview"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="16dp"
-                                android:clipToPadding="false"
-                                android:paddingStart="16dp"
-                                tools:listitem="@layout/cook_card_02"/>
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
+                            android:layout_marginStart="16dp"
+                            android:fontFamily="@font/notosans_bold"
+                            android:includeFontPadding="false"
+                            android:text="@string/title1"
+                            android:textAppearance="@style/title1"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:id="@+id/title1_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:fontFamily="@font/notosans_regular"
+                            android:includeFontPadding="false"
+                            android:text="@string/title1_1"
+                            android:textAppearance="@style/title1_1"
+                            android:textColor="@color/text_sub" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/hot_cook_recyclerview"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:clipToPadding="false"
+                            android:paddingStart="16dp"
+                            tools:listitem="@layout/cook_card_01" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="16dp"
+                        android:alpha="1"
+                        android:background="@color/primary_cream"
+                        android:paddingHorizontal="16dp" />
 
                     <!-- 15분 이하 간단요리 카드 -->
-                    <androidx.cardview.widget.CardView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="16dp"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="4dp">
-                        <LinearLayout
+                        android:orientation="vertical"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="16dp">
+
+                        <TextView
+                            android:id="@+id/title4"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:paddingTop="16dp"
-                            android:paddingBottom="16dp">
-                            <TextView
-                                android:id="@+id/title4"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="16dp"
-                                android:text="15분 이하 간단요리"
-                                android:textAppearance="@style/title1"
-                                android:textColor="@android:color/black" />
-                            <TextView
-                                android:id="@+id/title4_1"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="16dp"
-                                android:text="@string/title4_1"
-                                android:textAppearance="@style/title1_1"
-                                android:textColor="@android:color/darker_gray"/>
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/simple_recipe_recyclerview"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="16dp"
-                                android:clipToPadding="false"
-                                android:paddingStart="16dp"
-                                tools:listitem="@layout/cook_card_02"/>
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
+                            android:fontFamily="@font/notosans_bold"
+                            android:includeFontPadding="false"
+                            android:text="@string/title4"
+                            android:textAppearance="@style/title1"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:id="@+id/title4_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/notosans_regular"
+                            android:includeFontPadding="false"
+                            android:text="@string/title4_1"
+                            android:textAppearance="@style/title1_1"
+                            android:textColor="@color/text_sub" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/simple_recipe_recyclerview"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:clipToPadding="false"
+                            tools:listitem="@layout/cook_card_02" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="16dp"
+                        android:alpha="0.2"
+                        android:background="@color/primary_lighter"
+                        android:paddingHorizontal="16dp" />
+
+                    <!-- Pick Cook 카드 -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginBottom="12dp"
+                        android:orientation="vertical"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="16dp">
+
+                        <TextView
+                            android:id="@+id/title2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/notosans_bold"
+                            android:includeFontPadding="false"
+                            android:text="@string/title2"
+                            android:textAppearance="@style/title1"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:id="@+id/title2_1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/notosans_regular"
+                            android:includeFontPadding="false"
+                            android:text="@string/title2_1"
+                            android:textAppearance="@style/title1_1"
+                            android:textColor="@color/text_sub" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/pick_cook_recyclerview"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:clipToPadding="false"
+                            tools:listitem="@layout/cook_card_02" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp"
+                        android:background="@drawable/gradient_overlay_cream" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp"
+                        android:background="@color/primary_cream"
+                        android:paddingHorizontal="10dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp"
+                        android:background="@drawable/gradient_overlay_cream"
+                        android:rotation="180" />
 
                     <!-- 요리 팁 카드 -->
-                    <androidx.cardview.widget.CardView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="16dp"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="4dp">
+                        android:layout_marginBottom="12dp"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="16dp">
+
                         <LinearLayout
+                            android:id="@+id/see_all_tips"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:paddingTop="16dp"
-                            android:paddingBottom="16dp">
-                            <androidx.constraintlayout.widget.ConstraintLayout
-                                android:layout_width="match_parent"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingVertical="16dp">
+
+                            <TextView
+                                android:id="@+id/title3"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:paddingStart="16dp"
-                                android:paddingEnd="16dp">
-                                <TextView
-                                    android:id="@+id/title3"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/title3"
-                                    android:textAppearance="@style/title1"
-                                    android:textColor="@android:color/black"
-                                    app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent"
-                                    app:layout_constraintBottom_toBottomOf="parent"/>
-                                <ImageButton
-                                    android:id="@+id/iv_see_all_tips"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:src="@drawable/ic_arrow_back"
-                                    android:rotation="180"
-                                    android:background="?attr/selectableItemBackgroundBorderless"
-                                    app:layout_constraintEnd_toEndOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent"
-                                    app:layout_constraintBottom_toBottomOf="parent"/>
-                            </androidx.constraintlayout.widget.ConstraintLayout>
-                            <androidx.viewpager2.widget.ViewPager2
-                                android:id="@+id/cook_tips_view_pager"
-                                android:layout_width="match_parent"
-                                android:layout_height="140dp"
-                                android:layout_marginTop="16dp"
-                                tools:layout="@layout/cook_tip_01"
-                                android:clipToPadding="false"
-                                android:clipChildren="false"/>
+                                android:fontFamily="@font/notosans_bold"
+                                android:includeFontPadding="false"
+                                android:text="@string/title3"
+                                android:textAppearance="@style/title1"
+                                android:textColor="@color/text_primary" />
+
+                            <ImageButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@color/transparent"
+                                android:src="@drawable/ic_arrow_right_r" />
                         </LinearLayout>
-                    </androidx.cardview.widget.CardView>
+
+                        <androidx.viewpager2.widget.ViewPager2
+                            android:id="@+id/cook_tips_view_pager"
+                            android:layout_width="match_parent"
+                            android:layout_height="140dp"
+                            android:clipChildren="false"
+                            android:clipToPadding="false"
+                            tools:layout="@layout/cook_tip_01" />
+                    </LinearLayout>
 
                     <!-- O/X 퀴즈 카드 -->
-                    <androidx.cardview.widget.CardView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
+                        android:orientation="vertical"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="12dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/notosans_bold"
+                            android:includeFontPadding="false"
+                            android:text="요리 꿀팁 O/X 퀴즈"
+                            android:textAppearance="@style/title1"
+                            android:textColor="@color/text_primary" />
+                    </LinearLayout>
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
                         android:layout_marginBottom="16dp"
+                        android:outlineAmbientShadowColor="@color/primary_variant"
+                        android:outlineSpotShadowColor="@color/primary_variant"
                         app:cardCornerRadius="16dp"
-                        app:cardElevation="4dp">
+                        app:cardElevation="4dp"
+                        tools:targetApi="28">
+
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:padding="16dp">
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="요리 꿀팁 O/X 퀴즈"
-                                android:textAppearance="@style/title1"
-                                android:textColor="@android:color/black" />
+
                             <include
                                 android:id="@+id/quiz_card"
                                 layout="@layout/layout_quiz_card" />
@@ -384,44 +543,42 @@
                     </androidx.cardview.widget.CardView>
 
                     <!-- 제철 식재료 카드 -->
-                    <androidx.cardview.widget.CardView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="16dp"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="4dp">
-                        <LinearLayout
+                        android:orientation="vertical"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="16dp">
+
+                        <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:paddingTop="16dp"
-                            android:paddingBottom="16dp">
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="16dp"
-                                android:text="지금이 제철! 이달의 식재료"
-                                android:textAppearance="@style/title1"
-                                android:textColor="@android:color/black" />
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="16dp"
-                                android:text="클릭하면 이 재료가 들어간 레시피들을 볼 수 있어요."
-                                android:textAppearance="@style/title1_1"
-                                android:textColor="@android:color/darker_gray"/>
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/seasonal_recyclerview"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="16dp"
-                                android:clipToPadding="false"
-                                android:paddingStart="16dp"
-                                tools:listitem="@layout/item_seasonal_ingredient"/>
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
+                            android:layout_marginStart="16dp"
+                            android:fontFamily="@font/notosans_bold"
+                            android:includeFontPadding="false"
+                            android:text="지금이 제철! 이달의 식재료"
+                            android:textAppearance="@style/title1"
+                            android:textColor="@color/text_primary" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:fontFamily="@font/notosans_regular"
+                            android:includeFontPadding="false"
+                            android:text="클릭하면 이 재료가 들어간 레시피들을 볼 수 있어요."
+                            android:textAppearance="@style/title1_1"
+                            android:textColor="@color/text_sub" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/seasonal_recyclerview"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:clipToPadding="false"
+                            android:paddingStart="16dp"
+                            tools:listitem="@layout/item_seasonal_ingredient" />
+                    </LinearLayout>
 
                 </LinearLayout>
             </androidx.core.widget.NestedScrollView>
@@ -432,54 +589,67 @@
         </LinearLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <!-- 오른쪽 상단 고정 버튼들 -->
-    <FrameLayout
-        android:id="@+id/notification_button_container"
+    <LinearLayout
+        android:id="@+id/top_float_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|end"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="16dp">
+        android:layout_marginTop="56dp"
+        android:layout_marginEnd="16dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="horizontal">
+
         <ImageButton
-            android:id="@+id/top_notification_button"
+            android:id="@+id/top_search_button"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:background="@drawable/bg_main_circle_white"
-            android:src="@drawable/ic_notification"
-            android:contentDescription="알림"
-            android:padding="7dp"
-            android:scaleType="fitCenter"
-            app:tint="#474747"
+            android:contentDescription="검색"
             android:elevation="4dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackgroundBorderless"/>
-        <View
-            android:id="@+id/notification_dot"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
-            android:layout_gravity="top|end"
-            android:layout_marginEnd="4dp"
-            android:layout_marginTop="4dp"
-            android:background="@drawable/bg_notification_dot"
-            android:elevation="5dp"
-            android:visibility="gone"
-            tools:visibility="visible"/>
-    </FrameLayout>
+            android:outlineAmbientShadowColor="@color/primary_variant"
+            android:outlineSpotShadowColor="@color/primary_variant"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_search"
+            tools:targetApi="28" />
 
-    <ImageButton
-        android:id="@+id/top_search_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_gravity="top|end"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="64dp"
-        android:background="@drawable/bg_main_circle_white"
-        android:src="@drawable/ic_search"
-        android:contentDescription="검색"
-        android:padding="8dp"
-        android:scaleType="fitCenter"
-        app:tint="#474747"
-        android:elevation="4dp"/>
+        <Space
+            android:layout_width="6dp"
+            android:layout_height="0dp" />
 
+        <FrameLayout
+            android:id="@+id/notification_button_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:id="@+id/top_notification_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_main_circle_white"
+                android:clickable="true"
+                android:contentDescription="알림"
+                android:elevation="4dp"
+                android:focusable="true"
+                android:outlineAmbientShadowColor="@color/primary_variant"
+                android:outlineSpotShadowColor="@color/primary_variant"
+                android:padding="7dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_notification"
+                tools:targetApi="28" />
+
+            <View
+                android:id="@+id/notification_dot"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="7dp"
+                android:layout_marginEnd="7dp"
+                android:background="@drawable/bg_notification_dot"
+                android:elevation="5dp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </FrameLayout>
+    </LinearLayout>
 </FrameLayout>
