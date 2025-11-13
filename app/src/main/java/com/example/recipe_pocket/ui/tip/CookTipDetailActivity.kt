@@ -76,7 +76,7 @@ class CookTipDetailActivity : AppCompatActivity() {
         setupClickListeners()
         loadTipData()
         loadComments()
-        utils.ToolbarUtils.setupTransparentToolbar(this, "요리 Tip", showEditButton = true, showDeleteButton = true)
+        utils.ToolbarUtils.setupTransparentToolbar(this, "요리 Tip", showEditButton = false, showDeleteButton = false)
         setupWindowInsets()
     }
 
@@ -170,7 +170,7 @@ class CookTipDetailActivity : AppCompatActivity() {
 
         // 본인 게시글일 때 수정/삭제 버튼 표시
         if (currentUser != null && currentUser.uid == tip.userId) {
-            binding.editDeleteContainer.visibility = View.VISIBLE
+            binding.editDeleteContainerTip.visibility = View.VISIBLE
             binding.btnDeleteTip.setOnClickListener { showDeleteTipDialog() }
             binding.btnEditTip.setOnClickListener {
                 val intent = Intent(this, CookTipWriteActivity::class.java).apply {
@@ -180,7 +180,7 @@ class CookTipDetailActivity : AppCompatActivity() {
                 editLauncher.launch(intent)
             }
         } else {
-            binding.editDeleteContainer.visibility = View.GONE
+            binding.editDeleteContainerTip.visibility = View.GONE
         }
     }
 
