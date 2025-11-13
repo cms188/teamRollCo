@@ -59,8 +59,10 @@ class WeatherActivity : AppCompatActivity() {
         return withContext(Dispatchers.IO) {
             Log.d("WeatherActivity", "fetchWeatherData nx=$nx ny=$ny")
             val (baseDate, baseTime) = getBaseTime()
-            val urlBuilder = StringBuilder("https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst")
-            urlBuilder.append("?${URLEncoder.encode("serviceKey", "UTF-8")}=$weatherServiceKey")
+            val urlBuilder = StringBuilder("https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtNcst")
+            //val urlBuilder = StringBuilder("https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst")
+            urlBuilder.append("?${URLEncoder.encode("authKey", "UTF-8")}=$weatherServiceKey")
+            //urlBuilder.append("?${URLEncoder.encode("serviceKey", "UTF-8")}=$weatherServiceKey")
             urlBuilder.append("&${URLEncoder.encode("pageNo", "UTF-8")}=1")
             urlBuilder.append("&${URLEncoder.encode("numOfRows", "UTF-8")}=100")
             urlBuilder.append("&${URLEncoder.encode("dataType", "UTF-8")}=XML")
@@ -89,8 +91,10 @@ class WeatherActivity : AppCompatActivity() {
 
     private fun fetchForecastSkyPop(nx: Int, ny: Int, targetKey: String): Map<String, String>? {
         val (baseDate, baseTime) = getBaseTimeSkyPop()
-        val urlBuilder = StringBuilder("https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst")
-        urlBuilder.append("?${URLEncoder.encode("serviceKey", "UTF-8")}=$weatherServiceKey")
+        val urlBuilder = StringBuilder("https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getVilageFcst")
+        //val urlBuilder = StringBuilder("https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst")
+        urlBuilder.append("?${URLEncoder.encode("authKey", "UTF-8")}=$weatherServiceKey")
+        //urlBuilder.append("?${URLEncoder.encode("serviceKey", "UTF-8")}=$weatherServiceKey")
         urlBuilder.append("&${URLEncoder.encode("pageNo", "UTF-8")}=1")
         urlBuilder.append("&${URLEncoder.encode("numOfRows", "UTF-8")}=100")
         urlBuilder.append("&${URLEncoder.encode("dataType", "UTF-8")}=XML")
@@ -124,7 +128,7 @@ class WeatherActivity : AppCompatActivity() {
         val hourFormat = SimpleDateFormat("HH", Locale.KOREAN).apply { timeZone = koreaTimeZone }
 
         val minute = calendar.get(Calendar.MINUTE)
-        if (minute < 10) {
+        if (minute < 40) {
             calendar.add(Calendar.HOUR_OF_DAY, -1)
         }
 
@@ -179,6 +183,8 @@ class WeatherActivity : AppCompatActivity() {
             var fcstTime = ""
             var category = ""
             var value = ""
+            var resultCode = ""
+            var resultMsg = ""
 
             while (eventType != XmlPullParser.END_DOCUMENT) {
                 when (eventType) {
@@ -188,6 +194,14 @@ class WeatherActivity : AppCompatActivity() {
                         "fcstTime" -> fcstTime = parser.text ?: ""
                         "category" -> category = parser.text ?: ""
                         "fcstValue" -> value = parser.text ?: ""
+                        "resultCode" -> {
+                            resultCode = parser.text?.trim().orEmpty()
+                            Log.d("WeatherActivity", "getVilageFcst resultCode=$resultCode")
+                        }
+                        "resultMsg"  -> {
+                            resultMsg = parser.text?.trim().orEmpty()
+                            Log.d("WeatherActivity", "getVilageFcst resultMsg=$resultMsg")
+                        }
                     }
                     XmlPullParser.END_TAG -> {
                         if (parser.name == "item") {
