@@ -367,6 +367,7 @@ class RecipeEditActivity : AppCompatActivity() {
         binding.toolbarLayout.btnSave.setOnClickListener { saveChanges() }
 
         binding.toolbarLayout.btnTempSave.visibility = View.GONE
+        binding.toolbarLayout.btnTempList.visibility = View.GONE
         binding.toolbarLayout.toolbarTitle.text = ""
         binding.toolbarLayout.btnSave.text = "수정완료"
 
