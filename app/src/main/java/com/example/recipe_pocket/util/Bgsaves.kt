@@ -2,11 +2,14 @@ package com.example.recipe_pocket.util
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.example.recipe_pocket.ui.recipe.read.RecipeDetailActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -32,19 +35,20 @@ object BgSaves : CoroutineScope {
         context: Context,
         successMessage: String,
         failureMessage: String,
-        work: suspend () -> Unit
+        work: suspend () -> String
     ) {
         val appContext = context.applicationContext
         ensureChannel(appContext)
         launch {
             runCatching { work() }
-                .onSuccess {
-                    notify(appContext, "레시피 업로드 완료", successMessage)
+                .onSuccess { recipeId ->
+                    val contentIntent = recipeDetailPendingIntent(appContext, recipeId)
+                    notify(appContext, "레시피 업로드 완료", successMessage, contentIntent)
                 }
                 .onFailure { throwable ->
                     if (throwable is CancellationException) throw throwable
                     Log.e(TAG, "Background save failed", throwable)
-                    notify(appContext, "레시피 업로드 실패", failureMessage)
+                    notify(appContext, "레시피 업로드 실패", failureMessage, null)
                 }
         }
     }
@@ -62,7 +66,12 @@ object BgSaves : CoroutineScope {
         }
     }
 
-    private fun notify(context: Context, title: String, message: String) {
+    private fun notify(
+        context: Context,
+        title: String,
+        message: String,
+        contentIntent: PendingIntent?
+    ) {
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_sys_upload_done)
@@ -70,6 +79,11 @@ object BgSaves : CoroutineScope {
             .setContentText(message)
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setAutoCancel(true)
+            .apply {
+                if (contentIntent != null) {
+                    setContentIntent(contentIntent)
+                }
+            }
             .build()
         val notificationId = nextNotificationId()
         manager.notify(notificationId, notification)
@@ -83,5 +97,14 @@ object BgSaves : CoroutineScope {
         } else {
             id
         }
+    }
+
+    private fun recipeDetailPendingIntent(context: Context, recipeId: String): PendingIntent {
+        val intent = Intent(context, RecipeDetailActivity::class.java).apply {
+            putExtra("RECIPE_ID", recipeId)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
+        val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        return PendingIntent.getActivity(context, recipeId.hashCode(), intent, flags)
     }
 }

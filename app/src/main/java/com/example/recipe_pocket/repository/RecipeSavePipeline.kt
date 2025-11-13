@@ -26,7 +26,7 @@ object RecipeSavePipeline {
     private val db = Firebase.firestore
     private val storage = Firebase.storage
 
-    suspend fun saveRecipeWithAi(recipe: RecipeData) {
+    suspend fun saveRecipeWithAi(recipe: RecipeData): String {
         val user = auth.currentUser ?: throw IllegalStateException("로그인이 필요합니다.")
         val tags = generateTags(recipe)
         val thumbnailUrl = uploadImage(recipe.thumbnailUrl)
@@ -41,7 +41,7 @@ object RecipeSavePipeline {
             userEmail = user.email.orEmpty()
         )
 
-        db.collection("Recipes").add(firestoreMap).await()
+        val docRef = db.collection("Recipes").add(firestoreMap).await()
 
         val userRef = db.collection("Users").document(user.uid)
         val unlockedTitle = updateRecipeStats(userRef)
@@ -49,6 +49,7 @@ object RecipeSavePipeline {
             runCatching { NotificationHandler.createTitleNotification(user.uid, unlockedTitle) }
                 .onFailure { Log.w(TAG, "칭호 알림 생성 실패", it) }
         }
+        return docRef.id
     }
 
     suspend fun saveDraft(recipe: RecipeData) {
@@ -240,8 +241,7 @@ object RecipeSavePipeline {
         )
     }
 
-    private fun Any?.toStringList(): List<String> =
-        (this as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
+    private fun Any?.toStringList(): List<String> = (this as? List<*>)?.mapNotNull { it as? String } ?: emptyList()
 
     private fun String?.orElseNull(): String? = this?.takeIf { it.isNotBlank() }
 
