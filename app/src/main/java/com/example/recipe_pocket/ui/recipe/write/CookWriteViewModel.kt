@@ -33,7 +33,12 @@ class CookWriteViewModel : ViewModel() {
         currentData.cookingTimeMinutes = initialData.cookingTimeMinutes
         currentData.ingredients = initialData.ingredients
         currentData.tools = initialData.tools
-        // steps는 이미 초기화되었으므로 그대로 둠
+
+        if (initialData.steps.isNotEmpty()) {
+            _steps.value = initialData.steps.toMutableList()
+            currentData.steps = initialData.steps
+        }
+
         _recipeData.postValue(currentData)
     }
 

@@ -2,6 +2,7 @@ package com.example.recipe_pocket.ui.recipe.write
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +22,13 @@ import com.example.recipe_pocket.R
 import com.example.recipe_pocket.data.RecipeData
 import com.example.recipe_pocket.databinding.CookWrite01Binding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.example.recipe_pocket.repository.RecipeSavePipeline
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CookWrite01Activity : AppCompatActivity() {
 
@@ -30,12 +38,29 @@ class CookWrite01Activity : AppCompatActivity() {
     private var cookingHour = 0
     private var cookingMinute = 0
 
+    private val auth = Firebase.auth
+
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let {
                 recipeData.thumbnailUrl = it.toString()
                 binding.ivRepresentativePhoto.setImageURI(it)
                 binding.ivRepresentativePhoto.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private val step2Launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val updatedData: RecipeData? =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    result.data?.getSerializableExtra("recipe_data", RecipeData::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    result.data?.getSerializableExtra("recipe_data") as? RecipeData
+                }
+            if (updatedData != null) {
+                recipeData = updatedData
             }
         }
     }
@@ -48,9 +73,7 @@ class CookWrite01Activity : AppCompatActivity() {
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         utils.ToolbarUtils.setupWriteToolbar(this, "",
-            onTempSaveClicked = {
-                Toast.makeText(this, "임시저장 기능은 아직 지원되지 않습니다.", Toast.LENGTH_SHORT).show()
-            },
+            onTempSaveClicked = { tempSaveDraft() },
             onSaveClicked = { }
         )
 
@@ -60,6 +83,44 @@ class CookWrite01Activity : AppCompatActivity() {
         updateServingsText()
         updateCookingTimeText()
         updateCategoryButtonText() // 초기 텍스트 설정
+    }
+
+    private fun tempSaveDraft() {
+        if (auth.currentUser == null) {
+            Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val current = recipeData.copy(
+            title = binding.etRecipeTitle.text.toString(),
+            description = binding.etRecipeDescription.text.toString(),
+            difficulty = when (binding.rgDifficulty.checkedRadioButtonId) {
+                R.id.rb_easy -> "쉬움"
+                R.id.rb_hard -> "어려움"
+                else -> "보통"
+            },
+            cookingTimeMinutes = (cookingHour * 60) + cookingMinute
+        )
+
+        val tempButton = findViewById<TextView>(R.id.btn_temp_save)
+        tempButton?.isEnabled = false
+        tempButton?.text = "저장 중..."
+
+        lifecycleScope.launch {
+            val result = runCatching {
+                withContext(Dispatchers.IO) {
+                    RecipeSavePipeline.saveDraft(current)
+                }
+            }
+            tempButton?.isEnabled = true
+            tempButton?.text = "임시저장"
+
+            if (result.isSuccess) {
+                Toast.makeText(this@CookWrite01Activity, "임시저장을 완료했습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this@CookWrite01Activity, "임시저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun CookingBottomMargin() {
@@ -206,6 +267,6 @@ class CookWrite01Activity : AppCompatActivity() {
         val intent = Intent(this, CookWrite02Activity::class.java).apply {
             putExtra("recipe_data", recipeData)
         }
-        startActivity(intent)
+        step2Launcher.launch(intent)
     }
 }

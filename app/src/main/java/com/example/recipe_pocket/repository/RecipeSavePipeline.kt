@@ -46,6 +46,23 @@ object RecipeSavePipeline {
         }
     }
 
+    suspend fun saveDraft(recipe: RecipeData) {
+        val user = auth.currentUser ?: throw IllegalStateException("로그인이 필요합니다.")
+        val thumbnailUrl = uploadImage(recipe.thumbnailUrl)
+        val stepImageUrls = recipe.steps.map { uploadImage(it.imageUri) }
+
+        val firestoreMap = buildFirestoreMap(
+            recipe = recipe,
+            tags = emptySet(),
+            thumbnailUrl = thumbnailUrl,
+            stepImageUrls = stepImageUrls,
+            userId = user.uid,
+            userEmail = user.email.orEmpty()
+        )
+
+        db.collection("TempSaves").add(firestoreMap).await()
+    }
+
     private suspend fun generateTags(recipe: RecipeData): Set<String> {
         val aiInput = buildAiInput(recipe)
         return AITagGenerator.generateTags(aiInput)

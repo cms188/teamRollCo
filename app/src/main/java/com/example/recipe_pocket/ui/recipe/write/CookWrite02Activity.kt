@@ -1,5 +1,6 @@
 package com.example.recipe_pocket.ui.recipe.write
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -10,6 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
+import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -19,6 +23,14 @@ import com.example.recipe_pocket.data.RecipeData
 import com.example.recipe_pocket.databinding.CookWrite02Binding
 import com.example.recipe_pocket.databinding.ItemIngredientBinding
 import com.example.recipe_pocket.databinding.ItemToolBinding
+import com.example.recipe_pocket.repository.RecipeSavePipeline
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.example.recipe_pocket.R
 
 class CookWrite02Activity : AppCompatActivity() {
 
@@ -27,6 +39,22 @@ class CookWrite02Activity : AppCompatActivity() {
 
     private val ingredientsList = mutableListOf<Ingredient>()
     private val toolsList = mutableListOf<String>()
+    private val auth = Firebase.auth
+
+    private val step3Launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val updatedData: RecipeData? =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    result.data?.getSerializableExtra("recipe_data", RecipeData::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    result.data?.getSerializableExtra("recipe_data") as? RecipeData
+                }
+            if (updatedData != null) {
+                recipeData = updatedData
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +67,7 @@ class CookWrite02Activity : AppCompatActivity() {
         setupIngredientViews()
         setupToolViews()
         setupToolbarAndListeners()
+        setupSystemBackHandler()
     }
 
     private fun applyBottomInsetToNextButton() {
@@ -81,11 +110,21 @@ class CookWrite02Activity : AppCompatActivity() {
 
     private fun setupToolbarAndListeners() {
         utils.ToolbarUtils.setupWriteToolbar(
-            this, "",
-            onTempSaveClicked = { Toast.makeText(this, "임시저장 기능은 아직 지원되지 않습니다.", Toast.LENGTH_SHORT).show() },
+            this,
+            "",
+            onBackPressed = { deliverResultAndFinish() },
+            onTempSaveClicked = { tempSaveDraft() },
             onSaveClicked = { }
         )
         binding.btnNext.setOnClickListener { goToNextStep() }
+    }
+
+    private fun setupSystemBackHandler() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                deliverResultAndFinish()
+            }
+        })
     }
 
     // 재료 영역
@@ -94,6 +133,32 @@ class CookWrite02Activity : AppCompatActivity() {
         binding.ingredientsContainer.removeAllViews()
         ingredientsList.forEachIndexed { i, _ ->
             binding.ingredientsContainer.addView(createIngredientRow(i))
+        }
+    }
+
+    private fun tempSaveDraft() {
+        if (auth.currentUser == null) {
+            Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val snapshot = snapshotRecipeData()
+
+        val tempButton = findViewById<TextView>(R.id.btn_temp_save)
+        tempButton?.isEnabled = false
+        tempButton?.text = "저장 중..."
+
+        lifecycleScope.launch {
+            val result = runCatching {
+                withContext(Dispatchers.IO) { RecipeSavePipeline.saveDraft(snapshot) }
+            }
+            tempButton?.isEnabled = true
+            tempButton?.text = "임시저장"
+            if (result.isSuccess) {
+                Toast.makeText(this@CookWrite02Activity, "임시저장을 완료했습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this@CookWrite02Activity, "임시저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -183,22 +248,35 @@ class CookWrite02Activity : AppCompatActivity() {
         }
 
     private fun goToNextStep() {
-        val finalIngredients = ingredientsList.filter { !it.name.isNullOrBlank() }
-        val finalTools = toolsList.filter { it.isNotBlank() }
+        val snapshot = snapshotRecipeData()
 
-        if (finalIngredients.isEmpty()) {
+        if (snapshot.ingredients.isEmpty()) {
             Toast.makeText(this, "재료를 1개 이상 입력해주세요.", Toast.LENGTH_SHORT).show()
             return
         }
+        recipeData = snapshot
+        step3Launcher.launch(
+            Intent(this, CookWrite03Activity::class.java).apply {
+                putExtra("recipe_data", snapshot)
+            }
+        )
+    }
 
-        recipeData?.let {
-            it.ingredients = finalIngredients
-            it.tools = finalTools
-            startActivity(
-                Intent(this, CookWrite03Activity::class.java).apply {
-                    putExtra("recipe_data", it)
-                }
-            )
-        }
+    private fun snapshotRecipeData(): RecipeData {
+        val finalIngredients = ingredientsList.filter { !it.name.isNullOrBlank() }
+        val finalTools = toolsList.filter { it.isNotBlank() }
+        val base = recipeData ?: RecipeData()
+        return base.copy(
+            ingredients = finalIngredients,
+            tools = finalTools
+        )
+    }
+
+    private fun deliverResultAndFinish() {
+        val snapshot = snapshotRecipeData()
+        setResult(Activity.RESULT_OK, Intent().apply {
+            putExtra("recipe_data", snapshot)
+        })
+        finish()
     }
 }
