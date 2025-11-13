@@ -2,6 +2,7 @@ package com.example.recipe_pocket.ui.recipe.write
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -26,6 +28,7 @@ import com.example.recipe_pocket.repository.RecipeSavePipeline
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -44,24 +47,20 @@ class CookWrite01Activity : AppCompatActivity() {
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let {
                 recipeData.thumbnailUrl = it.toString()
-                binding.ivRepresentativePhoto.setImageURI(it)
-                binding.ivRepresentativePhoto.visibility = View.VISIBLE
+                displayThumbnail(recipeData.thumbnailUrl)
             }
+        }
+    }
+
+    private val tempSaveLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            extractRecipeData(result.data)?.let { applyRecipeData(it) }
         }
     }
 
     private val step2Launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val updatedData: RecipeData? =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    result.data?.getSerializableExtra("recipe_data", RecipeData::class.java)
-                } else {
-                    @Suppress("DEPRECATION")
-                    result.data?.getSerializableExtra("recipe_data") as? RecipeData
-                }
-            if (updatedData != null) {
-                recipeData = updatedData
-            }
+            extractRecipeData(result.data)?.let { applyRecipeData(it) }
         }
     }
 
@@ -73,6 +72,7 @@ class CookWrite01Activity : AppCompatActivity() {
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         utils.ToolbarUtils.setupWriteToolbar(this, "",
+            onTempListClicked = { openTempSaveList() },
             onTempSaveClicked = { tempSaveDraft() },
             onSaveClicked = { }
         )
@@ -83,6 +83,12 @@ class CookWrite01Activity : AppCompatActivity() {
         updateServingsText()
         updateCookingTimeText()
         updateCategoryButtonText() // 초기 텍스트 설정
+        disableSaveButton()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateTempSaveCount()
     }
 
     private fun tempSaveDraft() {
@@ -117,6 +123,7 @@ class CookWrite01Activity : AppCompatActivity() {
 
             if (result.isSuccess) {
                 Toast.makeText(this@CookWrite01Activity, "임시저장을 완료했습니다.", Toast.LENGTH_SHORT).show()
+                updateTempSaveCount()
             } else {
                 Toast.makeText(this@CookWrite01Activity, "임시저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
@@ -268,5 +275,93 @@ class CookWrite01Activity : AppCompatActivity() {
             putExtra("recipe_data", recipeData)
         }
         step2Launcher.launch(intent)
+    }
+
+    private fun applyRecipeData(newData: RecipeData) {
+        recipeData = newData
+        displayThumbnail(newData.thumbnailUrl)
+        binding.etRecipeTitle.setText(newData.title)
+        binding.etRecipeDescription.setText(newData.description)
+        recipeData.category = newData.category
+        updateCategoryButtonText()
+
+        recipeData.servings = newData.servings
+        updateServingsText()
+
+        recipeData.difficulty = newData.difficulty
+        val checkedId = when (newData.difficulty) {
+            "쉬움" -> R.id.rb_easy
+            "어려움" -> R.id.rb_hard
+            else -> R.id.rb_normal
+        }
+        binding.rgDifficulty.check(checkedId)
+
+        cookingHour = newData.cookingTimeMinutes / 60
+        cookingMinute = newData.cookingTimeMinutes % 60
+        updateCookingTimeText()
+    }
+
+    private fun displayThumbnail(uriString: String?) {
+        if (uriString.isNullOrBlank()) {
+            binding.ivRepresentativePhoto.setImageDrawable(null)
+            binding.emptyPhotoState.isVisible = true
+            return
+        }
+        binding.emptyPhotoState.isVisible = false
+        binding.ivRepresentativePhoto.isVisible = true
+        if (uriString.startsWith("http")) {
+            Glide.with(this)
+                .load(uriString)
+                .centerCrop()
+                .placeholder(R.color.search_color)
+                .into(binding.ivRepresentativePhoto)
+        } else {
+            binding.ivRepresentativePhoto.setImageURI(Uri.parse(uriString))
+        }
+    }
+
+
+    private fun openTempSaveList() {
+        if (auth.currentUser == null) {
+            Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        tempSaveLauncher.launch(Intent(this, TempSaveListActivity::class.java))
+    }
+
+    private fun updateTempSaveCount() {
+        val tempButton = findViewById<TextView>(R.id.btn_temp_list) ?: return
+        if (auth.currentUser == null) {
+            tempButton.isEnabled = false
+            utils.ToolbarUtils.updateTempListCount(this, 0)
+            return
+        }
+        tempButton.isEnabled = true
+        lifecycleScope.launch {
+            val count = runCatching { RecipeSavePipeline.getTempSaveCount() }.getOrElse { 0 }
+            utils.ToolbarUtils.updateTempListCount(this@CookWrite01Activity, count)
+        }
+    }
+
+    private fun extractRecipeData(data: Intent?): RecipeData? {
+        if (data == null) return null
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            data.getSerializableExtra("recipe_data", RecipeData::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            data.getSerializableExtra("recipe_data") as? RecipeData
+        }
+    }
+
+    private fun disableSaveButton() {
+        var saveButton = findViewById<TextView>(R.id.btn_save)
+        var saveCard = findViewById<CardView>(R.id.save_button_card)
+
+        saveButton.isEnabled = false
+        saveCard.isEnabled = false
+
+        saveButton.alpha = 0.4f
+        saveButton.setTextColor(getColor(R.color.text_gray))
+        saveCard.setCardBackgroundColor(getColor(R.color.primary_divider))
     }
 }

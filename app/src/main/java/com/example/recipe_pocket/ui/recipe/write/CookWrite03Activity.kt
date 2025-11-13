@@ -2,6 +2,7 @@ package com.example.recipe_pocket.ui.recipe.write
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -36,6 +38,11 @@ class CookWrite03Activity : AppCompatActivity() {
     private lateinit var stepAdapter: CookWrite03StepAdapter
     private val viewModel: CookWriteViewModel by viewModels()
     private val auth = Firebase.auth
+    private val tempSaveLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            extractRecipeData(result.data)?.let { applyRecipeData(it) }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,11 +67,17 @@ class CookWrite03Activity : AppCompatActivity() {
         observeViewModel()
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateTempSaveCount()
+    }
+
     private fun setupToolbar() {
         utils.ToolbarUtils.setupWriteToolbar(
             this,
             "조리 과정",
             onBackPressed = { deliverResultAndFinish() },
+            onTempListClicked = { openTempSaveList() },
             onTempSaveClicked = { tempSaveDraft() },
             onSaveClicked = {
                 saveRecipe()
@@ -163,10 +176,50 @@ class CookWrite03Activity : AppCompatActivity() {
         }
     }
 
+    private fun applyRecipeData(data: RecipeData) {
+        viewModel.setInitialRecipeData(data)
+        binding.viewPagerSteps.post {
+            binding.viewPagerSteps.currentItem = 0
+            updateIndicators(0)
+        }
+    }
+
+    private fun openTempSaveList() {
+        if (auth.currentUser == null) {
+            Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        tempSaveLauncher.launch(Intent(this, TempSaveListActivity::class.java))
+    }
+
+    private fun updateTempSaveCount() {
+        val tempListButton = findViewById<TextView>(R.id.btn_temp_list) ?: return
+        if (auth.currentUser == null) {
+            tempListButton.isEnabled = false
+            utils.ToolbarUtils.updateTempListCount(this, 0)
+            return
+        }
+        tempListButton.isEnabled = true
+        lifecycleScope.launch {
+            val count = runCatching { RecipeSavePipeline.getTempSaveCount() }.getOrElse { 0 }
+            utils.ToolbarUtils.updateTempListCount(this@CookWrite03Activity, count)
+        }
+    }
+
+    private fun extractRecipeData(data: Intent?): RecipeData? {
+        if (data == null) return null
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            data.getSerializableExtra("recipe_data", RecipeData::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            data.getSerializableExtra("recipe_data") as? RecipeData
+        }
+    }
+
     private fun saveRecipe() {
         updateAllFragmentsData()
 
-        val recipeSnapshot = buildRecipeSnapshot()
+        val recipeSnapshot = snapshotRecipeData()
         if (recipeSnapshot == null) {
             Toast.makeText(this, "업로드할 데이터가 없습니다.", Toast.LENGTH_SHORT).show()
             return
@@ -198,7 +251,7 @@ class CookWrite03Activity : AppCompatActivity() {
     private fun tempSaveDraft() {
         updateAllFragmentsData()
 
-        val recipeSnapshot = buildRecipeSnapshot()
+        val recipeSnapshot = snapshotRecipeData()
         if (recipeSnapshot == null) {
             Toast.makeText(this, "업로드할 데이터가 없습니다.", Toast.LENGTH_SHORT).show()
             return
@@ -221,6 +274,7 @@ class CookWrite03Activity : AppCompatActivity() {
             tempButton?.text = "임시저장"
             if (result.isSuccess) {
                 Toast.makeText(this@CookWrite03Activity, "임시저장을 완료했습니다.", Toast.LENGTH_SHORT).show()
+                updateTempSaveCount()
             } else {
                 Toast.makeText(this@CookWrite03Activity, "임시저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
@@ -229,18 +283,14 @@ class CookWrite03Activity : AppCompatActivity() {
 
     private fun deliverResultAndFinish() {
         updateAllFragmentsData()
-        val snapshot = buildRecipeSnapshot()
-        if (snapshot != null) {
-            setResult(Activity.RESULT_OK, Intent().apply {
-                putExtra("recipe_data", snapshot)
-            })
-        } else {
-            setResult(Activity.RESULT_CANCELED)
-        }
+        val snapshot = snapshotRecipeData()
+        setResult(Activity.RESULT_OK, Intent().apply {
+            putExtra("recipe_data", snapshot)
+        })
         finish()
     }
 
-    private fun buildRecipeSnapshot(): RecipeData? {
+    private fun snapshotRecipeData(): RecipeData? {
         val base = viewModel.recipeData.value ?: return null
         val steps = viewModel.steps.value?.map { it.copy() } ?: emptyList()
         val ingredients = base.ingredients.map { it.copy() }

@@ -13,7 +13,9 @@ class CookTipListAdapter(
     private val onItemClick: (CookingTip) -> Unit
 ) : RecyclerView.Adapter<CookTipListAdapter.TipViewHolder>() {
 
-    inner class TipViewHolder(private val binding: ItemCookTipListBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class TipViewHolder(private val binding: ItemCookTipListBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
         fun bind(tip: CookingTip) {
             binding.tvTipTitle.text = tip.title
             binding.tvAuthor.text = tip.author?.nickname ?: "익명"

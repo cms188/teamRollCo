@@ -38,11 +38,12 @@ object ToolbarUtils {
         title: String = "",
         onBackPressed: (() -> Unit)? = null,
         navigateToMainActivity: Boolean = false,
+        onTempListClicked: (() -> Unit)? = null,
         onTempSaveClicked: (() -> Unit)? = null,
         onSaveClicked: (() -> Unit)? = null
     ) {
         setupCommonToolbar(activity, title, onBackPressed, navigateToMainActivity)
-        setupWriteButtons(activity, onTempSaveClicked, onSaveClicked)
+        setupWriteButtons(activity, onTempListClicked, onTempSaveClicked, onSaveClicked)
     }
 
     // 공통 툴바 설정
@@ -154,15 +155,27 @@ object ToolbarUtils {
     // 작성 버튼들 설정 (임시저장/등록)
     private fun setupWriteButtons(
         activity: Activity,
+        onTempListClicked: (() -> Unit)?,
         onTempSaveClicked: (() -> Unit)?,
         onSaveClicked: (() -> Unit)?
     ) {
-        // 임시저장 버튼
+        val tempListButton = activity.findViewById<TextView>(R.id.btn_temp_list)
+        if (onTempListClicked != null) {
+            tempListButton?.visibility = View.VISIBLE
+            tempListButton?.setOnClickListener { onTempListClicked.invoke() }
+        } else {
+            tempListButton?.visibility = View.GONE
+        }
+
         val tempSaveButton = activity.findViewById<TextView>(R.id.btn_temp_save)
         tempSaveButton?.setOnClickListener { onTempSaveClicked?.invoke() }
 
-        // 등록 버튼
         val saveButton = activity.findViewById<TextView>(R.id.btn_save)
         saveButton?.setOnClickListener { onSaveClicked?.invoke() }
+    }
+
+    fun updateTempListCount(activity: Activity, count: Int) {
+        val tempListButton = activity.findViewById<TextView>(R.id.btn_temp_list)
+        tempListButton?.text = "($count)"
     }
 }

@@ -1,5 +1,6 @@
 package com.example.recipe_pocket.data
 
+import com.google.firebase.Timestamp
 import java.io.Serializable
 import java.util.UUID
 
@@ -39,3 +40,9 @@ data class RecipeStep_write(
     var timerSeconds: Int = 0,
     var useTimer: Boolean = false
 ) : Serializable
+
+data class TempSaveDraft(
+    val id: String,
+    val recipe: RecipeData,
+    val updatedAt: Timestamp?
+)

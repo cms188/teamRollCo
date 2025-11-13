@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.bumptech.glide.Glide
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.data.RecipeStep_write
 import com.example.recipe_pocket.databinding.CookWriteStepBinding
@@ -72,10 +73,7 @@ class CookWrite03StepFragment : Fragment() {
             binding.etStepTitle.setText(data.stepTitle)
             binding.etStepDescription.setText(data.stepDescription)
 
-            data.imageUri?.let { uriString ->
-                if (uriString.isNotEmpty()) binding.ivStepPhoto.setImageURI(Uri.parse(uriString))
-                else binding.ivStepPhoto.setImageResource(R.color.search_color)
-            } ?: binding.ivStepPhoto.setImageResource(R.color.search_color)
+            displayStepImage(data.imageUri)
 
             binding.writeTimer.isVisible = data.useTimer
 
@@ -104,15 +102,27 @@ class CookWrite03StepFragment : Fragment() {
             currentStep?.useTimer = newVisibility
             updateTimerButtonText()
         }
-        // ▼▼▼ 변경된 부분 ▼▼▼
-        // 기존의 +, - 버튼 리스너들을 모두 제거하고, 타이머 표시 TextView의 리스너를 추가합니다.
         binding.tvTimerDisplay.setOnClickListener {
             showTimePickerDialog()
         }
-        // ▲▲▲ 변경된 부분 ▲▲▲
     }
 
-    // ▼▼▼ 추가된 함수 ▼▼▼
+    private fun displayStepImage(uriString: String?) {
+        if (uriString.isNullOrBlank()) {
+            binding.ivStepPhoto.setImageResource(R.color.search_color)
+            return
+        }
+        if (uriString.startsWith("http")) {
+            Glide.with(this)
+                .load(uriString)
+                .centerCrop()
+                .placeholder(R.color.search_color)
+                .into(binding.ivStepPhoto)
+        } else {
+            binding.ivStepPhoto.setImageURI(Uri.parse(uriString))
+        }
+    }
+
     private fun showTimePickerDialog() {
         // 새로 만든 dialog_time_picker.xml 레이아웃을 인플레이트합니다.
         val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_time_picker, null)
@@ -158,14 +168,10 @@ class CookWrite03StepFragment : Fragment() {
             .setNegativeButton("취소", null)
             .show()
     }
-    // ▲▲▲ 추가된 함수 ▲▲▲
-
-    // ▼▼▼ 변경된 함수 ▼▼▼
     private fun updateTimerDisplay() {
         // 시간, 분, 초를 보기 좋은 형식의 문자열로 만들어 tvTimerDisplay에 설정합니다.
         binding.tvTimerDisplay.text = String.format("%02d시간 %02d분 %02d초", hour, minute, second)
     }
-    // ▲▲▲ 변경된 함수 ▲▲▲
 
     // ViewModel에 최종 데이터를 저장하는 함수
     fun updateViewModelData() {

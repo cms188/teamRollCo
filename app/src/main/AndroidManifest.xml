@@ -59,6 +59,7 @@
         <activity android:name=".ui.recipe.write.CookWrite01Activity"/>
         <activity android:name=".ui.recipe.write.CookWrite02Activity"/>
         <activity android:name=".ui.recipe.write.CookWrite03Activity"/>
+        <activity android:name=".ui.recipe.write.TempSaveListActivity"/>
         <activity
             android:name=".ui.user.bookmark.BookmarkActivity"
             android:exported="false" />

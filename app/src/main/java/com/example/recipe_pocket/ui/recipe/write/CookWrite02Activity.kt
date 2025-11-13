@@ -15,6 +15,7 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -43,16 +44,13 @@ class CookWrite02Activity : AppCompatActivity() {
 
     private val step3Launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val updatedData: RecipeData? =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    result.data?.getSerializableExtra("recipe_data", RecipeData::class.java)
-                } else {
-                    @Suppress("DEPRECATION")
-                    result.data?.getSerializableExtra("recipe_data") as? RecipeData
-                }
-            if (updatedData != null) {
-                recipeData = updatedData
-            }
+            extractRecipeData(result.data)?.let { recipeData = it }
+        }
+    }
+
+    private val tempSaveLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            extractRecipeData(result.data)?.let { applyRecipeData(it) }
         }
     }
 
@@ -68,6 +66,12 @@ class CookWrite02Activity : AppCompatActivity() {
         setupToolViews()
         setupToolbarAndListeners()
         setupSystemBackHandler()
+        disableSaveButton()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateTempSaveCount()
     }
 
     private fun applyBottomInsetToNextButton() {
@@ -83,29 +87,12 @@ class CookWrite02Activity : AppCompatActivity() {
     private fun dpToPx(dp: Int) = (dp * resources.displayMetrics.density).toInt()
 
     private fun loadInitialData() {
-        recipeData = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getSerializableExtra("recipe_data", RecipeData::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            intent.getSerializableExtra("recipe_data") as? RecipeData
-        }
-
-        if (recipeData == null) {
+        val initialData = extractRecipeData(intent)
+        if (initialData == null) {
             Toast.makeText(this, "데이터 로딩 실패!", Toast.LENGTH_SHORT).show()
             finish(); return
         }
-
-        ingredientsList.clear()
-        if (recipeData!!.ingredients.isNotEmpty()) ingredientsList.addAll(recipeData!!.ingredients)
-        if (ingredientsList.isEmpty() || ingredientsList.last().name?.isNotEmpty() == true) {
-            ingredientsList.add(Ingredient())
-        }
-
-        toolsList.clear()
-        if (recipeData!!.tools.isNotEmpty()) toolsList.addAll(recipeData!!.tools)
-        if (toolsList.isEmpty() || toolsList.last().isNotEmpty()) {
-            toolsList.add("")
-        }
+        applyRecipeData(initialData)
     }
 
     private fun setupToolbarAndListeners() {
@@ -113,6 +100,7 @@ class CookWrite02Activity : AppCompatActivity() {
             this,
             "",
             onBackPressed = { deliverResultAndFinish() },
+            onTempListClicked = { openTempSaveList() },
             onTempSaveClicked = { tempSaveDraft() },
             onSaveClicked = { }
         )
@@ -156,6 +144,7 @@ class CookWrite02Activity : AppCompatActivity() {
             tempButton?.text = "임시저장"
             if (result.isSuccess) {
                 Toast.makeText(this@CookWrite02Activity, "임시저장을 완료했습니다.", Toast.LENGTH_SHORT).show()
+                updateTempSaveCount()
             } else {
                 Toast.makeText(this@CookWrite02Activity, "임시저장에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
@@ -262,6 +251,66 @@ class CookWrite02Activity : AppCompatActivity() {
         )
     }
 
+    private fun applyRecipeData(data: RecipeData) {
+        recipeData = data
+
+        ingredientsList.clear()
+        data.ingredients.forEach { ingredient ->
+            ingredientsList.add(Ingredient(ingredient.name, ingredient.amount, ingredient.unit))
+        }
+        if (ingredientsList.isEmpty() || !ingredientsList.last().name.isNullOrBlank()) {
+            ingredientsList.add(Ingredient())
+        }
+        setupIngredientViews()
+
+        toolsList.clear()
+        toolsList.addAll(data.tools)
+        if (toolsList.isEmpty() || toolsList.last().isNotEmpty()) {
+            toolsList.add("")
+        }
+        setupToolViews()
+    }
+
+    private fun openTempSaveList() {
+        if (auth.currentUser == null) {
+            Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        tempSaveLauncher.launch(Intent(this, TempSaveListActivity::class.java))
+    }
+
+    private fun updateTempSaveCount() {
+        val tempListButton = findViewById<TextView>(R.id.btn_temp_list) ?: return
+        if (auth.currentUser == null) {
+            tempListButton.isEnabled = false
+            utils.ToolbarUtils.updateTempListCount(this, 0)
+            return
+        }
+        tempListButton.isEnabled = true
+        lifecycleScope.launch {
+            val count = runCatching { RecipeSavePipeline.getTempSaveCount() }.getOrElse { 0 }
+            utils.ToolbarUtils.updateTempListCount(this@CookWrite02Activity, count)
+        }
+    }
+
+    private fun extractRecipeData(data: Intent?): RecipeData? {
+        if (data == null) return null
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            data.getSerializableExtra("recipe_data", RecipeData::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            data.getSerializableExtra("recipe_data") as? RecipeData
+        }
+    }
+
+    private fun deliverResultAndFinish() {
+        val snapshot = snapshotRecipeData()
+        setResult(Activity.RESULT_OK, Intent().apply {
+            putExtra("recipe_data", snapshot)
+        })
+        finish()
+    }
+
     private fun snapshotRecipeData(): RecipeData {
         val finalIngredients = ingredientsList.filter { !it.name.isNullOrBlank() }
         val finalTools = toolsList.filter { it.isNotBlank() }
@@ -272,11 +321,15 @@ class CookWrite02Activity : AppCompatActivity() {
         )
     }
 
-    private fun deliverResultAndFinish() {
-        val snapshot = snapshotRecipeData()
-        setResult(Activity.RESULT_OK, Intent().apply {
-            putExtra("recipe_data", snapshot)
-        })
-        finish()
+    private fun disableSaveButton() {
+        var saveButton = findViewById<TextView>(R.id.btn_save)
+        var saveCard = findViewById<CardView>(R.id.save_button_card)
+
+        saveButton.isEnabled = false
+        saveCard.isEnabled = false
+
+        saveButton.alpha = 0.4f
+        saveButton.setTextColor(getColor(R.color.text_gray))
+        saveCard.setCardBackgroundColor(getColor(R.color.primary_divider))
     }
 }
