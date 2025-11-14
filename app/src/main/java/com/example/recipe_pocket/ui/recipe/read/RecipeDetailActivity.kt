@@ -47,6 +47,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -488,12 +489,12 @@ class RecipeDetailActivity : AppCompatActivity() {
     private fun deleteRecipeImages(recipe: Recipe, onComplete: (Boolean) -> Unit) {
         val storage = Firebase.storage
         val imageTasks = mutableListOf<Task<Void>>()
-        recipe.thumbnailUrl?.takeIf { it.isNotEmpty() }?.let {
-            imageTasks.add(storage.getReferenceFromUrl(it).delete())
+        recipe.thumbnailUrl?.takeIf { it.isNotEmpty() }?.let { url ->
+            imageTasks.add(storage.getReferenceFromUrl(url).delete().orIgnoreMissingObject(url))
         }
         recipe.steps?.forEach { step ->
-            step.imageUrl?.takeIf { it.isNotEmpty() }?.let {
-                imageTasks.add(storage.getReferenceFromUrl(it).delete())
+            step.imageUrl?.takeIf { it.isNotEmpty() }?.let { url ->
+                imageTasks.add(storage.getReferenceFromUrl(url).delete().orIgnoreMissingObject(url))
             }
         }
         if (imageTasks.isEmpty()) {
@@ -509,6 +510,22 @@ class RecipeDetailActivity : AppCompatActivity() {
                 Log.e("DeleteRecipe", "이미지 삭제 중 오류 발생", e)
                 onComplete(false)
             }
+    }
+
+    private fun Task<Void>.orIgnoreMissingObject(imageUrl: String): Task<Void> {
+        return continueWithTask { task ->
+            if (task.isSuccessful) {
+                Tasks.forResult<Void>(null)
+            } else {
+                val exception = task.exception
+                if (exception is StorageException && exception.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                    Log.w("DeleteRecipe", "이미 Storage에 없는 이미지여서 삭제를 건너뜀: $imageUrl")
+                    Tasks.forResult<Void>(null)
+                } else {
+                    Tasks.forException<Void>(exception ?: Exception("Unknown storage error while deleting $imageUrl"))
+                }
+            }
+        }
     }
 
     private fun updateUserRecipeCount() {
