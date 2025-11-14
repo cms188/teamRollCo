@@ -3,5 +3,5 @@
     <!-- 칩이 선택되었을 때의 텍스트 색상 -->
     <item android:color="@color/white" android:state_checked="true" />
     <!-- 칩이 선택되지 않았을 때의 텍스트 색상 -->
-    <item android:color="@color/orange" />
+    <item android:color="@color/primary" />
 </selector>

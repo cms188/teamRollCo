@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/transparent"
     android:clipChildren="false"
     android:clipToPadding="false"
     android:orientation="vertical"
@@ -14,24 +15,27 @@
         android:layout_height="wrap_content"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:orientation="vertical"
-        android:paddingHorizontal="24dp">
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/notosans_bold"
+            android:includeFontPadding="false"
             android:text="작성자"
-            android:textColor="@color/text_brown"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:cardBackgroundColor="@color/white_card"
+            android:outlineAmbientShadowColor="@color/primary_variant"
+            android:outlineSpotShadowColor="@color/primary_variant"
+            app:cardBackgroundColor="@color/white"
             app:cardCornerRadius="16dp"
-            app:cardElevation="2dp">
+            app:cardElevation="2dp"
+            tools:targetApi="28">
 
             <LinearLayout
                 android:id="@+id/author_info_layout"
@@ -46,18 +50,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:fontFamily="@font/notosans_bold"
+            android:includeFontPadding="false"
             android:text="간단 소개"
-            android:textColor="@color/text_brown"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:cardBackgroundColor="@color/white_card"
+            android:outlineAmbientShadowColor="@color/primary_variant"
+            android:outlineSpotShadowColor="@color/primary_variant"
+            app:cardBackgroundColor="@color/white"
             app:cardCornerRadius="16dp"
-            app:cardElevation="2dp">
+            app:cardElevation="2dp"
+            tools:targetApi="28">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -68,8 +76,11 @@
                     android:id="@+id/tv_recipe_simple_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:fontFamily="@font/notosans_regular"
+                    android:includeFontPadding="false"
                     android:lineSpacingExtra="4dp"
-                    android:textColor="@color/black40"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
                     tools:text="레시피에 대한 간단한 요약이 여기에 표시됩니다." />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -79,18 +90,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:fontFamily="@font/notosans_bold"
+            android:includeFontPadding="false"
             android:text="재료"
-            android:textColor="@color/text_brown"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:cardBackgroundColor="@color/white_card"
+            android:outlineAmbientShadowColor="@color/primary_variant"
+            android:outlineSpotShadowColor="@color/primary_variant"
+            app:cardBackgroundColor="@color/white"
             app:cardCornerRadius="16dp"
-            app:cardElevation="2dp">
+            app:cardElevation="2dp"
+            tools:targetApi="28">
 
             <LinearLayout
                 android:id="@+id/ingredients_container"
@@ -112,19 +127,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:fontFamily="@font/notosans_bold"
+                android:includeFontPadding="false"
                 android:text="조리도구"
-                android:textColor="@color/text_brown"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="24dp"
-                app:cardBackgroundColor="@color/white_card"
+                android:outlineAmbientShadowColor="@color/primary_variant"
+                android:outlineSpotShadowColor="@color/primary_variant"
+                app:cardBackgroundColor="@color/white"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="2dp">
+                app:cardElevation="2dp"
+                tools:targetApi="28">
 
                 <LinearLayout
                     android:id="@+id/tools_container"
@@ -135,26 +154,26 @@
                     android:paddingVertical="8dp" />
             </androidx.cardview.widget.CardView>
         </LinearLayout>
-        
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp"/>
+            android:layout_height="80dp" />
     </LinearLayout>
 
-   <!-- <Button
-        android:id="@+id/btn_start_cooking"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:text="요리하기"
-        android:backgroundTint="@color/orange"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="32dp"
-        android:layout_marginHorizontal="16dp"
-        app:cornerRadius="16dp"
-        android:includeFontPadding="false"
-        android:gravity="center"/>-->
+    <!-- <Button
+         android:id="@+id/btn_start_cooking"
+         android:layout_width="match_parent"
+         android:layout_height="60dp"
+         android:text="요리하기"
+         android:backgroundTint="@color/orange"
+         android:textColor="@color/white"
+         android:textSize="18sp"
+         android:textStyle="bold"
+         android:layout_marginTop="24dp"
+         android:layout_marginBottom="32dp"
+         android:layout_marginHorizontal="16dp"
+         app:cornerRadius="16dp"
+         android:includeFontPadding="false"
+         android:gravity="center"/>-->
 </LinearLayout>
 

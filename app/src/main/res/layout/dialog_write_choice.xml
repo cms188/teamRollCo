@@ -1,70 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/bg_modal_bottom"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@drawable/bg_modal_bottom">
+    android:padding="16dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="무엇을 작성하시겠어요?"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
+        android:fontFamily="@font/notosans_bold"
         android:gravity="center"
-        android:padding="12dp"/>
+        android:includeFontPadding="false"
+        android:padding="12dp"
+        android:text="무엇을 작성할까요?"
+        android:textColor="@color/text_primary"
+        android:textSize="18sp" />
 
     <LinearLayout
         android:id="@+id/layout_write_recipe"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
         <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/ic_pen"/>
+            android:src="@drawable/ic_pen"
+            app:tint="@color/text_secondary" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:fontFamily="@font/notosans_medium"
+            android:includeFontPadding="false"
             android:text="레시피 작성하기"
-            android:textSize="16sp"
-            android:layout_marginStart="16dp"/>
+            android:textColor="@color/text_secondary"
+            android:textSize="16sp" />
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/primary_divider"
-        android:layout_marginHorizontal="16dp"/>
+        android:layout_marginHorizontal="16dp"
+        android:background="@color/primary_divider" />
 
     <LinearLayout
         android:id="@+id/layout_write_tip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
         <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_review"
             app:tint="@color/text_secondary" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:fontFamily="@font/notosans_medium"
+            android:includeFontPadding="false"
             android:text="요리 팁 작성하기"
-            android:textSize="16sp"
-            android:layout_marginStart="16dp"/>
+            android:textColor="@color/text_secondary"
+            android:textSize="16sp" />
     </LinearLayout>
 </LinearLayout>
