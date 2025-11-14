@@ -78,7 +78,7 @@
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:fontFamily">@font/notosans_bold</item>
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
     <style name="CookWriteEditsText" parent="Widget.AppCompat.EditText">
@@ -127,19 +127,16 @@
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="CustomFilterChip">
-        <item name="android:checkable">true</item>
+    <style name="CustomFilterChip" parent="Widget.MaterialComponents.Chip.Filter">
+        <item name="chipBackgroundColor">@color/filter_chip_background_selector</item>
+        <item name="chipStrokeColor">@color/primary</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipCornerRadius">20dp</item>
+        <item name="fontFamily">@font/notosans_bold</item>
         <item name="android:textColor">@color/filter_chip_text_selector</item>
-        <item name="android:background">@drawable/filter_chip_background_selector</item>
-        <item name="android:button">@null</item>
-        <item name="android:gravity">center</item>
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingEnd">16dp</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
-        <item name="android:minHeight">38dp</item>
-        <item name="android:layout_marginEnd">8dp</item>
-        <item name="android:layout_marginBottom">8dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipStartPadding">8dp</item>
+        <item name="chipEndPadding">8dp</item>
     </style>
 
     <!-- 원형 이미지 -->

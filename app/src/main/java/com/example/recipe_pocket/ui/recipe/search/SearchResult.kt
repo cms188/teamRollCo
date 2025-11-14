@@ -184,11 +184,15 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
         history.forEach { term ->
             val chip = Chip(this).apply {
                 text = term
-                setChipBackgroundColorResource(R.color.search_color)
-                setTextColor(ContextCompat.getColor(this@SearchResult, R.color.black))
+                setChipBackgroundColorResource(R.color.white)
+                setChipStrokeWidth(resources.getDimensionPixelSize(R.dimen.chip_stroke_width).toFloat())
+                setChipStrokeColorResource(R.color.primary)
+                setTextColor(ContextCompat.getColor(this@SearchResult, R.color.text_primary))
                 chipCornerRadius = 40f
                 isCloseIconVisible = true
-                closeIconTint = ContextCompat.getColorStateList(this@SearchResult, R.color.darker_gray)
+                setCloseIconResource(R.drawable.ic_close)
+                closeIconTint = ContextCompat.getColorStateList(this@SearchResult, R.color.primary_light)
+
                 setOnCloseIconClickListener {
                     SearchHistoryManager.removeSearchTerm(this@SearchResult, term)
                     loadRecentSearches()
@@ -204,12 +208,16 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
 
     private fun loadRecommendedSearches() {
         binding.chipgroupRecommended.removeAllViews()
-        val recommendations = listOf("김치찌개", "제육볶음", "된장찌개", "계란찜", "파스타", "샐러드").shuffled().take(5)
-        recommendations.forEach { term ->
+
+        val recommendations = listOf("김치찌개", "제육볶음", "된장찌개", "계란찜", "파스타", "샐러드", "불고기", "비빔밥", "갈비찜", "김밥", "떡볶이", "찜닭", "피자", "햄버거")
+        val selectedRecommendations = recommendations.shuffled().take(5)
+        selectedRecommendations.forEach { term ->
             val chip = Chip(this).apply {
                 text = term
-                setChipBackgroundColorResource(R.color.search_color)
-                setTextColor(ContextCompat.getColor(this@SearchResult, R.color.black))
+                setChipBackgroundColorResource(R.color.white)
+                setChipStrokeWidth(resources.getDimensionPixelSize(R.dimen.chip_stroke_width).toFloat())
+                setChipStrokeColorResource(R.color.primary)
+                setTextColor(ContextCompat.getColor(this@SearchResult, R.color.text_primary))
                 chipCornerRadius = 40f
                 setOnClickListener {
                     binding.etSearchBar.setText(term)
@@ -230,8 +238,10 @@ class SearchResult : AppCompatActivity(), FilterBottomSheetFragment.OnFilterAppl
                     popularTerms.forEach { term ->
                         val chip = Chip(this@SearchResult).apply {
                             text = term
-                            setChipBackgroundColorResource(R.color.search_color)
-                            setTextColor(ContextCompat.getColor(this@SearchResult, R.color.black))
+                            setChipBackgroundColorResource(R.color.white)
+                            setChipStrokeWidth(resources.getDimensionPixelSize(R.dimen.chip_stroke_width).toFloat())
+                            setChipStrokeColorResource(R.color.primary)
+                            setTextColor(ContextCompat.getColor(this@SearchResult, R.color.text_primary))
                             chipCornerRadius = 40f
                             setOnClickListener {
                                 binding.etSearchBar.setText(term)

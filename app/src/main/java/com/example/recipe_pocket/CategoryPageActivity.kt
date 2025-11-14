@@ -20,19 +20,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.recipe_pocket.data.Recipe
 import com.example.recipe_pocket.databinding.CategoryPageBinding
 import com.example.recipe_pocket.repository.RecipeLoader
-import com.example.recipe_pocket.ui.auth.LoginActivity
-import com.example.recipe_pocket.ui.category.CategoryTextAdapter
-import com.example.recipe_pocket.ui.main.MainActivity
+import com.example.recipe_pocket.ui.category.CategoryItem
+import com.example.recipe_pocket.ui.category.CategoryGridAdapter
 import com.example.recipe_pocket.ui.recipe.search.CreationPeriod
 import com.example.recipe_pocket.ui.recipe.search.FilterBottomSheetFragment
 import com.example.recipe_pocket.ui.recipe.search.SearchFilter
-import com.example.recipe_pocket.ui.recipe.search.SearchResult
-import com.example.recipe_pocket.ui.main.WriteChoiceDialogFragment
 import com.example.recipe_pocket.ui.recipe.search.CookingTime
-import com.example.recipe_pocket.ui.user.UserPageActivity
-import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -50,7 +44,9 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
 
     private lateinit var binding: CategoryPageBinding
     private lateinit var recipeAdapter: RecipeAdapter
-    private lateinit var allCategoriesTextAdapter: CategoryTextAdapter
+    private lateinit var categoryTypeAdapter: CategoryGridAdapter
+    private lateinit var categoryDishAdapter: CategoryGridAdapter
+    private lateinit var categoryThemeAdapter: CategoryGridAdapter
 
     private enum class SortOrder { LATEST, VIEWS, LIKES, BOOKMARKS }
     private var currentSortOrder = SortOrder.LATEST
@@ -61,8 +57,39 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
 
     private var isAllCategoriesVisible = false
 
-    private val bottomNavigationView: BottomNavigationView
-        get() = binding.bottomNavigationView.bottomNavigation
+    // 분류별 카테고리
+    private val categoryByType = listOf(
+        CategoryItem("한식", R.drawable.cat1_1, "한식"),
+        CategoryItem("양식", R.drawable.cat1_2, "양식"),
+        CategoryItem("중식", R.drawable.cat1_3, "중식"),
+        CategoryItem("일식", R.drawable.cat1_4, "일식"),
+        CategoryItem("동남아식", R.drawable.cat1_5, "동남아식"),
+        CategoryItem("남미식", R.drawable.cat1_6, "남미식"),
+        CategoryItem("분식", R.drawable.cat1_7, "분식")
+    )
+
+    // 종류별 카테고리
+    private val categoryByDish = listOf(
+        CategoryItem("밑반찬", R.drawable.cat2_1, "밑반찬"),
+        CategoryItem("국물요리", R.drawable.cat2_2, "국물요리"),
+        CategoryItem("밥", R.drawable.cat2_3, "밥"),
+        CategoryItem("면", R.drawable.cat2_4, "면"),
+        CategoryItem("일품", R.drawable.cat2_5, "일품"),
+        CategoryItem("디저트", R.drawable.cat2_6, "디저트"),
+        CategoryItem("음료", R.drawable.cat2_7, "음료"),
+        CategoryItem("채소요리", R.drawable.cat2_8, "채소요리"),
+        CategoryItem("간편식", R.drawable.cat2_9, "간편식"),
+        CategoryItem("키즈", R.drawable.cat2_10, "키즈")
+    )
+
+    // 상황별/테마 카테고리
+    private val categoryByTheme = listOf(
+        CategoryItem("캠핑", R.drawable.cat3_1, "캠핑"),
+        CategoryItem("제철요리", R.drawable.cat3_2, "제철요리"),
+        CategoryItem("초스피드", R.drawable.cat3_3, "초스피드"),
+        CategoryItem("손님접대", R.drawable.cat3_4, "손님접대"),
+        CategoryItem("명절", R.drawable.cat3_5, "명절")
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,7 +101,6 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
         setupRecyclerView()
         setupCategoryTags()
         setupFilterAndSortButtons()
-        setupBottomNavigation()
         setupAllCategoriesDropdown()
         handleOnBackPressed()
 
@@ -82,11 +108,6 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
         selectedCategory = resolvedCategory
         updateCategoryUI(resolvedCategory)
         loadRecipesByCategory(resolvedCategory)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        bottomNavigationView.menu.findItem(R.id.fragment_home).isChecked = true
     }
 
     override fun onFilterApplied(filter: SearchFilter) {
@@ -162,6 +183,11 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
             selectedCategory = category
             updateCategoryUI(category)
             loadRecipesByCategory(category)
+
+            // 드롭다운이 열려있으면 닫기
+            if (isAllCategoriesVisible) {
+                toggleAllCategoriesView()
+            }
         }
     }
 
@@ -383,58 +409,32 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
         }
     }
 
-    private fun setupBottomNavigation() {
-        bottomNavigationView.setOnItemReselectedListener { /* no-op */ }
-
-        bottomNavigationView.setOnItemSelectedListener { item ->
-            val currentUser = FirebaseAuth.getInstance().currentUser
-
-            if (item.itemId == R.id.fragment_favorite) {
-                if (currentUser != null) {
-                    WriteChoiceDialogFragment().show(supportFragmentManager, WriteChoiceDialogFragment.TAG)
-                } else {
-                    startActivity(Intent(this, LoginActivity::class.java))
-                }
-                return@setOnItemSelectedListener true
-            }
-
-            val intent = when (item.itemId) {
-                R.id.fragment_home -> Intent(this, MainActivity::class.java)
-                R.id.fragment_search -> Intent(this, SearchResult::class.java)
-                R.id.fragment_another -> {
-                    if (currentUser != null) {
-                        Intent(this, BookmarkActivity::class.java)
-                    } else {
-                        Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
-                        Intent(this, LoginActivity::class.java)
-                    }
-                }
-                R.id.fragment_settings -> {
-                    if (currentUser != null) Intent(this, UserPageActivity::class.java)
-                    else Intent(this, LoginActivity::class.java)
-                }
-                else -> null
-            }
-
-            intent?.let {
-                it.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                startActivity(it)
-                overridePendingTransition(0, 0)
-            }
-
-            true
-        }
-    }
-
     private fun setupAllCategoriesDropdown() {
-        val categoryNames = categoryTags.keys.toList()
-        allCategoriesTextAdapter = CategoryTextAdapter(categoryNames) { category ->
-            selectCategory(category)
-            toggleAllCategoriesView()
+        // 분류별 섹션 어댑터 설정
+        categoryTypeAdapter = CategoryGridAdapter(categoryByType) { item ->
+            selectCategory(item.categoryKey)
         }
-        binding.recyclerViewAllCategoriesText.apply {
-            layoutManager = GridLayoutManager(this@CategoryPageActivity, 4)
-            adapter = allCategoriesTextAdapter
+        binding.recyclerViewCategoryType.apply {
+            layoutManager = GridLayoutManager(this@CategoryPageActivity, 5)
+            adapter = categoryTypeAdapter
+        }
+
+        // 종류별 섹션 어댑터 설정
+        categoryDishAdapter = CategoryGridAdapter(categoryByDish) { item ->
+            selectCategory(item.categoryKey)
+        }
+        binding.recyclerViewCategoryDish.apply {
+            layoutManager = GridLayoutManager(this@CategoryPageActivity, 5)
+            adapter = categoryDishAdapter
+        }
+
+        // 상황별/테마 섹션 어댑터 설정
+        categoryThemeAdapter = CategoryGridAdapter(categoryByTheme) { item ->
+            selectCategory(item.categoryKey)
+        }
+        binding.recyclerViewCategoryTheme.apply {
+            layoutManager = GridLayoutManager(this@CategoryPageActivity, 5)
+            adapter = categoryThemeAdapter
         }
 
         binding.btnCategoryAll.setOnClickListener {

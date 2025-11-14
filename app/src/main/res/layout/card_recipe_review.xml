@@ -4,15 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="12dp"
-    android:layout_marginVertical="6dp"
+    android:layout_marginBottom="20dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
-    app:cardBackgroundColor="@android:color/white"
+    android:outlineAmbientShadowColor="@color/primary_variant"
+    android:outlineSpotShadowColor="@color/primary_variant"
+    app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="16dp"
     app:cardElevation="3dp"
-    app:cardUseCompatPadding="true">
+    tools:targetApi="28">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,7 +25,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="6dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -171,9 +172,9 @@
             android:layout_marginTop="8dp"
             android:orientation="horizontal"
             android:visibility="gone"
-            tools:visibility="visible"
             tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/item_review_photo" />
+            tools:listitem="@layout/item_review_photo"
+            tools:visibility="visible" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

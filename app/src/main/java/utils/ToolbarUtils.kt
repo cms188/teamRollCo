@@ -78,27 +78,10 @@ object ToolbarUtils {
     }
 
     // 스크롤 리스너 설정 (배경 페이드 효과)
-    fun setupScrollListener(activity: Activity, scrollView: androidx.core.widget.NestedScrollView) {
+    fun setupScrollListener(activity: Activity) {
         val backButtonCard = activity.findViewById<androidx.cardview.widget.CardView>(R.id.back_button_card)
-
-        scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
-            val threshold = 50 // 50dp 스크롤하면 배경 나타나기 시작
-            val maxScroll = 100 // 100dp에서 완전히 나타남
-
-            val progress = when {
-                scrollY < threshold -> 0f
-                scrollY > maxScroll -> 1f
-                else -> (scrollY - threshold).toFloat() / (maxScroll - threshold)
-            }
-
-            // 배경색의 알파값만 조절 (아이콘은 그대로 유지)
-            val backgroundColor = android.graphics.Color.argb(
-                (progress * 255).toInt(), // 알파값만 변경
-                255, 255, 255 // RGB는 흰색으로 고정
-            )
-
-            backButtonCard?.setCardBackgroundColor(backgroundColor)
-        }
+            backButtonCard?.setCardBackgroundColor(Color.argb(255, 255, 255, 255))
+            backButtonCard?.cardElevation = 6f
     }
 
     // 뒤로가기 버튼

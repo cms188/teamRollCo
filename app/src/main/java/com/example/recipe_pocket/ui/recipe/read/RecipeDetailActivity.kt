@@ -78,10 +78,10 @@ class RecipeDetailActivity : AppCompatActivity() {
     private companion object {
         const val TOOLBAR_HEIGHT_DP = 56
         const val IMAGE_OVERLAP_RATIO = 0.4f
-        const val MIN_PEEK_HEIGHT_DP = 625 //초기 바텀시트 위치 초기값 400
+        const val MIN_PEEK_HEIGHT_DP = 500
         const val TRANSPARENCY_START_THRESHOLD = 0.7f
         const val ANIMATION_DURATION = 200L
-        const val TAG = "RecipeDetailActivity_DEBUG" // 로그 태그 추가
+        const val TAG = "RecipeDetailActivity_DEBUG"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,7 +108,7 @@ class RecipeDetailActivity : AppCompatActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.btnStartCooking) { v, insets ->
             val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
             v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = dpToPx(16) + navBottom   // 기본 16dp + 네비게이션바 높이
+                bottomMargin = dpToPx(16) + navBottom
             }
             insets
         }
@@ -133,16 +133,14 @@ class RecipeDetailActivity : AppCompatActivity() {
         utils.ToolbarUtils.setupTransparentToolbar(
             this, "", showEditButton = false, showDeleteButton = false,
             onEditClicked = {
-                // 수정 버튼 클릭 시 처리
-                val intent =
-                    Intent(this, RecipeEditActivity::class.java).putExtra("RECIPE_ID", recipeId)
+                val intent = Intent(this, RecipeEditActivity::class.java).putExtra("RECIPE_ID", recipeId)
                 resultLauncher.launch(intent)
             },
             onDeleteClicked = {
-                // 삭제 버튼 클릭 시 처리
                 showDeleteConfirmationDialog()
             }
         )
+        utils.ToolbarUtils.setupScrollListener(this)
 
         // 리사이클러뷰 설정
         binding.recyclerViewReviews.apply {
@@ -151,48 +149,10 @@ class RecipeDetailActivity : AppCompatActivity() {
             isNestedScrollingEnabled = false
         }
 
-        // 스크롤 리스너 설정 - 스티키 탭 표시/숨김
-        binding.nestedScrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
-            val toolbarHeight = binding.toolbar.root.height
-            val triggerPoint = binding.originalTabContainer.bottom - toolbarHeight
-
-            if (scrollY >= triggerPoint) {
-                if (binding.stickyTabContainer.visibility != View.VISIBLE) {
-                    binding.stickyTabContainer.visibility = View.VISIBLE
-                    binding.originalTabContainer.visibility = View.INVISIBLE
-                    binding.toolbar.root.setBackgroundColor(
-                        ContextCompat.getColor(
-                            this,
-                            R.color.white
-                        )
-                    )
-                    binding.stickyTabContainer.bringToFront()
-
-                    // 그라데이션 View 표시 (스티키 탭 바로 위)
-                    binding.root.findViewById<View>(R.id.gradient_sticky_overlay)?.visibility =
-                        View.VISIBLE
-                }
-            } else {
-                if (binding.stickyTabContainer.visibility == View.VISIBLE) {
-                    binding.stickyTabContainer.visibility = View.GONE
-                    binding.originalTabContainer.visibility = View.VISIBLE
-                    binding.toolbar.toolbar.setBackgroundColor(
-                        ContextCompat.getColor(
-                            this,
-                            android.R.color.transparent
-                        )
-                    )
-
-                    // 그라데이션 View 숨김
-                    binding.root.findViewById<View>(R.id.gradient_sticky_overlay)?.visibility =
-                        View.GONE
-                }
-            }
-        }
-
         setupTabListeners()
         selectTab(currentTab, withAnimation = false)
         setupBottomSheetCallbacks()
+        binding.toolbar.root.bringToFront()
     }
 
     private fun loadData() {
@@ -201,54 +161,41 @@ class RecipeDetailActivity : AppCompatActivity() {
             result.onSuccess { recipe ->
                 if (recipe != null) {
                     currentRecipe = recipe
-                    // 조회수 증가 로직 호출
                     incrementViewCount(recipe)
                     displayHeaderInfo(recipe)
                     populateSummaryTab(recipe)
                     loadReviews(recipe.id!!)
                     setupInteractionButtons(recipe)
                 } else {
-                    Toast.makeText(this@RecipeDetailActivity, "레시피를 찾을 수 없습니다.", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(this@RecipeDetailActivity, "레시피를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
                     finish()
                 }
             }.onFailure {
-                Toast.makeText(
-                    this@RecipeDetailActivity,
-                    "데이터 로딩 실패: ${it.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this@RecipeDetailActivity, "데이터 로딩 실패: ${it.message}", Toast.LENGTH_LONG).show()
                 finish()
             }
         }
     }
 
-    // [수정] 조회수 증가 로직 전체 변경
     private fun incrementViewCount(recipe: Recipe) {
-        val currentUser = auth.currentUser ?: return // 비로그인 사용자는 조회수 증가 안 함
+        val currentUser = auth.currentUser ?: return
         val userId = currentUser.uid
         val recipeRef = firestore.collection("Recipes").document(recipe.id!!)
 
-        // 최근 본 레시피 목록에는 항상 저장
         saveToRecentlyViewed(recipe)
 
         firestore.runTransaction { transaction ->
             val snapshot = transaction.get(recipeRef)
-            // [수정] viewedBy 배열 대신 viewTimestamps 맵 사용
             val viewTimestamps = snapshot.get("viewTimestamps") as? MutableMap<String, Timestamp> ?: mutableMapOf()
             val lastViewedTimestamp = viewTimestamps[userId]
 
-            // 24시간 전 시간 계산
             val twentyFourHoursAgo = Timestamp(Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000))
 
-            // 마지막으로 본 시간이 24시간 이전이거나, 본 기록이 없는 경우에만 조회수 증가
             if (lastViewedTimestamp == null || lastViewedTimestamp.toDate().before(twentyFourHoursAgo.toDate())) {
-                // 1. 레시피 문서의 총 조회수(viewCount)와 마지막 조회시간 맵 업데이트
                 transaction.update(recipeRef, "viewCount", FieldValue.increment(1))
                 viewTimestamps[userId] = Timestamp.now()
                 transaction.update(recipeRef, "viewTimestamps", viewTimestamps)
 
-                // 2. 24시간 인기글 집계를 위한 별도 문서 생성
                 val statsRef = firestore.collection("recipeViewStats").document()
                 val viewStat = hashMapOf(
                     "recipeId" to recipe.id,
@@ -257,14 +204,13 @@ class RecipeDetailActivity : AppCompatActivity() {
                 )
                 transaction.set(statsRef, viewStat)
 
-                return@runTransaction true // 조회수 증가가 일어났음을 의미
+                return@runTransaction true
             }
 
-            return@runTransaction false // 조회수 증가가 일어나지 않았음을 의미
+            return@runTransaction false
         }.addOnSuccessListener { didIncrement ->
             if (didIncrement) {
                 Log.d("ViewCount", "조회수 증가 성공")
-                // 로컬 데이터 및 UI 즉시 업데이트
                 val newViewCount = (recipe.viewCount ?: 0) + 1
                 currentRecipe?.viewCount = newViewCount
                 binding.tvViewCount.text = "조회수 ${"%,d".format(newViewCount)}"
@@ -277,7 +223,6 @@ class RecipeDetailActivity : AppCompatActivity() {
     }
 
     private fun saveToRecentlyViewed(recipe: Recipe) {
-        // 최근 본 레시피에 저장
         RecentlyViewedManager.addRecentlyViewed(
             context = this,
             recipeId = recipe.id ?: return,
@@ -324,7 +269,9 @@ class RecipeDetailActivity : AppCompatActivity() {
         }
         summaryBinding.authorInfoLayout.addView(authorInfoView)
         summaryBinding.authorInfoLayout.setOnClickListener {
-            val intent = Intent(this, UserFeedActivity::class.java).apply { putExtra(UserFeedActivity.EXTRA_USER_ID, recipe.userId) }
+            val intent = Intent(this, UserFeedActivity::class.java).apply {
+                putExtra(UserFeedActivity.EXTRA_USER_ID, recipe.userId)
+            }
             startActivity(intent)
         }
         summaryBinding.tvRecipeSimpleDescription.text = recipe.simpleDescription
@@ -336,11 +283,10 @@ class RecipeDetailActivity : AppCompatActivity() {
             summaryBinding.ingredientsContainer.addView(view)
         }
         summaryBinding.toolsContainer.removeAllViews()
-        var tools = recipe.tools // tools가 null이거나 비어있는 경우 안보이게
+        var tools = recipe.tools
         if (tools.isNullOrEmpty()) {
             summaryBinding.sectionTools.visibility = View.GONE
-        }
-        else {
+        } else {
             summaryBinding.sectionTools.visibility = View.VISIBLE
             tools.forEach { tool ->
                 val view = layoutInflater.inflate(R.layout.item_tool_display, summaryBinding.toolsContainer, false)
@@ -348,10 +294,6 @@ class RecipeDetailActivity : AppCompatActivity() {
                 summaryBinding.toolsContainer.addView(view)
             }
         }
-        /*summaryBinding.btnStartCooking.setOnClickListener {
-            val intent = Intent(this, RecipeReadActivity::class.java).apply { putExtra("RECIPE_ID", recipeId) }
-            resultLauncher.launch(intent)
-        }*/
         summaryContainer.addView(summaryBinding.root)
     }
 
@@ -363,7 +305,6 @@ class RecipeDetailActivity : AppCompatActivity() {
                 val reviews = snapshot.toObjects(Review::class.java)
                 val reviewCountText = "리뷰 (${reviews.size})"
                 binding.btnPageReview.text = reviewCountText
-                binding.btnPageReviewSticky.text = reviewCountText
                 if (reviews.isNotEmpty()) {
                     binding.textViewEmpty.visibility = View.GONE
                     binding.recyclerViewReviews.visibility = View.VISIBLE
@@ -409,7 +350,9 @@ class RecipeDetailActivity : AppCompatActivity() {
             toggleBookmark()
         }
         binding.btnStartCooking.setOnClickListener {
-            val intent = Intent(this, RecipeReadActivity::class.java).apply { putExtra("RECIPE_ID", recipeId) }
+            val intent = Intent(this, RecipeReadActivity::class.java).apply {
+                putExtra("RECIPE_ID", recipeId)
+            }
             resultLauncher.launch(intent)
         }
         updateLikeButton(recipe.isLiked)
@@ -448,18 +391,14 @@ class RecipeDetailActivity : AppCompatActivity() {
             val isCurrentlyLiked = currentLikes.contains(currentUser.uid)
 
             if (isCurrentlyLiked) {
-                // 좋아요 취소
                 transaction.update(recipeRef, "likedBy", FieldValue.arrayRemove(currentUser.uid))
                 transaction.update(recipeRef, "likeCount", FieldValue.increment(-1))
             } else {
-                // 좋아요
                 transaction.update(recipeRef, "likedBy", FieldValue.arrayUnion(currentUser.uid))
                 transaction.update(recipeRef, "likeCount", FieldValue.increment(1))
             }
-            // 트랜잭션 결과로 새로운 좋아요 상태를 반환
             !isCurrentlyLiked
         }.addOnSuccessListener { newIsLiked ->
-            // 트랜잭션의 반환값(새로운 좋아요 상태)을 사용
             val oldLikeCount = recipe.likeCount ?: 0
             val newLikeCount = if (newIsLiked) oldLikeCount + 1 else oldLikeCount - 1
             recipe.isLiked = newIsLiked
@@ -467,14 +406,12 @@ class RecipeDetailActivity : AppCompatActivity() {
             updateLikeButton(newIsLiked)
             binding.textViewLikeCount.text = newLikeCount.toString()
 
-            // 알림 핸들러 호출 로직 수정
             val recipientId = recipe.userId
             val senderId = currentUser.uid
 
             if (recipientId != null) {
                 lifecycleScope.launch {
                     if (newIsLiked) {
-                        // 좋아요를 눌렀을 때만 '추가' 함수 호출
                         NotificationHandler.addLikeReviewNotification(
                             recipientId = recipientId,
                             senderId = senderId,
@@ -482,7 +419,6 @@ class RecipeDetailActivity : AppCompatActivity() {
                             type = NotificationType.LIKE
                         )
                     } else {
-                        // 좋아요를 취소했을 때 '삭제' 함수 호출
                         NotificationHandler.removeLikeReviewNotification(
                             recipientId = recipientId,
                             senderId = senderId,
@@ -540,7 +476,9 @@ class RecipeDetailActivity : AppCompatActivity() {
                         Toast.makeText(this, "레시피가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
                         finish()
                     }
-                    .addOnFailureListener { e -> Toast.makeText(this, "레시피 문서 삭제 실패: ${e.message}", Toast.LENGTH_SHORT).show() }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "레시피 문서 삭제 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
             } else {
                 Toast.makeText(this, "이미지 삭제 실패. 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
             }
@@ -550,12 +488,27 @@ class RecipeDetailActivity : AppCompatActivity() {
     private fun deleteRecipeImages(recipe: Recipe, onComplete: (Boolean) -> Unit) {
         val storage = Firebase.storage
         val imageTasks = mutableListOf<Task<Void>>()
-        recipe.thumbnailUrl?.takeIf { it.isNotEmpty() }?.let { imageTasks.add(storage.getReferenceFromUrl(it).delete()) }
-        recipe.steps?.forEach { step -> step.imageUrl?.takeIf { it.isNotEmpty() }?.let { imageTasks.add(storage.getReferenceFromUrl(it).delete()) } }
-        if (imageTasks.isEmpty()) { onComplete(true); return }
+        recipe.thumbnailUrl?.takeIf { it.isNotEmpty() }?.let {
+            imageTasks.add(storage.getReferenceFromUrl(it).delete())
+        }
+        recipe.steps?.forEach { step ->
+            step.imageUrl?.takeIf { it.isNotEmpty() }?.let {
+                imageTasks.add(storage.getReferenceFromUrl(it).delete())
+            }
+        }
+        if (imageTasks.isEmpty()) {
+            onComplete(true)
+            return
+        }
         Tasks.whenAll(imageTasks)
-            .addOnSuccessListener { Log.d("DeleteRecipe", "모든 이미지 삭제 성공"); onComplete(true) }
-            .addOnFailureListener { e -> Log.e("DeleteRecipe", "이미지 삭제 중 오류 발생", e); onComplete(false) }
+            .addOnSuccessListener {
+                Log.d("DeleteRecipe", "모든 이미지 삭제 성공")
+                onComplete(true)
+            }
+            .addOnFailureListener { e ->
+                Log.e("DeleteRecipe", "이미지 삭제 중 오류 발생", e)
+                onComplete(false)
+            }
     }
 
     private fun updateUserRecipeCount() {
@@ -597,14 +550,13 @@ class RecipeDetailActivity : AppCompatActivity() {
         val listener = RadioGroup.OnCheckedChangeListener { radioGroup, checkedId ->
             if (isTabSelectionInProgress) return@OnCheckedChangeListener
             val newTab = when (checkedId) {
-                R.id.btn_pageSummary, R.id.btn_pageSummary_sticky -> 0
-                R.id.btn_pageReview, R.id.btn_pageReview_sticky -> 1
+                R.id.btn_pageSummary -> 0
+                R.id.btn_pageReview -> 1
                 else -> currentTab
             }
             selectTab(newTab, withAnimation = true)
         }
         binding.framePageSelector.setOnCheckedChangeListener(listener)
-        binding.framePageSelectorSticky.setOnCheckedChangeListener(listener)
     }
 
     private fun selectTab(tabIndex: Int, withAnimation: Boolean = true) {
@@ -612,10 +564,8 @@ class RecipeDetailActivity : AppCompatActivity() {
         isTabSelectionInProgress = true
         if (tabIndex == 0) {
             binding.framePageSelector.check(R.id.btn_pageSummary)
-            binding.framePageSelectorSticky.check(R.id.btn_pageSummary_sticky)
         } else {
             binding.framePageSelector.check(R.id.btn_pageReview)
-            binding.framePageSelectorSticky.check(R.id.btn_pageReview_sticky)
         }
         isTabSelectionInProgress = false
         showTab(tabIndex, withAnimation)

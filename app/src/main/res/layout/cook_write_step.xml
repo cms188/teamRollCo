@@ -9,10 +9,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp"
+        android:clipChildren="false"
         android:clipToPadding="false"
-        android:clipChildren="false">
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <!-- 사진 카드 -->
         <androidx.cardview.widget.CardView
@@ -21,6 +21,7 @@
             android:layout_marginBottom="20dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp">
+
             <FrameLayout
                 android:id="@+id/representative_photo_frame_layout"
                 android:layout_width="match_parent"
@@ -36,19 +37,25 @@
                     android:contentDescription="단계별 사진을 선택하세요"
                     android:scaleType="centerCrop" />
 
-                <ImageButton
-                    android:id="@+id/btn_remove_this_step"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                <androidx.cardview.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="top|end"
                     android:layout_margin="8dp"
-                    android:background="@drawable/bg_bookmark_shape"
-                    android:elevation="2dp"
                     android:padding="6dp"
-                    android:src="@drawable/ic_close"
-                    app:tint="@color/text_secondary"
-                    android:contentDescription="이 과정 삭제" />
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="4dp">
 
+                    <ImageButton
+                        android:id="@+id/btn_remove_this_step"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_bookmark_shape"
+                        android:contentDescription="이 과정 삭제"
+                        android:elevation="2dp"
+                        android:src="@drawable/ic_close"
+                        app:tint="@color/text_secondary" />
+                </androidx.cardview.widget.CardView>
             </FrameLayout>
         </androidx.cardview.widget.CardView>
 
@@ -60,20 +67,25 @@
             android:layout_marginBottom="20dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:paddingHorizontal="12dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="12dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:fontFamily="@font/notosans_bold"
+                    android:includeFontPadding="false"
                     android:text="단계 제목"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp" />
+
                 <EditText
                     android:id="@+id/et_step_title"
                     android:layout_width="match_parent"
@@ -93,9 +105,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:fontFamily="@font/notosans_bold"
+                    android:includeFontPadding="false"
                     android:text="요리 방법"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp" />
+
                 <EditText
                     android:id="@+id/et_step_description"
                     android:layout_width="match_parent"
@@ -118,21 +132,30 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:paddingHorizontal="12dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="12dp">
+
                 <TextView
                     android:id="@+id/button_add_timer"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_title_badge"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_horizontal"
+                    android:fontFamily="@font/notosans_bold"
                     android:text="+ 타이머 추가"
+                    android:includeFontPadding="false"
                     android:textColor="@color/primary"
                     android:textSize="14sp"
-                    android:fontFamily="@font/notosans_bold"
-                    android:clickable="true"
-                    android:focusable="true"/>
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="6dp"/>
 
                 <LinearLayout
                     android:id="@+id/write_timer"
@@ -142,11 +165,13 @@
                     android:orientation="vertical"
                     android:visibility="gone"
                     tools:visibility="visible">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
                         android:fontFamily="@font/notosans_bold"
+                        android:includeFontPadding="false"
                         android:text="타이머"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp" />
@@ -156,12 +181,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:background="@drawable/bg_edittext_stroke"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:gravity="center"
                         android:text="00시간 00분 00초"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp"
-                        android:clickable="true"
-                        android:focusable="true"/>
+                        android:fontFamily="@font/notosans_bold"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="16sp" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
