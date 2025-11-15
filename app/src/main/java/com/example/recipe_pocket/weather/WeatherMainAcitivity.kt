@@ -4,13 +4,19 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import com.bumptech.glide.Glide
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.RecipeAdapter
@@ -58,9 +64,7 @@ class WeatherMainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = WeatherBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        var imageView = binding.imageview
-        Glide.with(this).load(R.raw.testgif).into(imageView)
-
+        setupFloatingTopBar()
         initializeUI()
         startLocationActivity()
 
@@ -76,6 +80,32 @@ class WeatherMainActivity : AppCompatActivity() {
             adapter = recipeAdapter
             layoutManager = LinearLayoutManager(this@WeatherMainActivity)
         }
+    }
+
+    private fun setupFloatingTopBar() {
+        val baseToolbarHeight = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            72f,
+            resources.displayMetrics
+        ).toInt()
+        val initialTopPadding = binding.topBarLayout.paddingTop
+        val initialContentPaddingTop = binding.weatherContentScroll.paddingTop
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.topBarLayout) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+
+            view.updatePadding(top = statusBarHeight + initialTopPadding)
+            view.updateLayoutParams<ViewGroup.LayoutParams> {
+                height = statusBarHeight + baseToolbarHeight
+            }
+            binding.weatherContentScroll.updatePadding(
+                top = initialContentPaddingTop + statusBarHeight
+            )
+
+            WindowInsetsCompat.CONSUMED
+        }
+
+        ViewCompat.requestApplyInsets(binding.topBarLayout)
     }
 
     private fun startLocationActivity() {
@@ -141,9 +171,9 @@ class WeatherMainActivity : AppCompatActivity() {
             }
 
             if (currentWeatherData != null) {
-                val sky = convertSkyCodeToText(currentWeatherData!!.sky)
+                binding.skyTextView.text = convertSkyCodeToText(currentWeatherData!!.sky)
                 val pty = convertPtyCodeToText(currentWeatherData!!.pty)
-                binding.tempTextView.text = "${currentWeatherData!!.tmp}°C"
+                binding.tempTextView.text = "${currentWeatherData!!.tmp}°"
                 binding.humidityTextView.text = "습도 ${currentWeatherData!!.reh}%"
                 binding.popTextView.text = "강수확률 ${currentWeatherData!!.pop}%"
                 attemptToRecommendRecipes()
@@ -161,7 +191,7 @@ class WeatherMainActivity : AppCompatActivity() {
             val region = regionName ?: ""
             val humidity = currentWeatherData!!.reh
             val pop = currentWeatherData!!.pop
-            binding.tempTextView.text = "${temp}°C"
+            binding.tempTextView.text = "${temp}°"
             binding.locationTextView.text = region
             binding.humidityTextView.text = "습도 ${humidity}%"
             binding.popTextView.text = "강수확률 ${pop}%"
@@ -198,31 +228,37 @@ class WeatherMainActivity : AppCompatActivity() {
 
         // 2. 온도 태그
         tags["temperature"] = mutableListOf()
-        val temp = weatherData.tmp.toFloatOrNull() ?: return tags
-        when {
-            temp >= 33 -> tags["temperature"]?.add("매우더운날")
-            temp in 29.0..32.9 -> tags["temperature"]?.add("더운날")
-            temp in 19.0..28.9 -> tags["temperature"]?.add("쾌적한날")
-            temp in 8.0..18.9 -> tags["temperature"]?.add("추운날")
-            else -> tags["temperature"]?.add("매우추운날")
+        val temp = weatherData.tmp.toFloatOrNull()
+        if (temp != null) {
+            when {
+                temp >= 33 -> tags["temperature"]?.add("매우더운날")
+                temp in 29.0..32.9 -> tags["temperature"]?.add("더운날")
+                temp in 19.0..28.9 -> tags["temperature"]?.add("쾌적한날")
+                temp in 8.0..18.9 -> tags["temperature"]?.add("추운날")
+                else -> tags["temperature"]?.add("매우추운날")
+            }
         }
 
         // 3. 미세먼지 태그
         tags["dust"] = mutableListOf()
-        val pm10 = airData.pm10.toIntOrNull() ?: return tags
-        when {
-            pm10 in 0..30 -> tags["dust"]?.add("미세먼지좋음")
-            pm10 in 31..80 -> tags["dust"]?.add("미세먼지보통")
-            pm10 in 81..150 -> tags["dust"]?.add("미세먼지나쁨")
-            else -> tags["dust"]?.add("미세먼지매우나쁨")
+        val pm10 = airData.pm10.toIntOrNull()
+        if (pm10 != null) {
+            when {
+                pm10 in 0..30 -> tags["dust"]?.add("미세먼지좋음")
+                pm10 in 31..80 -> tags["dust"]?.add("미세먼지보통")
+                pm10 in 81..150 -> tags["dust"]?.add("미세먼지나쁨")
+                else -> tags["dust"]?.add("미세먼지매우나쁨")
+            }
         }
 
         // 4. 습도 태그
         tags["humidity"] = mutableListOf()
-        val humidity = weatherData.reh.toIntOrNull() ?: return tags
-        when {
-            humidity >= 60 -> tags["humidity"]?.add("습도높음")
-            humidity <= 40 -> tags["humidity"]?.add("습도낮음")
+        val humidity = weatherData.reh.toIntOrNull()
+        if (humidity != null) {
+            when {
+                humidity >= 60 -> tags["humidity"]?.add("습도높음")
+                humidity <= 40 -> tags["humidity"]?.add("습도낮음")
+            }
         }
 
         return tags
