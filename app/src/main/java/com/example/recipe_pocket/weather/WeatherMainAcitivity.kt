@@ -93,8 +93,6 @@ class WeatherMainActivity : AppCompatActivity() {
 
     private fun setupFloatingTopBar() {
         val toolbar = binding.topBarLayout
-        val scrollView = binding.weatherContentScroll
-        val initialScrollPaddingTop = scrollView.paddingTop
         val baseHeight = (56 * resources.displayMetrics.density).toInt()
 
         ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
@@ -103,7 +101,6 @@ class WeatherMainActivity : AppCompatActivity() {
             view.updateLayoutParams<ViewGroup.LayoutParams> {
                 height = statusBarHeight + baseHeight
             }
-            scrollView.updatePadding(top = initialScrollPaddingTop + statusBarHeight)
             WindowInsetsCompat.CONSUMED
         }
     }
@@ -332,14 +329,14 @@ class WeatherMainActivity : AppCompatActivity() {
             }
         }
 
-        // Attempt 3: drop dust (temperature + weather)
+        // Attempt 3: dust 제거 (temperature + weather)
         if (dustTag != null) {
             if (baseTW.isNotEmpty() && (attempts.isEmpty() || attempts.last() != baseTW)) {
                 attempts.add(baseTW)
             }
         }
 
-        // Attempt 4: drop weather (temperature only)
+        // Attempt 4: weather 제거 (temperature만)
         if (tempTag != null && weatherTag != null) {
             val tempOnly = listOf(tempTag)
             if (attempts.isEmpty() || attempts.last() != tempOnly) {

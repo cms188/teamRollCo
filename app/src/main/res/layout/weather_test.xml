@@ -5,8 +5,7 @@
     android:id="@+id/weatherBackgroundContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_w_night_b"
-    tools:context=".weather.WeatherMainActivity">
+    android:background="@drawable/bg_w_night_b">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top_bar_layout"
