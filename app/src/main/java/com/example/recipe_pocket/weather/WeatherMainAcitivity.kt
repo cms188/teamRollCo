@@ -83,29 +83,20 @@ class WeatherMainActivity : AppCompatActivity() {
     }
 
     private fun setupFloatingTopBar() {
-        val baseToolbarHeight = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            72f,
-            resources.displayMetrics
-        ).toInt()
-        val initialTopPadding = binding.topBarLayout.paddingTop
-        val initialContentPaddingTop = binding.weatherContentScroll.paddingTop
+        val toolbar = binding.topBarLayout
+        val scrollView = binding.weatherContentScroll
+        val initialScrollPaddingTop = scrollView.paddingTop
+        val baseHeight = (56 * resources.displayMetrics.density).toInt()
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.topBarLayout) { view, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
-
-            view.updatePadding(top = statusBarHeight + initialTopPadding)
+            view.updatePadding(top = statusBarHeight)
             view.updateLayoutParams<ViewGroup.LayoutParams> {
-                height = statusBarHeight + baseToolbarHeight
+                height = statusBarHeight + baseHeight
             }
-            binding.weatherContentScroll.updatePadding(
-                top = initialContentPaddingTop + statusBarHeight
-            )
-
+            scrollView.updatePadding(top = initialScrollPaddingTop + statusBarHeight)
             WindowInsetsCompat.CONSUMED
         }
-
-        ViewCompat.requestApplyInsets(binding.topBarLayout)
     }
 
     private fun startLocationActivity() {
