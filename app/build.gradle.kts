@@ -151,6 +151,8 @@ dependencies {
 
     //새로고침
     implementation ("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    implementation("org.shredzone.commons:commons-suncalc:3.11")
 }
 
 

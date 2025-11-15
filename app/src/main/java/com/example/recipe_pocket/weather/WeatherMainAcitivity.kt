@@ -29,6 +29,10 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import org.shredzone.commons.suncalc.SunTimes
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 class WeatherMainActivity : AppCompatActivity() {
 
@@ -37,6 +41,11 @@ class WeatherMainActivity : AppCompatActivity() {
     private lateinit var recipeAdapter: RecipeAdapter
     private val firestore = FirebaseFirestore.getInstance()
     private lateinit var btnback: ImageView
+
+    companion object {
+        private const val SEOUL_LAT = 37.5665
+        private const val SEOUL_LON = 126.9780
+    }
 
     // Activity 결과를 처리하기 위한 런처들
     private val locationResultLauncher = registerForActivityResult(
@@ -143,6 +152,7 @@ class WeatherMainActivity : AppCompatActivity() {
 
             if (currentAirQualityData != null) {
                 //binding.locationTextView.text = "시간: ${currentAirQualityData!!.time} '${regionName}' 미세먼지(PM10): ${currentAirQualityData!!.pm10}µg/m³, 초미세먼지(PM2.5): ${currentAirQualityData!!.pm25}µg/m³"
+                updateWeatherBackground()
                 attemptToRecommendRecipes()
             } else {
                 binding.locationTextView.text = "'${regionName}' 지역의 대기 질 정보를 가져올 수 없습니다."
@@ -337,19 +347,24 @@ class WeatherMainActivity : AppCompatActivity() {
             }
         }
 
-        var finalRecipes = listOf<Recipe>()
+        val aggregatedRecipes = mutableListOf<Recipe>()
+        val seenIds = mutableSetOf<String>()
         for (combo in attempts) {
             val result = queryRecipesWithTags(combo)
             if (result.isNotEmpty()) {
-                finalRecipes = result
-                break
+                result.forEach { recipe ->
+                    val id = recipe.id
+                    if (id != null && seenIds.add(id)) {
+                        aggregatedRecipes.add(recipe)
+                    }
+                }
             }
         }
 
         binding.recommendationProgressBar.visibility = View.GONE
-        if (finalRecipes.isNotEmpty()) {
+        if (aggregatedRecipes.isNotEmpty()) {
             binding.recommendationRecyclerView.visibility = View.VISIBLE
-            recipeAdapter.updateRecipes(finalRecipes)
+            recipeAdapter.updateRecipes(aggregatedRecipes)
         } else {
             binding.recommendationStatusTextView.text = "오늘 날씨에 맞는 추천 레시피를 찾지 못했어요."
             binding.recommendationStatusTextView.visibility = View.VISIBLE
@@ -401,5 +416,138 @@ class WeatherMainActivity : AppCompatActivity() {
         "6" -> "빗방울/눈날림"
         "7" -> "눈날림"
         else -> "정보 없음($pty)"
+    }
+
+    private fun updateWeatherBackground() {
+        val weather = currentWeatherData ?: return
+
+        // 현재 시간 (서울 타임존)
+        val zone = ZoneId.of("Asia/Seoul")
+        val now = ZonedDateTime.now(zone)
+
+        // SunCalc로 오늘 일출/일몰 계산 (서울 기준 위/경도)
+        val times = SunTimes.compute()
+            .on(now)
+            .at(SEOUL_LAT, SEOUL_LON)
+            .execute()
+
+        val sunrise = times.rise
+        val sunset = times.set
+
+        // 지금이 낮인지/밤인지 판별
+        val isDay = if (sunrise != null && sunset != null) {
+            now.isAfter(sunrise) && now.isBefore(sunset)
+        } else {
+            // 혹시 null이면 대략 6~18시를 낮으로 처리
+            val hour = now.hour
+            hour in 6..18
+        }
+
+        val ptyCode = weather.pty.toIntOrNull() ?: 0
+        val skyCode = weather.sky.toIntOrNull() ?: 0
+
+        val weatherType = when {
+            // 비 관련 (1:비, 2:비/눈, 5:빗방울, 6:빗방울/눈날림)
+            ptyCode in listOf(1, 2, 5, 6) -> "RAIN"
+
+            // 눈 관련 (3:눈, 7:눈날림)
+            ptyCode in listOf(3, 7) -> "SNOW"
+
+            // 강수 없음 + 맑음(sky=1)
+            ptyCode == 0 && skyCode == 1 -> "CLEAR"
+
+            // 강수 없음 + 구름많음/흐림(sky=3,4)
+            ptyCode == 0 && skyCode in listOf(3, 4) -> "CLOUDY"
+
+            else -> "ETC"
+        }
+
+        //  - bgMain: weatherBackgroundContainer 배경
+        //  - bgReco: recommendationContainer 배경
+        //  - icon:  weathericon 이미지
+        val (bgMain, bgReco, icon) = when (weatherType) {
+            "RAIN" -> {
+                if (isDay) {
+                    Triple(
+                        R.drawable.bg_w_cloud_b,
+                        R.drawable.bg_w_cloud_c,
+                        R.drawable.rain,
+                    )
+                } else {
+                    Triple(
+                        R.drawable.bg_w_cloud_b,
+                        R.drawable.bg_w_cloud_c,
+                        R.drawable.rain,
+                    )
+                }
+            }
+
+            "SNOW" -> {
+                if (isDay) {
+                    Triple(
+                        R.drawable.bg_w_day_b,
+                        R.drawable.bg_w_day_c,
+                        R.drawable.snow
+                    )
+                } else {
+                    Triple(
+                        R.drawable.bg_w_night_b,
+                        R.drawable.bg_w_night_c,
+                        R.drawable.snow
+                    )
+                }
+            }
+
+            "CLEAR" -> {
+                if (isDay) {
+                    Triple(
+                        R.drawable.bg_w_day_b,
+                        R.drawable.bg_w_day_c,
+                        R.drawable.sun
+                    )
+                } else {
+                    Triple(
+                        R.drawable.bg_w_night_b,
+                        R.drawable.bg_w_night_c,
+                        R.drawable.moon
+                    )
+                }
+            }
+
+            "CLOUDY" -> {
+                if (isDay) {
+                    Triple(
+                        R.drawable.bg_w_day_b,
+                        R.drawable.bg_w_day_c,
+                        R.drawable.cloudsun
+                    )
+                } else {
+                    Triple(
+                        R.drawable.bg_w_day_b,
+                        R.drawable.bg_w_day_c,
+                        R.drawable.cloudmoon
+                    )
+                }
+            }
+
+            else -> {
+                if (isDay) {
+                    Triple(
+                        R.drawable.bg_w_day_b,
+                        R.drawable.bg_w_day_c,
+                        R.drawable.cloudsun
+                    )
+                } else {
+                    Triple(
+                        R.drawable.bg_w_day_b,
+                        R.drawable.bg_w_day_c,
+                        R.drawable.cloudmoon
+                    )
+                }
+            }
+        }
+        binding.weatherBackgroundContainer.setBackgroundResource(bgMain)
+        binding.recommendationContainer.setBackgroundResource(bgReco)
+        binding.weathericon.setImageResource(icon)
     }
 }

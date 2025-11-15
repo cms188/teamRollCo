@@ -5,7 +5,7 @@
     android:id="@+id/weatherBackgroundContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_w_night_b"
+    android:background="@drawable/bg_w_cloud_b"
     tools:context=".weather.WeatherMainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -195,12 +195,13 @@
                 </LinearLayout>
 
                 <ImageView
+                    android:id="@+id/weathericon"
                     android:layout_width="160dp"
                     android:layout_height="160dp"
                     android:layout_gravity="center"
                     android:contentDescription="날씨 아이콘"
                     android:scaleType="centerInside"
-                    android:src="@drawable/cloudsun"
+                    android:src="@drawable/rain"
                     android:tintMode="src_atop"/>
             </LinearLayout>
 
@@ -210,7 +211,7 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="40dp"
                 android:id="@+id/recommendationContainer"
-                android:background="@drawable/bg_w_night_c"
+                android:background="@drawable/bg_w_cloud_c"
                 android:orientation="vertical"
                 android:padding="20dp">
 
