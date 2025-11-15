@@ -68,6 +68,7 @@ class RecipeDetailActivity : AppCompatActivity() {
 
     private var isTabSelectionInProgress = false
     private val isLayoutReady = AtomicBoolean(false)
+    private var navBarHeight = 0 // 네비게이션 바 높이 저장 변수
 
     private val resultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -94,6 +95,14 @@ class RecipeDetailActivity : AppCompatActivity() {
         if (recipeId == null) {
             finish()
             return
+        }
+
+        // 뷰에 Window Insets 리스너를 설정하여 시스템 UI(네비게이션 바 등)의 크기를 얻습니다.
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            // 네비게이션 바의 높이를 저장합니다.
+            navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            // 인셋을 소비(consume)하지 않고 계속 전달하여 다른 뷰(예: CookingBottomMargin의 버튼)도 처리할 수 있게 합니다.
+            insets
         }
 
         initViews()
@@ -539,14 +548,25 @@ class RecipeDetailActivity : AppCompatActivity() {
     private fun setupBottomSheetCallbacks() {
         binding.headerImage.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
+                // isLayoutReady 플래그를 사용하여 이 로직이 한 번만 실행되도록 합니다.
                 if (isLayoutReady.compareAndSet(false, true)) {
+                    // onGlobalLayout()이 호출될 때 리스너를 제거하여 중복 호출을 방지합니다.
+                    binding.headerImage.viewTreeObserver.removeOnGlobalLayoutListener(this)
+
                     val screenHeight = resources.displayMetrics.heightPixels
+                    // 전체 화면 높이에서 네비게이션 바 높이를 빼서 실제 사용 가능한 높이를 계산합니다.
+                    val usableScreenHeight = screenHeight - navBarHeight
                     val toolbarHeight = binding.toolbar.root.height
                     val imageHeight = binding.headerImage.height
-                    val peekHeight = (screenHeight - (toolbarHeight + imageHeight * (1 - IMAGE_OVERLAP_RATIO)))
+
+                    // 내비게이션 바 유무 상관 없이 이미지 짤리지 않게
+                    val peekHeight = (usableScreenHeight - (toolbarHeight + imageHeight * (1 - IMAGE_OVERLAP_RATIO)))
                         .toInt().coerceAtLeast(dpToPx(MIN_PEEK_HEIGHT_DP))
+
                     bottomSheetBehavior.peekHeight = peekHeight
-                    binding.bottomSheet.layoutParams.height = screenHeight
+                    binding.bottomSheet.updateLayoutParams {
+                        height = usableScreenHeight - toolbarHeight
+                    }
                 }
             }
         })
