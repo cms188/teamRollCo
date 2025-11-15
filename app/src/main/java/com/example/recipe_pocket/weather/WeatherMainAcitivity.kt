@@ -182,12 +182,35 @@ class WeatherMainActivity : AppCompatActivity() {
             val region = regionName ?: ""
             val humidity = currentWeatherData!!.reh
             val pop = currentWeatherData!!.pop
+            var pm10 = currentAirQualityData!!.pm10.toIntOrNull()
+            var pm25 = currentAirQualityData!!.pm25.toIntOrNull()
+
+            if (pm10 != null) {
+                when {
+                    pm10 in 0..30 -> binding.pm10ImageView.setImageResource(R.drawable.verygood)
+                    pm10 in 31..80 -> binding.pm10ImageView.setImageResource(R.drawable.good)
+                    pm10 in 81..150 -> binding.pm10ImageView.setImageResource(R.drawable.bad)
+                    else -> binding.pm10ImageView.setImageResource(R.drawable.verybad)
+                }
+            }
+
+            if (pm25 != null) {
+                when {
+                    pm25 in 0..15 -> binding.pm25ImageView.setImageResource(R.drawable.verygood)
+                    pm25 in 16..35 -> binding.pm25ImageView.setImageResource(R.drawable.good)
+                    pm25 in 36..76 -> binding.pm25ImageView.setImageResource(R.drawable.bad)
+                    else -> binding.pm25ImageView.setImageResource(R.drawable.verybad)
+                }
+            }
             binding.tempTextView.text = "${temp}°"
             binding.locationTextView.text = region
             binding.humidityTextView.text = "습도 ${humidity}%"
             binding.popTextView.text = "강수확률 ${pop}%"
-            binding.pm10TextView.text = "미세먼지 ${currentAirQualityData!!.pm10}µg/m³"
-            binding.pm25TextView.text = "초미세먼지 ${currentAirQualityData!!.pm25}µg/m³"
+
+
+
+            //binding.pm10TextView.text = "미세먼지 ${currentAirQualityData!!.pm10}µg/m³"
+            //binding.pm25TextView.text = "초미세먼지 ${currentAirQualityData!!.pm25}µg/m³"
 
             lifecycleScope.launch {
                 val weatherTags = determineWeatherTags()
@@ -337,9 +360,6 @@ class WeatherMainActivity : AppCompatActivity() {
         if (tags.isEmpty()) return emptyList()
 
         return try {
-            // Firestore는 'whereIn'과 'whereArrayContains'를 동시에 사용할 수 없으므로,
-            // 'whereArrayContainsAny'를 사용하여 여러 태그 중 하나라도 포함된 문서를 찾습니다.
-            // Firestore는 최대 30개의 값을 'whereArrayContainsAny'에 사용할 수 있습니다.
             val querySnapshot = firestore.collection("Recipes")
                 .whereArrayContainsAny("tags", tags.take(30))
                 .get()

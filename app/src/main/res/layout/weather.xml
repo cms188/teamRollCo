@@ -92,10 +92,10 @@
                         android:id="@+id/skyTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
                         android:text="sky"
                         android:textColor="@android:color/white"
                         android:textSize="20sp"
-                        android:fontFamily="sans-serif-medium"
                         tools:text="sky" />
 
                     <TextView
@@ -154,10 +154,17 @@
                             android:id="@+id/pm10TextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="미세먼지 보통"
+                            android:text="미세먼지"
                             android:textColor="#CCFFFFFF"
                             android:textSize="13sp"
-                            tools:text="미세먼지 보통" />
+                            tools:text="미세먼지"/>
+
+                        <ImageView
+                            android:id="@+id/pm10ImageView"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginStart="8dp"
+                            android:src="@drawable/verygood"/>
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -172,22 +179,29 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
-                            android:text="초미세먼지 좋음"
+                            android:text="초미세먼지"
                             android:textColor="#CCFFFFFF"
                             android:textSize="13sp"
-                            tools:text="초미세먼지 좋음" />
+                            tools:text="초미세먼지"/>
+
+                        <ImageView
+                            android:id="@+id/pm25ImageView"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginStart="8dp"
+                            android:src="@drawable/good"
+                            />
                     </LinearLayout>
                 </LinearLayout>
 
                 <ImageView
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:src="@drawable/testimg1"
-                    android:contentDescription="날씨 아이콘"
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
                     android:layout_gravity="center"
-                    app:tint="#FFF4BC"
-                    android:tintMode="src_atop"
-                    android:scaleType="centerInside" />
+                    android:contentDescription="날씨 아이콘"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/cloudsun"
+                    android:tintMode="src_atop"/>
             </LinearLayout>
 
             <LinearLayout
