@@ -520,8 +520,8 @@ class WeatherMainActivity : AppCompatActivity() {
                     )
                 } else {
                     Triple(
-                        R.drawable.bg_w_day_b,
-                        R.drawable.bg_w_day_c,
+                        R.drawable.bg_w_night_b,
+                        R.drawable.bg_w_night_c,
                         R.drawable.cloudmoon
                     )
                 }

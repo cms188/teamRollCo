@@ -458,6 +458,110 @@
                         android:background="@drawable/gradient_overlay_cream"
                         android:rotation="180" />
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingVertical="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/notosans_bold"
+                                android:includeFontPadding="false"
+                                android:text="날씨 맞춤 레시피"
+                                android:textAppearance="@style/title1"
+                                android:textColor="@color/text_primary" />
+
+                        </LinearLayout>
+
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/recipe_image_card_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="140dp"
+                            app:cardBackgroundColor="@android:color/transparent"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent">
+
+                                <ImageView
+                                    android:id="@+id/Weather_image_view"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    android:scaleType="centerCrop"
+                                    android:contentDescription="요리 이미지"
+                                    android:foreground="?attr/selectableItemBackground"
+                                    android:src="@raw/weather_b"
+                                    android:background="@drawable/bg_main_rounded_gray"
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                                <View
+                                    android:id="@+id/gradient_overlay"
+                                    android:layout_width="0dp"
+                                    android:layout_height="80dp"
+                                    android:background="@drawable/cooktip_gradient_bottom_shadow"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                                <TextView
+                                    android:id="@+id/main_content_text"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="날씨에 맞는 레시피를 찾아보세요!"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold"
+                                    android:layout_marginStart="16dp"
+                                    android:layout_marginEnd="16dp"
+                                    android:layout_marginBottom="16dp"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    android:shadowColor="#80000000"
+                                    android:shadowDx="1"
+                                    android:shadowDy="1"
+                                    android:shadowRadius="2"/>
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+                        </androidx.cardview.widget.CardView>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp"
+                        android:background="@drawable/gradient_overlay_cream" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp"
+                        android:background="@color/primary_cream"
+                        android:paddingHorizontal="10dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp"
+                        android:background="@drawable/gradient_overlay_cream"
+                        android:rotation="180" />
+
                     <!-- 요리 팁 카드 -->
                     <LinearLayout
                         android:layout_width="match_parent"

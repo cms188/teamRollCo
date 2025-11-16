@@ -20,6 +20,7 @@ import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.recipe_pocket.CategoryPageActivity
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.RecipeAdapter
@@ -99,6 +100,12 @@ class MainActivity : AppCompatActivity() {
         binding.refreshLayout.setOnRefreshListener {
             loadAllData()
             binding.refreshLayout.isRefreshing = false
+        }
+
+        var imageView = binding.WeatherImageView
+        Glide.with(this).load(R.raw.weather_b).into(imageView)
+        imageView.setOnClickListener {
+            startActivity(Intent(this, WeatherMainActivity::class.java))
         }
     }
 
@@ -384,7 +391,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             val intent = when (item.itemId) {
-                R.id.fragment_search -> Intent(this, WeatherMainActivity::class.java)
+                R.id.fragment_search -> Intent(this, SearchResult::class.java)
                 R.id.fragment_another -> Intent(this, BookmarkActivity::class.java)
                 R.id.fragment_settings -> {
                     if (currentUser != null) Intent(this, UserPageActivity::class.java)
