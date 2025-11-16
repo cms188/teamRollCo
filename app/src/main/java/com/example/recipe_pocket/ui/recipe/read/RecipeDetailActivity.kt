@@ -79,7 +79,7 @@ class RecipeDetailActivity : AppCompatActivity() {
     private companion object {
         const val TOOLBAR_HEIGHT_DP = 56
         const val IMAGE_OVERLAP_RATIO = 0.4f
-        const val MIN_PEEK_HEIGHT_DP = 500
+        const val MIN_PEEK_HEIGHT_DP = 620
         const val TRANSPARENCY_START_THRESHOLD = 0.7f
         const val ANIMATION_DURATION = 200L
         const val TAG = "RecipeDetailActivity_DEBUG"
