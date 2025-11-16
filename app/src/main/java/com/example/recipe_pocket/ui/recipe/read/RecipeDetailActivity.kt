@@ -537,19 +537,28 @@ class RecipeDetailActivity : AppCompatActivity() {
     }
 
     private fun setupBottomSheetCallbacks() {
-        binding.headerImage.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        binding.DrecipeLayout.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 if (isLayoutReady.compareAndSet(false, true)) {
-                    val screenHeight = resources.displayMetrics.heightPixels
+                    binding.DrecipeLayout.viewTreeObserver.removeOnGlobalLayoutListener(this)
+
+                    val insets = ViewCompat.getRootWindowInsets(binding.root)
+                    val navBarHeight = insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
+
+                    val coordinatorHeight = binding.DrecipeLayout.height
                     val toolbarHeight = binding.toolbar.root.height
                     val imageHeight = binding.headerImage.height
-                    val peekHeight = (screenHeight - (toolbarHeight + imageHeight * (1 - IMAGE_OVERLAP_RATIO)))
-                        .toInt().coerceAtLeast(dpToPx(MIN_PEEK_HEIGHT_DP))
+
+                    val sheetTopY = toolbarHeight + imageHeight - (imageHeight * IMAGE_OVERLAP_RATIO)
+                    val peekHeight = (coordinatorHeight - sheetTopY).toInt()
+                        .coerceAtLeast(dpToPx(MIN_PEEK_HEIGHT_DP))
+
                     bottomSheetBehavior.peekHeight = peekHeight
-                    binding.bottomSheet.layoutParams.height = screenHeight
+                    bottomSheetBehavior.expandedOffset = toolbarHeight
                 }
             }
         })
+
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {}
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
@@ -562,6 +571,7 @@ class RecipeDetailActivity : AppCompatActivity() {
             }
         })
     }
+
 
     private fun setupTabListeners() {
         val listener = RadioGroup.OnCheckedChangeListener { radioGroup, checkedId ->
