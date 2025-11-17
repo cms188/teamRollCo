@@ -112,6 +112,19 @@ class RecipeReadActivity : AppCompatActivity() {
         setupToolbar() // 툴바 설정 추가
         setupUI()
         processIntent(intent)
+        setupWindowInsets()
+    }
+
+    private fun setupWindowInsets() {
+        val bottomNav = findViewById<View>(R.id.bottom_navigation)
+
+        ViewCompat.setOnApplyWindowInsetsListener(bottomNav) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = systemBars.bottom
+            }
+            insets
+        }
     }
 
     override fun onResume() {
