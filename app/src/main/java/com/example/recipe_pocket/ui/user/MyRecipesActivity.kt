@@ -37,6 +37,7 @@ class MyRecipesActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        loadMyRecipes()
     }
 
     private fun setupRecyclerView() {

@@ -234,7 +234,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:clipToPadding="false"
-                        tools:listitem="@layout/cook_card_03" />
+                        tools:listitem="@layout/weather_cook_card" />
 
                     <ProgressBar
                         android:id="@+id/recommendationProgressBar"
