@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
@@ -84,7 +85,7 @@ class WeatherMainActivity : AppCompatActivity() {
     }
 
     private fun initializeUI() {
-        recipeAdapter = RecipeAdapter(emptyList(), R.layout.cook_card_03)
+        recipeAdapter = RecipeAdapter(emptyList(), R.layout.weather_cook_card)
         binding.recommendationRecyclerView.apply {
             adapter = recipeAdapter
             layoutManager = LinearLayoutManager(this@WeatherMainActivity)
@@ -422,9 +423,11 @@ class WeatherMainActivity : AppCompatActivity() {
         val zone = ZoneId.of("Asia/Seoul")
         val now = ZonedDateTime.now(zone)
 
-        // SunCalc로 오늘 일출/일몰 계산 (서울 기준 위/경도)
+        val todayMidnight = now.toLocalDate().atStartOfDay(zone)
+
         val times = SunTimes.compute()
-            .on(now)
+            .on(todayMidnight)
+            .oneDay()
             .at(SEOUL_LAT, SEOUL_LON)
             .execute()
 
@@ -435,7 +438,7 @@ class WeatherMainActivity : AppCompatActivity() {
         val isDay = if (sunrise != null && sunset != null) {
             now.isAfter(sunrise) && now.isBefore(sunset)
         } else {
-            // 혹시 null이면 대략 6~18시를 낮으로 처리
+            // 혹시 null이면 6~18시를 낮으로 처리
             val hour = now.hour
             hour in 6..18
         }
@@ -459,26 +462,22 @@ class WeatherMainActivity : AppCompatActivity() {
             else -> "ETC"
         }
 
-        //  - bgMain: weatherBackgroundContainer 배경
-        //  - bgReco: recommendationContainer 배경
-        //  - icon:  weathericon 이미지
         val (bgMain, bgReco, icon) = when (weatherType) {
             "RAIN" -> {
                 if (isDay) {
                     Triple(
                         R.drawable.bg_w_cloud_b,
                         R.drawable.bg_w_cloud_c,
-                        R.drawable.rain,
+                        R.drawable.rain
                     )
                 } else {
                     Triple(
                         R.drawable.bg_w_cloud_b,
                         R.drawable.bg_w_cloud_c,
-                        R.drawable.rain,
+                        R.drawable.rain
                     )
                 }
             }
-
             "SNOW" -> {
                 if (isDay) {
                     Triple(
@@ -494,7 +493,6 @@ class WeatherMainActivity : AppCompatActivity() {
                     )
                 }
             }
-
             "CLEAR" -> {
                 if (isDay) {
                     Triple(
@@ -510,7 +508,6 @@ class WeatherMainActivity : AppCompatActivity() {
                     )
                 }
             }
-
             "CLOUDY" -> {
                 if (isDay) {
                     Triple(
@@ -526,7 +523,6 @@ class WeatherMainActivity : AppCompatActivity() {
                     )
                 }
             }
-
             else -> {
                 if (isDay) {
                     Triple(
@@ -536,8 +532,8 @@ class WeatherMainActivity : AppCompatActivity() {
                     )
                 } else {
                     Triple(
-                        R.drawable.bg_w_day_b,
-                        R.drawable.bg_w_day_c,
+                        R.drawable.bg_w_night_b,
+                        R.drawable.bg_w_night_c,
                         R.drawable.cloudmoon
                     )
                 }
