@@ -133,15 +133,15 @@ class FilterBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun resetFilters() {
-        // 단일 선택 그룹 리셋 ('전체' 칩을 선택)
-        (binding.chipgroupPeriod.getChildAt(4) as Chip).isChecked = true
-        (binding.chipgroupTime.getChildAt(3) as Chip).isChecked = true
+        currentFilter = SearchFilter.default()
 
-        // 다중 선택 그룹 리셋 ('전체' 칩을 선택)
-        binding.chipCategoryAll.isChecked = true
-        binding.chipDifficultyAll.isChecked = true
+        binding.chipgroupPeriod.clearCheck()
+        binding.chipgroupTime.clearCheck()
+        binding.chipgroupCategoryOptions.clearCheck()
+        binding.chipgroupDifficultyOptions.clearCheck()
+
+        setupViews()
     }
-
     private fun applyFilters() {
         val period = when (findCheckedChipIndex(binding.chipgroupPeriod)) {
             0 -> CreationPeriod.TODAY
