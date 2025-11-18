@@ -150,13 +150,16 @@ class WeatherMainActivity : AppCompatActivity() {
 
             if (currentAirQualityData != null) {
                 //binding.locationTextView.text = "시간: ${currentAirQualityData!!.time} '${regionName}' 미세먼지(PM10): ${currentAirQualityData!!.pm10}µg/m³, 초미세먼지(PM2.5): ${currentAirQualityData!!.pm25}µg/m³"
-                updateWeatherBackground()
                 attemptToRecommendRecipes()
             } else {
-                binding.locationTextView.text = "'${regionName}' 지역의 대기 질 정보를 가져올 수 없습니다."
+                //binding.locationTextView.text = "'${regionName}' 지역의 대기 질 정보를 가져올 수 없습니다."
+                binding.pm10ImageView.setImageResource(R.drawable.pm1025nd)
+                binding.pm25ImageView.setImageResource(R.drawable.pm1025nd)
             }
         } else {
-            binding.locationTextView.text = "'${regionName}' 지역의 대기 질 정보를 가져오는 데 실패했습니다."
+            //binding.locationTextView.text = "'${regionName}' 지역의 대기 질 정보를 가져오는 데 실패했습니다."
+            binding.pm10ImageView.setImageResource(R.drawable.pm1025nd)
+            binding.pm25ImageView.setImageResource(R.drawable.pm1025nd)
         }
     }
 
@@ -175,6 +178,7 @@ class WeatherMainActivity : AppCompatActivity() {
                 binding.tempTextView.text = "${currentWeatherData!!.tmp}°"
                 binding.humidityTextView.text = "습도 ${currentWeatherData!!.reh}%"
                 binding.popTextView.text = "강수확률 ${currentWeatherData!!.pop}%"
+                updateWeatherBackground()
                 attemptToRecommendRecipes()
             } else {
                 binding.tempTextView.text = ""
@@ -185,51 +189,50 @@ class WeatherMainActivity : AppCompatActivity() {
     }
 
     private fun attemptToRecommendRecipes() {
-        if (currentWeatherData != null && currentAirQualityData != null) {
-            val temp = currentWeatherData!!.tmp
-            val region = regionName ?: ""
-            val humidity = currentWeatherData!!.reh
-            val pop = currentWeatherData!!.pop
-            var pm10 = currentAirQualityData!!.pm10.toIntOrNull()
-            var pm25 = currentAirQualityData!!.pm25.toIntOrNull()
 
-            if (pm10 != null) {
-                when {
-                    pm10 in 0..30 -> binding.pm10ImageView.setImageResource(R.drawable.verygood)
-                    pm10 in 31..80 -> binding.pm10ImageView.setImageResource(R.drawable.good)
-                    pm10 in 81..150 -> binding.pm10ImageView.setImageResource(R.drawable.bad)
-                    else -> binding.pm10ImageView.setImageResource(R.drawable.verybad)
-                }
+        val weather = currentWeatherData ?: return
+
+        val temp = currentWeatherData!!.tmp
+        val region = regionName ?: ""
+        val humidity = currentWeatherData!!.reh
+        val pop = weather.pop
+
+        val pm10 = currentAirQualityData?.pm10?.toIntOrNull()
+        val pm25 = currentAirQualityData?.pm25?.toIntOrNull()
+
+        if (pm10 != null) {
+            when {
+                pm10 in 0..30 -> binding.pm10ImageView.setImageResource(R.drawable.verygood)
+                pm10 in 31..80 -> binding.pm10ImageView.setImageResource(R.drawable.good)
+                pm10 in 81..150 -> binding.pm10ImageView.setImageResource(R.drawable.bad)
+                else -> binding.pm10ImageView.setImageResource(R.drawable.verybad)
             }
+        }
 
-            if (pm25 != null) {
-                when {
-                    pm25 in 0..15 -> binding.pm25ImageView.setImageResource(R.drawable.verygood)
-                    pm25 in 16..35 -> binding.pm25ImageView.setImageResource(R.drawable.good)
-                    pm25 in 36..76 -> binding.pm25ImageView.setImageResource(R.drawable.bad)
-                    else -> binding.pm25ImageView.setImageResource(R.drawable.verybad)
-                }
-            }
-            binding.tempTextView.text = "${temp}°"
-            binding.locationTextView.text = region
-            binding.humidityTextView.text = "습도 ${humidity}%"
-            binding.popTextView.text = "강수확률 ${pop}%"
+        if (pm25 != null) {
+            when {
+                pm25 in 0..15 -> binding.pm25ImageView.setImageResource(R.drawable.verygood)
+                pm25 in 16..35 -> binding.pm25ImageView.setImageResource(R.drawable.good)
+                pm25 in 36..76 -> binding.pm25ImageView.setImageResource(R.drawable.bad)
+                else -> binding.pm25ImageView.setImageResource(R.drawable.verybad)
+               }
+        }
+        binding.tempTextView.text = "${temp}°"
+        binding.locationTextView.text = region
+        binding.humidityTextView.text = "습도 ${humidity}%"
+        binding.popTextView.text = "강수확률 ${pop}%"
 
+        //binding.pm10TextView.text = "미세먼지 ${currentAirQualityData!!.pm10}µg/m³"
+        //binding.pm25TextView.text = "초미세먼지 ${currentAirQualityData!!.pm25}µg/m³"
 
-
-            //binding.pm10TextView.text = "미세먼지 ${currentAirQualityData!!.pm10}µg/m³"
-            //binding.pm25TextView.text = "초미세먼지 ${currentAirQualityData!!.pm25}µg/m³"
-
-            lifecycleScope.launch {
-                val weatherTags = determineWeatherTags()
-                recommendRecipes(weatherTags)
-            }
+        lifecycleScope.launch {
+            val weatherTags = determineWeatherTags()
+            recommendRecipes(weatherTags)
         }
     }
 
     private fun determineWeatherTags(): Map<String, List<String>> {
         val weatherData = currentWeatherData ?: return emptyMap()
-        val airData = currentAirQualityData ?: return emptyMap()
 
         val tags = mutableMapOf<String, MutableList<String>>()
 
@@ -262,14 +265,17 @@ class WeatherMainActivity : AppCompatActivity() {
         }
 
         // 3. 미세먼지 태그
-        tags["dust"] = mutableListOf()
-        val pm10 = airData.pm10.toIntOrNull()
-        if (pm10 != null) {
-            when {
-                pm10 in 0..30 -> tags["dust"]?.add("미세먼지좋음")
-                pm10 in 31..80 -> tags["dust"]?.add("미세먼지보통")
-                pm10 in 81..150 -> tags["dust"]?.add("미세먼지나쁨")
-                else -> tags["dust"]?.add("미세먼지매우나쁨")
+        currentAirQualityData?.let { airData ->
+            val pm10 = airData.pm10.toIntOrNull()
+            if (pm10 != null) {
+                val dustTags = mutableListOf<String>()
+                when {
+                    pm10 in 0..30 -> dustTags.add("미세먼지좋음")
+                    pm10 in 31..80 -> dustTags.add("미세먼지보통")
+                    pm10 in 81..150 -> dustTags.add("미세먼지나쁨")
+                    else -> dustTags.add("미세먼지매우나쁨")
+                }
+                tags["dust"] = dustTags
             }
         }
 
