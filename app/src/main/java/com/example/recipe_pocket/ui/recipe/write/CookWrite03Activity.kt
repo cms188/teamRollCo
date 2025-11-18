@@ -244,7 +244,7 @@ class CookWrite03Activity : AppCompatActivity() {
             RecipeSavePipeline.saveRecipeWithAi(recipeSnapshot)
         }
 
-        Toast.makeText(this, "백그라운드에서 업로드를 시작합니다.", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "업로드를 시작합니다.", Toast.LENGTH_SHORT).show()
         startActivity(Intent(this, MainActivity::class.java))
     }
 

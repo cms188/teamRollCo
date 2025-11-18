@@ -34,15 +34,8 @@ class CookWrite03StepFragment : Fragment() {
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             result.data?.data?.let { uri ->
-                val resolver = requireContext().contentResolver
-                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                try {
-                    resolver.takePersistableUriPermission(uri, flag)
-                } catch (_: SecurityException) {
-                    // Persistable permission might already exist; ignore.
-                }
                 currentStep?.imageUri = uri.toString()
-                binding.ivStepPhoto.setImageURI(uri)
+                displayStepImage(currentStep?.imageUri)
             }
         }
     }
@@ -89,12 +82,14 @@ class CookWrite03StepFragment : Fragment() {
 
     private fun setupListeners() {
         binding.ivStepPhoto.setOnClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
+            val intent = Intent(Intent.ACTION_PICK).apply {
                 type = "image/*"
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
             }
             pickImageLauncher.launch(intent)
+        }
+        binding.btnRemoveThisStep.setOnClickListener {
+            currentStep?.imageUri = null
+            displayStepImage(currentStep?.imageUri)
         }
         binding.buttonAddTimer.setOnClickListener {
             val newVisibility = !binding.writeTimer.isVisible

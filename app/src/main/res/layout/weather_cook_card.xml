@@ -10,8 +10,8 @@
 
     <!-- 좌측: 메인 이미지, 북마크 버튼 컨테이너 -->
     <FrameLayout
-        android:layout_width="100dp"
-        android:layout_height="100dp">
+        android:layout_width="80dp"
+        android:layout_height="80dp">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -44,8 +44,8 @@
 
             <ImageButton
                 android:id="@+id/bookmark_button"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:background="@color/white"
                 android:clickable="true"
                 android:contentDescription="@string/bookmark_button"
