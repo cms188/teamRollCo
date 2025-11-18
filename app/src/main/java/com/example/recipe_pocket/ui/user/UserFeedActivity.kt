@@ -2,6 +2,7 @@ package com.example.recipe_pocket.ui.user
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -9,14 +10,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.recipe_pocket.R
 import com.example.recipe_pocket.RecipeAdapter
+import com.example.recipe_pocket.databinding.ActivityUserFeedBinding
 import com.example.recipe_pocket.repository.NotificationHandler
 import com.example.recipe_pocket.repository.RecipeLoader
-import com.example.recipe_pocket.databinding.ActivityUserFeedBinding
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class UserFeedActivity : AppCompatActivity() {
 
@@ -42,7 +46,7 @@ class UserFeedActivity : AppCompatActivity() {
             finish()
             return
         }
-utils.ToolbarUtils.setupTransparentToolbar(this, "")
+        utils.ToolbarUtils.setupTransparentToolbar(this, "")
         setupRecyclerView()
         setupClickListeners()
         loadAllData()
@@ -68,39 +72,70 @@ utils.ToolbarUtils.setupTransparentToolbar(this, "")
     }
 
     private fun loadUserInfo() {
-        db.collection("Users").document(targetUserId!!).get().addOnSuccessListener { document ->
-            if (document.exists()) {
-                val nickname = document.getString("nickname") ?: "사용자"
-                // 프로필 영역 닉네임 설정
-                binding.tvUserNickname.text = nickname
+        lifecycleScope.launch {
+            try {
+                val userDoc = db.collection("Users").document(targetUserId!!).get().await()
+                if (userDoc.exists()) {
+                    val nickname = userDoc.getString("nickname") ?: "사용자"
+                    val title = userDoc.getString("title")
+                    val imageUrl = userDoc.getString("profileImageUrl")
 
-                // 칭호 설정
-                val title = document.getString("title")
-                if (!title.isNullOrEmpty()) {
-                    binding.tvUserTitle.visibility = View.VISIBLE
-                    binding.tvUserTitle.text = title
-                } else {
-                    binding.tvUserTitle.visibility = View.GONE
+                    // 레시피 수 실시간 집계
+                    val recipesQuery = db.collection("Recipes")
+                        .whereEqualTo("userId", targetUserId!!).get().await()
+                    val recipeCount = recipesQuery.size()
+
+                    // 팔로워 수 실시간 집계 (존재하는 사용자만 카운트)
+                    val followersSnapshot = db.collection("Users").document(targetUserId!!)
+                        .collection("followers").get().await()
+                    val validFollowers = followersSnapshot.documents.filter {
+                        db.collection("Users").document(it.id).get().await().exists()
+                    }
+                    val followerCount = validFollowers.size
+
+                    // 팔로잉 수 실시간 집계 (존재하는 사용자만 카운트)
+                    val followingSnapshot = db.collection("Users").document(targetUserId!!)
+                        .collection("following").get().await()
+                    val validFollowing = followingSnapshot.documents.filter {
+                        db.collection("Users").document(it.id).get().await().exists()
+                    }
+                    val followingCount = validFollowing.size
+
+                    withContext(Dispatchers.Main) {
+                        // 프로필 영역 닉네임 설정
+                        binding.tvUserNickname.text = nickname
+
+                        // 칭호 설정
+                        if (!title.isNullOrEmpty()) {
+                            binding.tvUserTitle.visibility = View.VISIBLE
+                            binding.tvUserTitle.text = title
+                        } else {
+                            binding.tvUserTitle.visibility = View.GONE
+                        }
+
+                        // 통계 정보 텍스트 설정
+                        binding.tvPostCount.text = recipeCount.toString()
+                        binding.tvFollowerCount.text = followerCount.toString()
+                        binding.tvFollowingCount.text = followingCount.toString()
+
+                        // 프로필 이미지 로드
+                        if (!imageUrl.isNullOrEmpty()) {
+                            Glide.with(this@UserFeedActivity).load(imageUrl)
+                                .into(binding.ivProfilePicture)
+                        } else {
+                            binding.ivProfilePicture.setImageResource(R.drawable.ic_profile_placeholder)
+                        }
+                    }
                 }
-
-                // 팔로워 정보 텍스트 설정
-                val recipeCount = document.getLong("recipeCount") ?: 0
-                val followerCount = document.getLong("followerCount") ?: 0
-                val followingCount = document.getLong("followingCount") ?: 0
-                binding.tvPostCount.text = "$recipeCount"
-                binding.tvFollowerCount.text = "$followerCount"
-                binding.tvFollowingCount.text = "$followingCount"
-
-                // 프로필 이미지 로드
-                val imageUrl = document.getString("profileImageUrl")
-                if (!imageUrl.isNullOrEmpty()) {
-                    Glide.with(this@UserFeedActivity).load(imageUrl).into(binding.ivProfilePicture)
-                } else {
-                    binding.ivProfilePicture.setImageResource(R.drawable.ic_profile_placeholder)
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@UserFeedActivity, "사용자 정보 로딩 실패", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
     }
+
 
     private fun loadUserRecipes() {
         lifecycleScope.launch {
@@ -133,11 +168,12 @@ utils.ToolbarUtils.setupTransparentToolbar(this, "")
         if (isFollowing) {
             binding.btnFollow.text = "언팔로우"
             binding.btnFollow.setBackgroundColor(
-                ContextCompat.getColor(this, R.color.accent_honey_yellow))  // 회색 배경
+                ContextCompat.getColor(this, R.color.accent_honey_yellow)
+            )  // 회색 배경
             binding.btnFollow.setTextColor(ContextCompat.getColor(this, R.color.text_primary))
         } else {
             binding.btnFollow.text = "팔로우"
-            binding.btnFollow.setBackgroundColor(ContextCompat.getColor(this,R.color.primary))  // 주황색 배경
+            binding.btnFollow.setBackgroundColor(ContextCompat.getColor(this, R.color.primary))  // 주황색 배경
             binding.btnFollow.setTextColor(ContextCompat.getColor(this, R.color.primary_cream))
         }
     }
@@ -145,8 +181,10 @@ utils.ToolbarUtils.setupTransparentToolbar(this, "")
     private fun toggleFollow() {
         if (currentUser == null) return
 
-        val myFollowingRef = db.collection("Users").document(currentUser.uid).collection("following").document(targetUserId!!)
-        val targetFollowerRef = db.collection("Users").document(targetUserId!!).collection("followers").document(currentUser.uid)
+        val myFollowingRef = db.collection("Users").document(currentUser.uid)
+            .collection("following").document(targetUserId!!)
+        val targetFollowerRef = db.collection("Users").document(targetUserId!!)
+            .collection("followers").document(currentUser.uid)
         val myUserDocRef = db.collection("Users").document(currentUser.uid)
         val targetUserDocRef = db.collection("Users").document(targetUserId!!)
 
@@ -159,7 +197,10 @@ utils.ToolbarUtils.setupTransparentToolbar(this, "")
                 transaction.update(targetUserDocRef, "followerCount", FieldValue.increment(-1))
             } else { // 팔로우 로직
                 transaction.set(myFollowingRef, mapOf("followedAt" to FieldValue.serverTimestamp()))
-                transaction.set(targetFollowerRef, mapOf("followedAt" to FieldValue.serverTimestamp()))
+                transaction.set(
+                    targetFollowerRef,
+                    mapOf("followedAt" to FieldValue.serverTimestamp())
+                )
                 transaction.update(myUserDocRef, "followingCount", FieldValue.increment(1))
                 transaction.update(targetUserDocRef, "followerCount", FieldValue.increment(1))
             }
