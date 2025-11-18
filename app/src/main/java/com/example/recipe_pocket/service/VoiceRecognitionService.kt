@@ -226,8 +226,8 @@ class VoiceRecognitionService : Service() {
             listOf("이전", "이전으로", "이전단계", "이전 단계") to COMMAND_PREVIOUS,
             listOf("다음", "다음으로", "다음단계", "다음 단계") to COMMAND_NEXT,
             listOf("종료", "음성인식 종료", "그만") to COMMAND_STOP_RECOGNITION_FROM_VOICE,
-            listOf("타이머 시작", "타이머 재생") to COMMAND_TIMER_START,
-            listOf("타이머 정지", "타이머 일시정지", "타이머 일시 정지", "타이머 멈춰") to COMMAND_TIMER_PAUSE
+            listOf("타이머 시작", "타이머 재생", "시작", "재생") to COMMAND_TIMER_START,
+            listOf("타이머 정지", "타이머 일시정지", "타이머 일시 정지", "타이머 멈춰", "멈춰", "정지") to COMMAND_TIMER_PAUSE
         )
         for ((keywords, command) in commandKeywords) {
             if (keywords.any { lowerText.contains(it) }) return command

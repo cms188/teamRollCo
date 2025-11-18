@@ -14,11 +14,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.recipe_pocket.ui.user.bookmark.BookmarkActivity
 import com.example.recipe_pocket.ui.auth.EditProfileActivity
@@ -35,6 +35,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class UserPageActivity : AppCompatActivity() {
 
@@ -100,6 +102,7 @@ class UserPageActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadUserData()
+        loadUserStats()
         bottomNavigationView.menu.findItem(R.id.fragment_settings).isChecked = true
     }
 
@@ -169,6 +172,7 @@ class UserPageActivity : AppCompatActivity() {
     private fun dpToPx(dp: Int): Int {
         return (dp * resources.displayMetrics.density).toInt()
     }
+
     private fun loadUserData() {
         val currentUser = auth.currentUser
         if (currentUser == null) {
@@ -184,15 +188,14 @@ class UserPageActivity : AppCompatActivity() {
                     val nickname = document.getString("nickname") ?: "닉네임 없음"
                     nicknameTextView.text = nickname
 
-                    // [수정] 칭호 설정 로직
+                    // 칭호 설정 로직
                     val title = document.getString("title")
-                    badgeLayout.visibility = View.VISIBLE // 항상 보이도록 변경
+                    badgeLayout.visibility = View.VISIBLE
                     if (!title.isNullOrEmpty()) {
                         badgeTextView.text = title
                     } else {
                         badgeTextView.text = "칭호를 설정해보세요"
                     }
-
 
                     // 프로필 이미지 설정
                     val imageUrl = document.getString("profileImageUrl")
@@ -206,12 +209,6 @@ class UserPageActivity : AppCompatActivity() {
                     } else {
                         profileImageView.setImageResource(R.drawable.ic_profile_placeholder)
                     }
-
-                    // 게시물, 팔로워, 팔로잉 수 업데이트
-                    recipeCountTextView.text = "${document.getLong("recipeCount") ?: 0}"
-                    followerCountTextView.text = "${document.getLong("followerCount") ?: 0}"
-                    followingCountTextView.text = "${document.getLong("followingCount") ?: 0}"
-
                 } else {
                     Toast.makeText(this, "사용자 정보를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
                 }
@@ -219,6 +216,43 @@ class UserPageActivity : AppCompatActivity() {
             .addOnFailureListener { e ->
                 Toast.makeText(this, "데이터 로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun loadUserStats() {
+        val currentUser = auth.currentUser ?: return
+
+        lifecycleScope.launch {
+            try {
+                // 내 레시피 수
+                val recipesQuery = firestore.collection("Recipes")
+                    .whereEqualTo("userId", currentUser.uid).get().await()
+                recipeCountTextView.text = recipesQuery.size().toString()
+
+                // 팔로워 수 (실제 존재하는 사용자만 카운트)
+                val followersSnapshot = firestore.collection("Users").document(currentUser.uid)
+                    .collection("followers").get().await()
+                val validFollowers = followersSnapshot.documents.filter {
+                    firestore.collection("Users").document(it.id).get().await().exists()
+                }
+                followerCountTextView.text = validFollowers.size.toString()
+
+
+                // 팔로잉 수 (실제 존재하는 사용자만 카운트)
+                val followingSnapshot = firestore.collection("Users").document(currentUser.uid)
+                    .collection("following").get().await()
+                val validFollowing = followingSnapshot.documents.filter {
+                    firestore.collection("Users").document(it.id).get().await().exists()
+                }
+                followingCountTextView.text = validFollowing.size.toString()
+
+            } catch (e: Exception) {
+                // 오류 처리
+                recipeCountTextView.text = "0"
+                followerCountTextView.text = "0"
+                followingCountTextView.text = "0"
+                Toast.makeText(this@UserPageActivity, "통계 정보 로드 실패", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun setupClickListeners() {

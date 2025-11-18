@@ -193,7 +193,6 @@ class FollowListActivity : AppCompatActivity() {
                 transaction.update(targetUserDocRef, "followerCount", FieldValue.increment(1))
             }
         }.addOnSuccessListener {
-            // ▼▼▼ 수정된 알림 생성/삭제 로직 ▼▼▼
             lifecycleScope.launch {
                 if (!user.isFollowing) {
                     // 새로 팔로우 했을 때 'add' 함수 호출
@@ -209,7 +208,6 @@ class FollowListActivity : AppCompatActivity() {
                     )
                 }
             }
-            // ▲▲▲ 수정된 알림 생성/삭제 로직 ▲▲▲
 
             // 트랜잭션 성공 시 UI 업데이트
             user.isFollowing = !user.isFollowing

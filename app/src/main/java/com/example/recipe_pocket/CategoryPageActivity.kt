@@ -224,8 +224,8 @@ class CategoryPageActivity : AppCompatActivity(), FilterBottomSheetFragment.OnFi
 
         lifecycleScope.launch {
             val result = if (category == "전체") {
-                // 전체 카테고리일 경우 모든 레시피 로드
-                RecipeLoader.loadMultipleRandomRecipesWithAuthor(count = 20)
+                // '전체' 카테고리일 경우 모든 레시피 로드
+                RecipeLoader.loadAllRecipes()
             } else {
                 // 특정 카테고리의 레시피만 로드
                 RecipeLoader.loadRecipesByCategory(category)
