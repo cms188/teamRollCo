@@ -1,376 +1,417 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/Cook_Write_01_Layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:id="@+id/Cook_Write_01_Layout">
+    android:background="@color/white">
 
-    <!-- 1. 상단 고정 툴바 부분 -->
-    <LinearLayout
-        android:id="@+id/top_bar_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_alignParentTop="true">
+    <!-- 툴바 -->
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_write" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:background="@color/search_color"/>
-
-        <LinearLayout
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="@drawable/bg_search_top"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp">
-
-            <ImageView
-                android:id="@+id/iv_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_arrow_back"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"/>
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <TextView
-                android:id="@+id/btn_temp_save"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:background="@drawable/bg_gray_rounded"
-                android:gravity="center"
-                android:paddingHorizontal="12dp"
-                android:layout_marginEnd="8dp"
-                android:text="임시저장"
-                android:textColor="#333333"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/btn_save"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:background="@drawable/bg_orange_button_rounded"
-                android:gravity="center"
-                android:paddingHorizontal="18dp"
-                android:text="저장"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                android:textStyle="bold"/>
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- 2. 스크롤 가능한 메인 컨텐츠 -->
-    <!-- ▼▼▼ ScrollView를 RelativeLayout의 직접적인 자식으로 변경 ▼▼▼ -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/top_bar_container"
-        android:layout_above="@+id/btn_next_container"
-        android:fillViewport="true">
+        android:layout_below="@id/toolbar"
+        android:fillViewport="true"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:layout_marginTop="20dp">
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="24dp">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:hint="카테고리"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+            <!-- 대표 사진 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-                    <AutoCompleteTextView
-                        android:id="@+id/categoryDropdown"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="none"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-
-                <!-- 대표 사진 타이틀 -->
-                <FrameLayout
-                    android:id="@+id/representative_photo_frame_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="240dp"
-                    android:layout_marginBottom="24dp"
-                    android:background="@drawable/bg_search_bar_orange_border">
-
-                    <TextView
-                        android:id="@+id/tv_representative_photo_title_inside"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="top|center_horizontal"
-                        android:gravity="center_horizontal"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="4dp"
-                        android:text="대표 사진"
-                        android:textColor="#333333"
-                        android:textSize="16sp"
-                        android:textStyle="bold"/>
-
-                    <ImageView
-                        android:id="@+id/iv_representative_photo"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginTop="45dp"
-                        android:layout_marginStart="12dp"
-                        android:layout_marginEnd="12dp"
-                        android:layout_marginBottom="12dp"
-                        android:background="@color/search_color"
-                        android:scaleType="centerCrop"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:contentDescription="대표 사진을 선택하세요"/>
-                </FrameLayout>
-
-                <!-- 레시피 제목 -->
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="레시피 제목"
-                    android:gravity="center_horizontal"
-                    android:textColor="#333333"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:fontFamily="@font/notosans_bold"
+                    android:includeFontPadding="false"
+                    android:text="대표 사진"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="280dp"
+                    android:layout_marginBottom="28dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <FrameLayout
+                        android:id="@+id/representative_photo_frame_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/bg_edittext_stroke"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout
+                            android:id="@+id/empty_photo_state"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="24dp">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_marginBottom="8dp"
+                                android:src="@drawable/ic_camera_add"
+                                app:tint="@color/soft_divider" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="4dp"
+                                android:text="사진 선택"
+                                android:textColor="@color/text_hint"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/iv_representative_photo"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:visibility="visible" />
+                    </FrameLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+            <!-- 제목 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/notosans_bold"
+                    android:includeFontPadding="false"
+                    android:text="제목"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
 
                 <EditText
                     android:id="@+id/et_recipe_title"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginBottom="24dp"
-                    android:background="@drawable/bg_search_bar_orange_border"
-                    android:hint="레시피 이름을 입력해 주세요"
-                    android:paddingHorizontal="16dp"
-                    android:textColor="#333333"
-                    android:textColorHint="#999999"
-                    android:textSize="14sp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_edittext_stroke"
+                    android:fontFamily="@font/notosans_regular"
+                    android:hint="레시피 제목"
                     android:maxLines="1"
-                    android:singleLine="true"/>
+                    android:paddingHorizontal="16dp"
+                    android:singleLine="true"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
-                <!-- 요리 소개 -->
+            <!-- 소개 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:orientation="vertical">
+
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/notosans_bold"
+                    android:includeFontPadding="false"
                     android:text="요리 소개"
-                    android:gravity="center_horizontal"
-                    android:textColor="#333333"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
 
                 <EditText
                     android:id="@+id/et_recipe_description"
                     android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:layout_marginBottom="24dp"
-                    android:background="@drawable/bg_search_bar_orange_border"
-                    android:gravity="top"
-                    android:hint="간단한 요리 소개를 입력해주세요"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_edittext_stroke"
+                    android:fontFamily="@font/notosans_regular"
+                    android:gravity="top|start"
+                    android:hint="레시피를 간단하게 소개해주세요."
+                    android:minHeight="130dp"
                     android:paddingHorizontal="16dp"
-                    android:paddingVertical="12dp"
-                    android:textColor="#333333"
-                    android:textColorHint="#999999"
+                    android:paddingVertical="4dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- 카테고리 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/notosans_bold"
+                    android:includeFontPadding="false"
+                    android:text="카테고리"
+                    android:textColor="@color/text_primary"
                     android:textSize="14sp" />
 
-                <!-- 난이도 -->
                 <TextView
+                    android:id="@+id/btn_select_category"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:text="난이도"
-                    android:gravity="center_horizontal"
-                    android:textColor="#333333"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:layout_height="50dp"
+                    android:background="@drawable/tab_container_background"
+                    android:clickable="true"
+                    android:drawablePadding="8dp"
+                    android:focusable="true"
+                    android:fontFamily="@font/notosans_regular"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="4dp"
+                    android:text="선택"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp"
+                    app:drawableEndCompat="@drawable/ic_add"
+                    app:drawableTint="@color/text_secondary" />
 
-                <!-- 난이도 선택 버튼들 (RadioGroup으로 변경) -->
+
+            </LinearLayout>
+
+            <!-- 난이도 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/notosans_bold"
+                    android:includeFontPadding="false"
+                    android:text="난이도"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
+
                 <RadioGroup
                     android:id="@+id/rg_difficulty"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="24dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/tab_container_background"
                     android:orientation="horizontal"
-                    android:background="@drawable/bg_search_bar_orange_border"
                     android:padding="4dp">
 
                     <RadioButton
                         android:id="@+id/rb_easy"
                         android:layout_width="0dp"
-                        android:layout_height="40dp"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:background="@drawable/select_diffi_button"
+                        android:background="@drawable/selector_bg_slidable_btn"
                         android:button="@null"
+                        android:fontFamily="@font/notosans_medium"
                         android:gravity="center"
                         android:text="쉬움"
-                        android:textColor="@color/select_diffi_text"
-                        android:textSize="14sp" />
+                        android:textColor="@animator/btn_text_selector"
+                        android:textSize="13sp" />
 
                     <RadioButton
                         android:id="@+id/rb_normal"
                         android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_marginHorizontal="4dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginHorizontal="3dp"
                         android:layout_weight="1"
-                        android:background="@drawable/select_diffi_button"
+                        android:background="@drawable/selector_bg_slidable_btn"
                         android:button="@null"
                         android:checked="true"
+                        android:fontFamily="@font/notosans_medium"
                         android:gravity="center"
                         android:text="보통"
-                        android:textColor="@color/select_diffi_text"
-                        android:textSize="14sp" />
+                        android:textColor="@animator/btn_text_selector"
+                        android:textSize="13sp" />
 
                     <RadioButton
                         android:id="@+id/rb_hard"
                         android:layout_width="0dp"
-                        android:layout_height="40dp"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:background="@drawable/select_diffi_button"
+                        android:background="@drawable/selector_bg_slidable_btn"
                         android:button="@null"
+                        android:fontFamily="@font/notosans_medium"
                         android:gravity="center"
                         android:text="어려움"
-                        android:textColor="@color/select_diffi_text"
-                        android:textSize="14sp" />
+                        android:textColor="@animator/btn_text_selector"
+                        android:textSize="13sp" />
                 </RadioGroup>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:orientation="horizontal"
+                android:weightSum="2">
 
                 <!-- 인원 -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:text="인원"
-                    android:gravity="center_horizontal"
-                    android:textColor="#333333"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginBottom="24dp"
-                    android:background="@drawable/bg_search_bar_orange_border"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="20dp">
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/btn_servings_minus"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:gravity="center"
-                        android:text="−"
-                        android:textColor="#666666"
-                        android:textSize="18sp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:background="?attr/selectableItemBackgroundBorderless" />
-
-                    <TextView
-                        android:id="@+id/tv_servings_count"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:text="1 인분"
-                        android:textColor="#333333"
-                        android:textSize="16sp" />
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="@font/notosans_bold"
+                        android:includeFontPadding="false"
+                        android:text="인원"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
 
-                    <TextView
-                        android:id="@+id/btn_servings_plus"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="@drawable/tab_container_background"
                         android:gravity="center"
-                        android:text="+"
-                        android:textColor="#666666"
-                        android:textSize="18sp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:background="?attr/selectableItemBackgroundBorderless" />
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="12dp">
 
+                        <ImageView
+                            android:id="@+id/btn_servings_minus"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:alpha="0.6"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:scaleX="0.5"
+                            android:scaleY="0.5"
+                            android:src="@drawable/ic_remove" />
+
+                        <TextView
+                            android:id="@+id/tv_servings_count"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/notosans_medium"
+                            android:gravity="center"
+                            android:includeFontPadding="false"
+                            android:text="1인분"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/btn_servings_plus"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:alpha="0.6"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:scaleX="0.5"
+                            android:scaleY="0.5"
+                            android:src="@drawable/ic_add" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <!-- 조리시간 -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:text="조리시간"
-                    android:gravity="center_horizontal"
-                    android:textColor="#333333"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginBottom="32dp"
-                    android:background="@drawable/bg_search_bar_orange_border"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="16dp">
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tv_cooking_time_hour"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:text="0 시간"
-                        android:textColor="#333333"
-                        android:textSize="16sp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:background="?attr/selectableItemBackground" />
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="@font/notosans_bold"
+                        android:includeFontPadding="false"
+                        android:text="조리시간"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
 
-                    <TextView
-                        android:id="@+id/tv_cooking_time_minute"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="@drawable/tab_container_background"
                         android:gravity="center"
-                        android:text="0 분"
-                        android:textColor="#333333"
-                        android:textSize="16sp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:background="?attr/selectableItemBackground" />
+                        android:orientation="horizontal">
 
+                        <TextView
+                            android:id="@+id/tv_cooking_time_hour"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:fontFamily="@font/notosans_medium"
+                            android:gravity="center"
+                            android:includeFontPadding="false"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="0dp"
+                            android:text="0시간"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp" />
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="24dp"
+                            android:background="#DDDDDD" />
+
+                        <TextView
+                            android:id="@+id/tv_cooking_time_minute"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:fontFamily="@font/notosans_medium"
+                            android:gravity="center"
+                            android:includeFontPadding="false"
+                            android:text="0분"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
-        </ScrollView>
-    <LinearLayout
-        android:id="@+id/btn_next_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical"
-        android:background="@color/white">
 
-        <TextView
-            android:id="@+id/btn_next"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:background="@drawable/bg_orange_button_rounded"
-            android:gravity="center"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="20dp"
-            android:text="다음  >"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_next"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="20dp"
+                android:backgroundTint="@color/primary"
+                android:fontFamily="@font/notosans_bold"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="다음"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                app:cornerRadius="16dp" />
+        </LinearLayout>
+    </ScrollView>
 </RelativeLayout>

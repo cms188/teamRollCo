@@ -9,7 +9,7 @@
     android:background="@color/white"
     android:paddingStart="32dp"
     android:paddingEnd="32dp"
-    tools:context=".RegisterActivity">
+    tools:context=".ui.auth.RegisterActivity">
 
     <ImageView
         android:id="@+id/iv_back_button_register"

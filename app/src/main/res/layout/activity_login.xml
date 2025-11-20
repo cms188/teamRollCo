@@ -1,193 +1,295 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_login_linear_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white"
-    android:paddingStart="32dp"
-    android:paddingEnd="32dp"
-    tools:context=".LoginActivity">
+    tools:context=".ui.auth.LoginActivity">
 
-    <!-- 뒤로가기 버튼 -->
-    <ImageView
-        android:id="@+id/iv_back_button_login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="-7dp"
-        android:layout_marginTop="16dp"
-        android:contentDescription="뒤로가기"
-        android:padding="8dp"
-        android:src="@drawable/ic_arrow_back"
-        app:tint="@color/black"/>
-
-    <!-- 로그인 타이틀 -->
-    <TextView
-        android:id="@+id/tv_login_title_linear"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="80dp"
-        android:text="로그인"
-        android:textColor="@color/black"
-        android:textSize="28sp"
-        android:textStyle="bold" />
-
-    <!-- 아이디 입력 필드 -->
-    <EditText
-        android:id="@+id/editEmail"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="40dp"
-        android:background="@drawable/bg_login_rounded"
-        android:drawableStart="@drawable/ic_user"
-        android:drawablePadding="12dp"
-        android:hint=" 이메일"
-        android:textStyle="bold"
-        android:inputType="text"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:textColorHint="@color/text_gray"
-        android:textSize="16sp"/>
-
-    <!-- 비밀번호 입력 필드 -->
-    <EditText
-        android:id="@+id/editPassword"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/bg_login_rounded"
-        android:drawableStart="@drawable/ic_lock"
-        android:drawablePadding="12dp"
-        android:hint=" 비밀번호"
-        android:textStyle="bold"
-        android:inputType="textPassword"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:textColorHint="@color/text_gray"
-        android:textSize="16sp" />
-
-    <!-- 로그인 버튼 -->
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="24dp"
-        android:background="@drawable/bg_orange_button_rounded"
-        android:text="로그인"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-
-    <!-- 비밀번호 찾기 : 이메일 입력 -->
-    <EditText
-        android:id="@+id/editFindEmail"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="40dp"
-        android:background="@drawable/bg_login_rounded"
-        android:drawableStart="@drawable/ic_user"
-        android:drawablePadding="12dp"
-        android:hint=" 이메일을 입력해주세요."
-        android:textStyle="bold"
-        android:inputType="text"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:textColorHint="@color/text_gray"
-        android:textSize="16sp"
-        android:visibility="gone"/>
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnVerifyEmail"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="24dp"
-        android:background="@drawable/bg_orange_button_rounded"
-        android:text="비밀번호 찾기"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:visibility="gone"/>
-
-    <!-- 아이디/비밀번호 찾기 & 회원가입을 위한 수평 LinearLayout -->
+    <!-- 메인 로그인 화면 -->
     <LinearLayout
+        android:id="@+id/main_login_linear_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="16dp">
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/find_Password"
-            android:layout_width="wrap_content"
+        <!-- 툴바 -->
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar_basic" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="비밀번호 찾기"
-            android:textColor="@color/text_gray"
-            android:textSize="14sp" />
+            android:layout_marginBottom="56dp"
+            android:layout_weight="1"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="26dp">
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            <!-- 로그인 타이틀 -->
+            <TextView
+                android:id="@+id/tv_login_title_linear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="40dp"
+                android:fontFamily="@font/notosans_regular"
+                android:includeFontPadding="false"
+                android:text="로그인"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/btnRegister"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="회원가입"
-            android:textColor="@color/text_gray"
-            android:textSize="14sp" />
+            <!-- 아이디 입력 필드 -->
+            <EditText
+                android:id="@+id/editEmail"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/bg_login_rounded"
+                android:drawableStart="@drawable/ic_user"
+                android:drawablePadding="6dp"
+                android:drawableTint="@color/text_primary"
+                android:fontFamily="@font/notosans_regular"
+                android:hint="이메일"
+                android:includeFontPadding="false"
+                android:inputType="text"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:textColorHint="@color/text_sub"
+                android:textSize="14sp" />
+
+            <!-- 비밀번호 입력 필드 -->
+            <EditText
+                android:id="@+id/editPassword"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="14dp"
+                android:background="@drawable/bg_login_rounded"
+                android:drawableStart="@drawable/ic_lock"
+                android:drawablePadding="6dp"
+                android:drawableTint="@color/text_primary"
+                android:fontFamily="@font/notosans_regular"
+                android:hint="비밀번호"
+                android:includeFontPadding="false"
+                android:inputType="textPassword"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:textColorHint="@color/text_sub"
+                android:textSize="14sp" />
+
+            <!-- 로그인 버튼 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:backgroundTint="@color/primary"
+                android:fontFamily="@font/notosans_bold"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="로그인"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                app:cornerRadius="16dp" />
+
+            <!-- 아이디/비밀번호 찾기 & 회원가입을 위한 수평 LinearLayout -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp">
+
+                <TextView
+                    android:id="@+id/find_Password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/notosans_regular"
+                    android:includeFontPadding="false"
+                    android:text="비밀번호 찾기"
+                    android:textColor="@color/text_sub"
+                    android:textSize="12sp" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/btnRegister"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/notosans_regular"
+                    android:includeFontPadding="false"
+                    android:text="회원가입"
+                    android:textColor="@color/text_sub"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- 구분선 -->
+            <View
+                android:id="@+id/divider_linear"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/primary_divider" />
+
+            <!-- 소셜계정으로 로그인 텍스트 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="32dp"
+                android:fontFamily="@font/notosans_medium"
+                android:includeFontPadding="false"
+                android:text="소셜계정으로 로그인"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp" />
+
+            <!-- 소셜 로그인 아이콘 그룹 -->
+            <LinearLayout
+                android:id="@+id/ll_social_login_icons_linear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/iv_kakao_login_linear"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginEnd="20dp"
+                    android:contentDescription="카카오 로그인"
+                    android:src="@drawable/ic_kakao" />
+
+                <ImageView
+                    android:id="@+id/iv_naver_login_linear"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginEnd="20dp"
+                    android:contentDescription="네이버 로그인"
+                    android:src="@drawable/ic_naver" />
+
+                <ImageView
+                    android:id="@+id/iv_google_login_linear"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:contentDescription="구글 로그인"
+                    android:src="@drawable/ic_google" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- 구분선 -->
-    <View
-        android:id="@+id/divider_linear"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="32dp"
-        android:background="@color/divider_color" />
-
-    <!-- 소셜계정으로 로그인 텍스트 -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="32dp"
-        android:text="소셜계정으로 로그인"
-        android:textColor="@color/black"
-        android:textSize="14sp" />
-
-    <!-- 소셜 로그인 아이콘 그룹 -->
+    <!-- 비밀번호 찾기 모달 -->
     <LinearLayout
-        android:id="@+id/ll_social_login_icons_linear"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp">
+        android:id="@+id/modal_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="gone" >
 
-        <ImageView
-            android:id="@+id/iv_kakao_login_linear"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginEnd="20dp"
-            android:src="@drawable/ic_kakao"
-            android:contentDescription="카카오 로그인" />
+        <LinearLayout
+            android:id="@+id/FindPasswordContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/bg_login_rounded"
+            android:elevation="8dp"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <ImageView
-            android:id="@+id/iv_naver_login_linear"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginEnd="20dp"
-            android:src="@drawable/ic_naver"
-            android:contentDescription="네이버 로그인" />
+            <!-- 모달 헤더 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="@font/notosans_bold"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="비밀번호 찾기"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp" />
 
-        <ImageView
-            android:id="@+id/iv_google_login_linear"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/ic_google"
-            android:contentDescription="구글 로그인" />
+            <!-- 안내 텍스트 -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="@font/notosans_regular"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:lineSpacingExtra="4dp"
+                android:text="입력한 이메일 주소로\n비밀번호 재설정 링크를 보내드려요."
+                android:textColor="@color/text_sub"
+                android:textSize="12sp" />
+
+            <!-- 비밀번호 찾기 : 이메일 입력 -->
+            <EditText
+                android:id="@+id/editFindEmail"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/bg_login_rounded"
+                android:drawableStart="@drawable/ic_mail"
+                android:drawablePadding="6dp"
+                android:drawableTint="@color/text_primary"
+                android:fontFamily="@font/notosans_regular"
+                android:hint="이메일을 입력해주세요"
+                android:includeFontPadding="false"
+                android:inputType="textEmailAddress"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:textColorHint="@color/text_sub"
+                android:textSize="14sp" />
+
+            <!-- 버튼 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCancelFind"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/notosans_bold"
+                    android:includeFontPadding="false"
+                    android:text="취소"
+                    android:textColor="@color/text_sub"
+                    android:textSize="14sp"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/text_sub"
+                    app:strokeWidth="1dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnVerifyEmail"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/primary"
+                    android:fontFamily="@font/notosans_bold"
+                    android:includeFontPadding="false"
+                    android:text="전송"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</FrameLayout>

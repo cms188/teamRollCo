@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="title">
-        <item name="android:textSize">28dp</item>
+        <item name="android:textSize">26sp</item>
         <item name="android:letterSpacing">-0.02</item>
-        <item name="android:textStyle">bold</item>
     </style>
     <style name="title1">
-        <item name="android:textSize">25dp</item>
+        <item name="android:textSize">22sp</item>
         <item name="android:letterSpacing">-0.02</item>
-        <item name="android:textStyle">bold</item>
     </style>
     <style name="title1_1">
-        <item name="android:textSize">15dp</item>
+        <item name="android:textSize">13sp</item>
         <item name="android:letterSpacing">-0.02</item>
-        <item name="android:textStyle">bold</item>
     </style>
     <style name="category">
         <item name="android:textSize">13sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/notosans_bold</item>
     </style>
     <!-- 추가할 스타일 1: 선택된 단계 -->
     <style name="StepIndicatorActive">
@@ -29,5 +26,199 @@
     <style name="StepIndicatorInactive">
         <item name="android:textColor">#666666</item>
         <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="FollowInfoText">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineSpacingExtra">4dp</item>
+    </style>
+
+    <style name="VerticalDivider">
+        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:background">#E0E0E0</item>
+    </style>
+
+    <style name="UserPageMenuButton" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">100dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
+    <style name="UserPageMenuIcon">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+    </style>
+
+    <style name="UserPageMenuText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="CookWriteTitle" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">@font/notosans_bold</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="CookWriteEditsText" parent="Widget.AppCompat.EditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_marginBottom">24dp</item>
+        <item name="android:background">@drawable/bg_search_bar_orange_border</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="android:textColor">#333333</item>
+        <item name="android:textColorHint">#999999</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+    </style>
+
+    <style name="CookWriteAddButton" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">52dp</item>
+        <item name="android:layout_margin">5dp</item>
+        <item name="android:background">@drawable/bg_orange_button_rounded</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- 검색어 태그(Chip) 스타일 -->
+    <style name="SearchKeywordChip" parent="Widget.MaterialComponents.Chip.Action">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="chipBackgroundColor">@color/search_color</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="closeIconTint">@color/darker_gray</item>
+        <item name="chipCornerRadius">20dp</item>
+        <item name="android:checkable">false</item>
+    </style>
+
+    <style name="FilterTitle" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">@font/notosans_bold</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="CustomFilterChip" parent="Widget.MaterialComponents.Chip.Filter">
+        <item name="chipBackgroundColor">@color/filter_chip_background_selector</item>
+        <item name="chipStrokeColor">@color/primary</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipCornerRadius">20dp</item>
+        <item name="fontFamily">@font/notosans_bold</item>
+        <item name="android:textColor">@color/filter_chip_text_selector</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="chipStartPadding">8dp</item>
+        <item name="chipEndPadding">8dp</item>
+    </style>
+
+    <!-- 원형 이미지 -->
+    <style name="CircleImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+
+    <!-- 카테고리 선택 BottomSheet 스타일 -->
+    <style name="CategorySectionCard" parent="Widget.MaterialComponents.CardView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">2dp</item>
+        <item name="cardBackgroundColor">@color/white</item>
+    </style>
+
+    <style name="CategorySectionLayout" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="CategorySectionTitle" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:fontFamily">@font/notosans_bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="CategoryChipGroup" parent="Widget.MaterialComponents.ChipGroup">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="chipSpacingHorizontal">8dp</item>
+        <item name="chipSpacingVertical">8dp</item>
+    </style>
+
+    <style name="CategoryTag">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:background">@drawable/bg_category_tag_normal</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:textColor">@color/primary_variant</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="CategorySelectionChip" parent="Widget.MaterialComponents.Chip.Action">
+        <item name="chipBackgroundColor">@drawable/category_chip_background_selector</item>
+        <item name="android:textColor">@color/white20</item>
+        <item name="chipCornerRadius">20dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="checkedIcon">@null</item>
+        <item name="chipIconVisible">false</item>
+        <item name="chipStartPadding">14dp</item>
+        <item name="textStartPadding">0dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+    </style>
+
+
+    <!-- 필터/정렬 버튼 스타일 -->
+    <style name="SearchFilterButton" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">36dp</item> <!-- 세로 크기 고정 -->
+        <item name="android:minWidth">70dp</item> <!-- 최소 너비 지정 -->
+        <item name="android:gravity">center</item> <!-- 텍스트 중앙 정렬 -->
+        <item name="android:paddingHorizontal">12dp</item> <!-- 좌우 패딩 -->
+        <item name="android:background">@drawable/bg_filter_button_normal</item>
+        <item name="android:textColor">@color/text_sub</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">@font/notosans_medium</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:drawablePadding">4dp</item>
     </style>
 </resources>

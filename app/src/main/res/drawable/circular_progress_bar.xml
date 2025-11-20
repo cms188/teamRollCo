@@ -5,7 +5,7 @@
     <item>
         <shape
             android:shape="ring"
-            android:thickness="20dp"
+            android:thickness="12dp"
             android:useLevel="false">
             <solid android:color="@color/light_gray" />
         </shape>
@@ -17,7 +17,7 @@
             android:toDegrees="-90">
             <shape
                 android:shape="ring"
-                android:thickness="20dp"
+                android:thickness="12dp"
                 android:useLevel="true">
                 <solid android:color="@color/orange" />
             </shape>

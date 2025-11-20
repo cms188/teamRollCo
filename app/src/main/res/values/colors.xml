@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 기본 -->
+    <color name="transparent">#00000000</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
     <color name="orange">#FFA94D</color>
     <color name="orange_dark">#C66900</color> <!-- 주황색의 어두운 버전 -->
     <color name="text_gray">#828282</color>
@@ -10,4 +13,55 @@
     <color name="darker_gray">#666666</color>
     <color name="search_color">#FFF9F4</color>
     <color name="light_gray">#E0E0E0</color>
+
+
+    <!--  -->
+    <color name="main_orange">#FF9020</color>
+    <color name="sub_orange">#FFA94D</color>
+    <color name="cream">#FFF9F4</color>
+    <color name="black20">#202020</color>
+    <color name="black40">#404040</color>
+    <color name="white20">#F8F8F8</color>
+
+    <color name="text_brown">#331C0F</color>
+    <color name="white_card">#F8F8F8</color>
+
+    <color name="light_orange_bg">#FFF7F0</color>
+
+    <!---->
+    <!-- 메인 -->
+    <color name="primary">#FF9020</color>       <!-- main_orange -->
+    <color name="primary_variant">#E8811C</color>
+    <color name="primary_light">#FFA94D</color> <!-- sub_orange -->
+    <color name="primary_lighter">#FFD4A3</color>
+    <color name="primary_cream">#FFF9F4</color>
+
+    <!-- 서브 -->
+    <color name="secondary_dusty_rose">#E9C46A</color>
+    <color name="accent_honey_yellow">#F2CC8F</color>
+    <color name="accent_soft_mint">#B8E6B8</color>
+
+    <!-- 텍스트 -->
+    <color name="text_primary">#331C0F</color>
+    <color name="text_secondary">#8B7355</color>
+    <color name="text_hint">#B8A082</color>
+    <color name="text_sub">#808080</color>
+
+    <!-- 배경 -->
+    <color name="background_warm_beige">#F5F1EB</color>
+    <color name="background_soft_cream">#FFF8F0</color>
+    <color name="background_lavender_gray">#E0D5D1</color>
+
+    <!-- 선 -->
+    <color name="primary_divider">#E0E0E0</color>
+    <color name="soft_divider">#E0D5D1</color>
+
+    <color name="error">#F44336</color>
+    <color name="warning">#FF9800</color>
+    <color name="success">#4CAF50</color>
+
+    <!-- OX -->
+    <color name="primary_blue">#4FC3F7</color>
+    <color name="primary_red">#EF9A9A</color>
+
 </resources>

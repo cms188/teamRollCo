@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- 구분선의 색상 -->
+    <solid android:color="@color/primary_divider" />
+
+    <!-- 구분선의 높이 (두께) -->
+    <size android:height="1dp" />
+
+</shape>

@@ -2,19 +2,30 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+
+
     <!-- 포그라운드 서비스 권한 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+        <package android:name="com.google.android.googlequicksearchbox" />
+    </queries>
 
     <application
+        android:name=".MyApplication"
         android:hardwareAccelerated="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -26,7 +37,7 @@
         android:theme="@style/Theme.recipe_pocket"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.main.MainActivity"
             android:hardwareAccelerated="true"
             android:exported="true">
             <intent-filter>
@@ -35,26 +46,126 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".RecipeWriteActivity" />
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".RegisterActivity" />
-        <activity android:name=".SearchResult"/>
-        <activity android:name=".UserPageActivity"/>
-        <activity android:name=".NicknameSetupActivity"/>
+        <activity android:name=".ui.recipe.legacy_write.RecipeWriteActivity" />
+        <activity android:name=".ui.auth.LoginActivity" />
+        <activity android:name=".ui.auth.RegisterActivity" />
+        <activity android:name=".ui.recipe.search.SearchResult"/>
+        <activity android:name=".ui.user.UserPageActivity"/>
+        <activity android:name=".ui.auth.NicknameSetupActivity"/>
         <activity
-            android:name=".RecipeDetailActivity"
+            android:name=".ui.recipe.read.RecipeDetailActivity"
             android:exported="false" />
-        <activity android:name=".RecipeReadActivity" />
-        <activity android:name=".CookWrite01Activity"/>
-        <activity android:name=".CookWrite02Activity"/>
-        <activity android:name=".CookWrite03Activity"/>
+        <activity android:name=".ui.recipe.read.RecipeReadActivity" />
+        <activity android:name=".ui.recipe.write.CookWrite01Activity"/>
+        <activity android:name=".ui.recipe.write.CookWrite02Activity"/>
+        <activity android:name=".ui.recipe.write.CookWrite03Activity"/>
+        <activity android:name=".ui.recipe.write.TempSaveListActivity"/>
         <activity
-            android:name=".BookmarkActivity"
+            android:name=".ui.user.bookmark.BookmarkActivity"
             android:exported="false" />
+        <activity android:name=".ui.user.UserFeedActivity"/>
+        <activity
+            android:name=".ui.user.MyRecipesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.auth.EditProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.user.FollowListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.user.TitleListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.recipe.write.RecipeEditActivity"
+            android:exported="false" />
+        <activity android:name=".weather.WeatherMainActivity" android:exported="false"/>
+        <activity android:name=".weather.LocationActivity" android:exported="false"/>
+        <activity android:name=".weather.AirQualityActivity" android:exported="false"/>
+        <activity android:name=".weather.WeatherActivity" android:exported="false" />
+        <activity android:name=".CategoryPageActivity" />
+        <activity android:name=".ui.category.AllCategoriesActivity" android:exported="false" />
+        <activity
+            android:name=".ui.review.ReviewWriteActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.user.LikedRecipesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.review.MyReviewsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.tip.CookTipWriteActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.tip.CookTipListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.tip.CookTipDetailActivity"
+            android:exported="false" />
+        <activity android:name=".ui.tip.MyTipsActivity" />
+        <activity android:name=".ui.tip.LikedTipsActivity" />
+
+        <activity
+            android:name=".ui.notification.NotificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.recipe.read.AllStepsActivity"
+            android:exported="false" />
+        <activity android:name=".ChangePasswordActivity"/>
+        <activity android:name=".ui.user.RecentlyViewedRecipesActivity"/>
+        <activity android:name=".ui.user.AllergySettingsActivity"/>
+        <activity android:name=".ui.user.NotificationSettingsActivity"/>
+
+
+        <activity
+            android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- 리다이렉트 URI: "kakao${NATIVE_APP_KEY}://oauth" -->
+                <data android:host="oauth"
+                    android:scheme="${KAKAO_SCHEME}" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.review.PhotoViewActivity"
+            android:theme="@style/Theme.AppCompat.Transparent.NoActionBar" />
+
         <service
-            android:name=".VoiceRecognitionService"
+            android:name=".service.VoiceRecognitionService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="microphone" />
+
+        <!-- 알림 관련 -->
+        <service
+            android:name=".service.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".service.FloatingTimerService"
+            android:foregroundServiceType="specialUse"/>
+
+        <!-- 알림에 표시될 기본 아이콘 및 색상 설정 -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_name" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/orange" />
+
     </application>
+    <queries>
+        <package android:name="com.kakao.talk" />
+    </queries>
 </manifest>

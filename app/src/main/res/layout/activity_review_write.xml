@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_review_write"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <!-- 툴바 -->
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_basic" />
+
+    <!-- 배경 이미지 -->
+    <FrameLayout
+        android:id="@+id/headerImageFrame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/main_image"
+            android:layout_width="match_parent"
+            android:layout_height="360dp"
+            android:background="@color/white"
+            android:scaleType="centerCrop"
+            android:src="@drawable/testimg1" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/gradient_overlay" />
+    </FrameLayout>
+
+    <!-- 요리 제목 (바텀시트 위에 떠있는 형태) -->
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginTop="240dp"
+        android:fontFamily="@font/notosans_bold"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="16dp"
+        android:shadowColor="#80000000"
+        android:shadowDx="0"
+        android:shadowDy="2"
+        android:shadowRadius="8"
+        android:text="요리 이름"
+        android:textColor="@color/white"
+        android:textSize="24sp" />
+
+    <!-- 바텀시트 -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_modal_bottom"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        app:behavior_hideable="false"
+        app:behavior_peekHeight="480dp"
+        app:behavior_skipCollapsed="false"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <!-- 드래그 핸들 -->
+            <View
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="16dp"
+                android:background="@color/primary_divider" />
+
+            <!-- 별점 카드 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="12dp"
+                android:outlineSpotShadowColor="@color/primary"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/notosans_medium"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:paddingBottom="16dp"
+                        android:text="레시피가 마음에 드셨나요?"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+
+                    <androidx.appcompat.widget.AppCompatRatingBar
+                        android:id="@+id/customRatingBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center"
+                        android:isIndicator="false"
+                        android:numStars="5"
+                        android:progressDrawable="@drawable/rating_slider"
+                        android:rating="0"
+                        android:stepSize="0.5" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 맛 평가 카드 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="12dp"
+                android:outlineSpotShadowColor="@color/primary"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/notosans_medium"
+                        android:gravity="start"
+                        android:includeFontPadding="false"
+                        android:paddingBottom="12dp"
+                        android:text="맛은 어떠셨나요?"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+
+                    <RadioGroup
+                        android:id="@+id/radio_flavor"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/radio_flavor_good"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_radio_button_selector"
+                            android:button="@null"
+                            android:fontFamily="@font/notosans_medium"
+                            android:gravity="center"
+                            android:text="맛있어요"
+                            android:textColor="@animator/btn_text_selector"
+                            android:textSize="14sp" />
+
+                        <RadioButton
+                            android:id="@+id/radio_flavor_normal"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_radio_button_selector"
+                            android:button="@null"
+                            android:fontFamily="@font/notosans_medium"
+                            android:gravity="center"
+                            android:text="보통이에요"
+                            android:textColor="@animator/btn_text_selector"
+                            android:textSize="14sp" />
+
+                        <RadioButton
+                            android:id="@+id/radio_flavor_bad"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_radio_button_selector"
+                            android:button="@null"
+                            android:fontFamily="@font/notosans_medium"
+                            android:gravity="center"
+                            android:text="별로예요"
+                            android:textColor="@animator/btn_text_selector"
+                            android:textSize="14sp" />
+                    </RadioGroup>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 난이도 평가 카드 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="12dp"
+                android:outlineSpotShadowColor="@color/primary"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/notosans_medium"
+                        android:gravity="start"
+                        android:includeFontPadding="false"
+                        android:paddingBottom="12dp"
+                        android:text="요리 난이도는 어땠나요?"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+
+                    <RadioGroup
+                        android:id="@+id/radio_difficulty"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/radio_difficulty_easy"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_radio_button_selector"
+                            android:button="@null"
+                            android:fontFamily="@font/notosans_medium"
+                            android:gravity="center"
+                            android:text="쉬워요"
+                            android:textColor="@animator/btn_text_selector"
+                            android:textSize="14sp" />
+
+                        <RadioButton
+                            android:id="@+id/radio_difficulty_normal"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_radio_button_selector"
+                            android:button="@null"
+                            android:fontFamily="@font/notosans_medium"
+                            android:gravity="center"
+                            android:text="보통이에요"
+                            android:textColor="@animator/btn_text_selector"
+                            android:textSize="14sp" />
+
+                        <RadioButton
+                            android:id="@+id/radio_difficulty_hard"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_radio_button_selector"
+                            android:button="@null"
+                            android:fontFamily="@font/notosans_medium"
+                            android:gravity="center"
+                            android:text="어려워요"
+                            android:textColor="@animator/btn_text_selector"
+                            android:textSize="14sp" />
+                    </RadioGroup>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 평가 및 사진 첨부 카드 -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                android:outlineSpotShadowColor="@color/primary"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/notosans_bold"
+                        android:gravity="start"
+                        android:includeFontPadding="false"
+                        android:paddingBottom="12dp"
+                        android:text="요리 후기"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/editText_feedback"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:background="@drawable/bg_edittext"
+                        android:fontFamily="@font/notosans_regular"
+                        android:gravity="top|start"
+                        android:hint="레시피에 대한 솔직한 후기를 남겨주세요."
+                        android:inputType="textMultiLine"
+                        android:lineSpacingExtra="4dp"
+                        android:maxLength="500"
+                        android:padding="14dp"
+                        android:textColorHint="@color/text_hint"
+                        android:textSize="14sp" />
+
+                    <!-- 사진 첨부 영역 -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="20dp"
+                        android:background="#F0F0F0" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/notosans_bold"
+                        android:gravity="start"
+                        android:includeFontPadding="false"
+                        android:paddingBottom="8dp"
+                        android:text="사진 첨부 (선택)"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/notosans_regular"
+                        android:includeFontPadding="false"
+                        android:paddingBottom="12dp"
+                        android:text="완성한 요리 사진을 첨부해주세요"
+                        android:textColor="@color/text_sub"
+                        android:textSize="13sp" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageButton
+                                android:id="@+id/btn_add_photo"
+                                android:layout_width="80dp"
+                                android:layout_height="80dp"
+                                android:background="@drawable/bg_gray_rounded_light"
+                                android:contentDescription="사진 추가"
+                                android:scaleType="center"
+                                android:src="@drawable/ic_camera_add" />
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/rv_review_images"
+                                android:layout_width="match_parent"
+                                android:layout_height="80dp"
+                                android:layout_marginStart="8dp"
+                                android:orientation="horizontal"
+                                tools:listitem="@layout/item_review_image" />
+                        </LinearLayout>
+                    </HorizontalScrollView>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- 로딩 표시 -->
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginVertical="16dp"
+                android:indeterminateTint="@color/primary"
+                android:visibility="gone" />
+
+            <!-- 제출 버튼 -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_submit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="@color/primary"
+                android:elevation="2dp"
+                android:fontFamily="@font/notosans_bold"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="후기 등록하기"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                app:cornerRadius="16dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
